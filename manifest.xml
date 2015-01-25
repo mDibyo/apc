@@ -1,0 +1,18 @@
+<package>
+  <description brief="apc">
+
+     apc
+
+  </description>
+  <author>Dibyo Majumdar</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/apc</url>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="stereo_click"/>
+  <depend package="tfx"/>
+
+</package>
+
+
