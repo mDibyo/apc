@@ -38,7 +38,7 @@ class StereoPointsFollower(object):
         target_pose = tfx.pose([point.point.x, point.point.y, point.point.z],
                                tfx.tb_angles(0, 0, 0),
                                frame=point.header.frame_id)
-        self.arm.go_to_pose(target_pose, block=True)
+        self.arm.go_to_pose(target_pose, block=True, speed=0.30)
 
 
 if __name__ == '__main__':
