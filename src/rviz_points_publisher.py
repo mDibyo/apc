@@ -2,9 +2,6 @@
 
 import yaml
 
-import roslib
-roslib.load_manifest('rviz')
-
 import rospy
 from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Pose, Point, Quaternion
@@ -51,14 +48,11 @@ class RvizPointsPublisher(object):
         self.pub.publish(marker)
 
 
-if __name__ == '__main__':
-    print "hello    "
 
+if __name__ == '__main__':
     import sys
     if len(sys.argv) < 3:
         raise RuntimeError("Not enough arguments")
-
-    print sys.argv
 
     pose = Pose()
     pose.position = Point(*yaml.load(sys.argv[1]))
