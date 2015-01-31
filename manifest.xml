@@ -15,6 +15,7 @@
   <depend package="std_msgs"/>
   <depend package="visualization_msgs"/>
   <depend package="geometry_msgs"/>
+  <depend package="interactive_markers"/>
 
 </package>
 
