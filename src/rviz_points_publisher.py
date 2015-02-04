@@ -9,6 +9,7 @@ rosrun apc rviz_points_publisher.py \
 
 
 import yaml
+import random
 
 import rospy
 from visualization_msgs.msg import Marker
@@ -82,32 +83,44 @@ class RvizPointsPublisher(object):
         yaw += self.speed * delta[1][2]
         self.pose.orientation = Quaternion(*quaternion_from_euler(roll, pitch, yaw))
 
+    @staticmethod
+    def create_marker_msg(pose, type, id=0, frame_id='base_link', ns='apc',
+                          scale_x=1.0, scale_y=1.0, scale_z=1.0, color_a=1.0,
+                          color_r=1.0, color_g=1.0, color_b=1.0, action=0,
+                          mesh_resource=""):
+        marker = Marker()
+
+        marker.header.frame_id = frame_id
+        marker.header.stamp = rospy.Time.now()
+
+        marker.ns = ns
+        marker.id = id
+
+        marker.type = type
+        marker.action = action
+        marker.mesh_resource = mesh_resource
+
+        marker.scale.x = scale_x
+        marker.scale.y = scale_y
+        marker.scale.z = scale_z
+        marker.color.a = color_a
+        marker.color.r = color_r
+        marker.color.g = color_g
+        marker.color.b = color_b
+
+        marker.pose = pose
+        marker.lifetime = rospy.Duration()
+
+        return marker
+
     def refresh_marker_mesh(self):
         """
         """
-        marker = Marker()
-
-        marker.header.frame_id = 'base_link'
-        marker.header.stamp = rospy.Time.now()
-
-        marker.ns = 'apc'
-        marker.id = 1
-
-        marker.type = Marker.MESH_RESOURCE
-        marker.mesh_resource = \
-            "file://{}".format(self.mesh_file)
-
-        marker.scale.x = self.scale
-        marker.scale.y = self.scale
-        marker.scale.z = self.scale
-        marker.color.a = 1.0
-        marker.color.r = 1.0
-        marker.color.g = 0.0
-        marker.color.b = 1.0
-
-        marker.pose = self.pose
-
-        marker.lifetime = rospy.Duration()
+        marker = self.create_marker_msg(pose=self.pose, type=Marker.MESH_RESOURCE,
+                                        action=Marker.ADD, id=random.randrange(1000),
+                                        mesh_resource="file://{}".format(self.mesh_file),
+                                        scale_x=self.scale, scale_y=self.scale,
+                                        scale_z=self.scale)
 
         while not self.pub.get_num_connections():
             rospy.sleep(0.1)
@@ -119,28 +132,9 @@ class RvizPointsPublisher(object):
         """
         :rtype: None
         """
-        marker = Marker()
-
-        marker.header.frame_id = 'base_link'
-        marker.header.stamp = rospy.Time.now()
-
-        marker.ns = "apc"
-        marker.id = 0
-
-        marker.type = Marker.ARROW
-        marker.action = Marker.ADD
-
-        marker.scale.x = 0.2
-        marker.scale.y = 0.2
-        marker.scale.z = 0.2
-        marker.color.a = 1.0
-        marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 1.0
-
-        marker.pose = self.pose
-
-        marker.lifetime = rospy.Duration()
+        marker = self.create_marker_msg(pose=self.pose, type=Marker.ARROW,
+                                        action=Marker.ADD, id=random.randrange(1000),
+                                        scale_x=0.2, scale_y=0.2, scale_z=0.2)
 
         while not self.pub.get_num_connections():
             rospy.sleep(0.1)
