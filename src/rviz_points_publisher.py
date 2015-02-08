@@ -41,7 +41,7 @@ class RvizPointsPublisher(object):
         self.pub = rospy.Publisher('visualization_marker', Marker)
         rospy.init_node('rviz_points_publisher', anonymous=True)
 
-
+        self.id = random.randrange(1000000)
         self.pose = pose
         self.mesh_file = mesh_file
         self.speed = 0.01
@@ -117,7 +117,7 @@ class RvizPointsPublisher(object):
         """
         """
         marker = self.create_marker_msg(pose=self.pose, type=Marker.MESH_RESOURCE,
-                                        action=Marker.ADD, id=random.randrange(1000),
+                                        action=Marker.ADD, id=self.id,
                                         mesh_resource="file://{}".format(self.mesh_file),
                                         scale_x=self.scale, scale_y=self.scale,
                                         scale_z=self.scale)
@@ -133,7 +133,7 @@ class RvizPointsPublisher(object):
         :rtype: None
         """
         marker = self.create_marker_msg(pose=self.pose, type=Marker.ARROW,
-                                        action=Marker.ADD, id=random.randrange(1000),
+                                        action=Marker.ADD, id=self.id,
                                         scale_x=0.2, scale_y=0.2, scale_z=0.2)
 
         while not self.pub.get_num_connections():
@@ -146,7 +146,6 @@ class RvizPointsPublisher(object):
         string = "This was typed: "
 
         ch = getch()
-
         while ch != 'p':
             self.update_pose(ch)
             if self.mesh_file:
@@ -155,7 +154,6 @@ class RvizPointsPublisher(object):
                 self.refresh_marker_arrow()
 
             string += ch
-            # print "I got a {}".format(ch)
             ch = getch()
 
         return string
