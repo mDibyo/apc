@@ -3,10 +3,7 @@
 """
 usage:
 rosrun apc rviz_marker_publisher.py \
-    "/home/dibyo/workspace/amazon_picking_challenge/expo_dry_erase_board_eraser/meshes/poisson.stl" \
-    "[0, 0, 0]" "[0, 0, 0, 1]"
-rosrun apc rviz_marker_publisher.py \
-    -n "rviz_marker_publisher" -t 1 -i 12345
+    -n "rviz_marker_publisher" -t 1 -i 12345 -r
     -m "/home/dibyo/workspace/amazon_picking_challenge/expo_dry_erase_board_eraser/meshes/poisson.stl" \
     -p "[0, 0, 0]" -o "[0, 0, 0, 1]"
 """
@@ -150,12 +147,17 @@ class RvizPointsPublisher(ROSNode):
 
         return marker
 
-    def publish_marker_msg(self, marker):
+    def publish_marker_msg_and_transform(self, marker):
         while not self.pub.get_num_connections():
             rospy.sleep(0.1)
 
-        print "publishing mesh resource: \n{}".format(str(marker))
+        print "publishing marker: \n{}".format(str(marker))
         self.pub.publish(marker)
+
+        p = marker.pose.position
+        o = marker.pose.orientation
+        self.br.sendTransform((p.x, p.y, p.z), (o.x, o.y, o.z, o.w),
+                              rospy.Time.now(), self.name, "base_link")
 
     def refresh_marker_mesh(self):
         """
@@ -166,7 +168,7 @@ class RvizPointsPublisher(ROSNode):
                                         scale_x=self.scale, scale_y=self.scale,
                                         scale_z=self.scale)
 
-        self.publish_marker_msg(marker)
+        self.publish_marker_msg_and_transform(marker)
 
     def refresh_marker_arrow(self):
         """
@@ -178,7 +180,7 @@ class RvizPointsPublisher(ROSNode):
                                         scale_y=self.scale*0.2,
                                         scale_z=self.scale*0.2)
 
-        self.publish_marker_msg(marker)
+        self.publish_marker_msg_and_transform(marker)
 
     def refresh_marker_gripper(self):
         marker = self.create_marker_msg(pose=self.pose, type=Marker.CUBE_LIST,
@@ -192,13 +194,13 @@ class RvizPointsPublisher(ROSNode):
             Point(0, self.gripper_width/2, 0)
         ]
 
-        self.publish_marker_msg(marker)
+        self.publish_marker_msg_and_transform(marker)
 
     def delete_marker(self):
         marker = self.create_marker_msg(pose=self.pose, type=0,
                                         action=Marker.DELETE, id=self.id)
 
-        self.publish_marker_msg(marker)
+        self.publish_marker_msg_and_transform(marker)
 
     def enter_control_loop(self):
         string = "This was typed: "
@@ -217,10 +219,10 @@ class RvizPointsPublisher(ROSNode):
 
 
 if __name__ == '__main__':
-    description = 'Publish and control markers to rviz environment'
+    description = 'Publish and control markers in rviz environment'
     parser = ArgumentParser(description=description)
     parser.add_argument('-i', '--id', default=-1, type=int)
-    parser.add_argument('-n', '--name', default='rviz_points_publisher')
+    parser.add_argument('-n', '--name', default='rviz_marker')
     parser.add_argument('-r', '--remove', action='store_true',
                         help='whether the object is removed on node exit')
     parser.add_argument('-t', '--type', default='0', choices={0, 1, 2},
