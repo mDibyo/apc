@@ -1,7 +1,9 @@
-__author__ = 'dibyo'
-
+#!/usr/bin/env python
 
 import rospy
+
+
+__author__ = 'dibyo'
 
 
 class ROSNode(object):
@@ -10,7 +12,6 @@ class ROSNode(object):
 
         :param name: the name of the node
         :param anonymous: whether the node is anonymous
-        :return:
         """
         self.name = name
         self.anonymous = kwargs.get('anonymous', False)
@@ -19,6 +20,9 @@ class ROSNode(object):
 
     @staticmethod
     def spin():
+        """
+        Prevent the node from exiting
+        """
         rospy.spin()
 
 
@@ -33,35 +37,53 @@ class TopicSubscriberNode(ROSNode):
         :param callback_args: addition args to be passed to callback
         :param anonymous: whether the node is anonymous
         """
-        super(TopicSubscriberNode, self).__init__(name, kwargs)
+        super(TopicSubscriberNode, self).__init__(name, **kwargs)
 
         self.topic = topic
         self.msg_type = msg_type
+        self.last_msg = None
+        self.msg_filter = lambda msg: True
 
-        # Handle callbacks
-        self.callback = self.callback_args = None
+        # Handle callback
+        self.callback = self.callback_args = self.subscriber = None
         callback = kwargs.get('callback', None)
-        callback_args = kwargs.get('callback_args', None) \
-            if callback is not None else None
         if callback is not None:
+            callback_args = kwargs.get('callback_args', None)
             self.add_callback(callback, callback_args)
 
-    def add_callback(self, callback=None, callback_args=None):
+    def add_callback(self, callback=None, callback_args=None, loginfo=False):
         """
 
-        :param callback: the function called when message is received
-        :param callback_args: additional arguments to be passed to
-            callback
+        :param callback: the function to be called when there is a
+            new message in the topic
+        :param callback_args: addition args that must be passed to
+            the callback
+        :param loginfo: whether messages received should be logged
         """
-        self.callback = callback
         self.callback_args = callback_args
-        if self.callback is None:
+        self.callback = callback
+
+        if callback is None:
             def callback(data):
-                rospy.loginfo(data)
+                if loginfo:
+                    rospy.loginfo(data)
             self.callback = callback
+            self.callback_args = None
 
         self.subscriber = rospy.Subscriber(self.topic, self.msg_type,
-                                           self.callback, self.callback_args)
+                                           self._wrap_callback(callback),
+                                           self.callback_args)
+
+    def set_msg_filter(self, msg_filter):
+        self.msg_filter = msg_filter
+
+    def _wrap_callback(self, callback):
+        def callback_wrapper(data, *args):
+            if self.msg_filter(data):
+                self.last_msg = data
+            return callback(data, *args)
+
+        return callback_wrapper
 
 
 class TopicPublisherNode(ROSNode):
@@ -70,10 +92,10 @@ class TopicPublisherNode(ROSNode):
 
         :param name: the name of the node
         :param topic: the topic to publish to
-        :param msg_type: the type of messages in the topic 
+        :param msg_type: the type of messages in the topic
         :param anonymous: whether the node is anonymous
-        :param wait_on_connections: whether the node waits till there
-            is at least one subscriber to topic
+        :param wait_for_subscriber: whether the node should wait till
+            there is a subscriber on the topic
         """
         super(TopicPublisherNode, self).__init__(name, kwargs)
 
