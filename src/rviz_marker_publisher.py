@@ -3,7 +3,7 @@
 """
 usage:
 rosrun apc rviz_marker_publisher.py \
-    -n "rviz_marker_publisher" -t 1 -i 12345 -r
+    -n "rviz_marker_publisher" -t 1 -r
     -m "/home/dibyo/workspace/amazon_picking_challenge/expo_dry_erase_board_eraser/meshes/poisson.stl" \
     -p "[0, 0, 0]" -o "[0, 0, 0, 1]"
 """
@@ -118,7 +118,7 @@ class RvizPointsPublisher(ROSNode):
         self.gripper_width += delta[2] * 0.001
 
     @staticmethod
-    def create_marker_msg(pose, type, id=0, frame_id='base_link', ns='apc',
+    def create_marker_msg(pose, type, id, frame_id='base_link', ns='apc',
                           scale_x=1.0, scale_y=1.0, scale_z=1.0, color_a=1.0,
                           color_r=1.0, color_g=1.0, color_b=1.0, action=0,
                           mesh_resource=""):
@@ -221,7 +221,7 @@ class RvizPointsPublisher(ROSNode):
 if __name__ == '__main__':
     description = 'Publish and control markers in rviz environment'
     parser = ArgumentParser(description=description)
-    parser.add_argument('-i', '--id', default=-1, type=int)
+    # parser.add_argument('-i', '--id', default=-1, type=int)
     parser.add_argument('-n', '--name', default='rviz_marker')
     parser.add_argument('-r', '--remove', action='store_true',
                         help='whether the object is removed on node exit')
