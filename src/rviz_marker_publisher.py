@@ -40,10 +40,14 @@ def getch():
     return ch
 
 
-class RvizPointsPublisher(ROSNode):
+class RvizMarkerPublisher(ROSNode):
+    ARROW = 0
+    MESH = 1
+    GRIPPER = 2
+
     def __init__(self, marker_type, name, pose, mesh_file="", id=-1,
                  remove=False):
-        super(RvizPointsPublisher, self).__init__(name, anonymous=True)
+        super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
 
         self.pub = rospy.Publisher('visualization_marker', Marker)
         self.br = tf.TransformBroadcaster()
@@ -67,10 +71,6 @@ class RvizPointsPublisher(ROSNode):
 
         self.refresh_marker_map[self.marker_type]()
 
-    ARROW = 0
-    MESH = 1
-    GRIPPER = 2
-
     move_map = {
         # Position controls
         'w': ((1, 0, 0), (0, 0, 0), 0),
@@ -92,6 +92,13 @@ class RvizPointsPublisher(ROSNode):
         'g': ((0, 0, 0), (0, 0, 0), -1),
         'y': ((0, 0, 0), (0, 0, 0), 1)
     }
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.remove:
+            self.delete_marker()
 
     def update_pose(self, move):
         delta = self.move_map.get(move, ((0, 0, 0), (0, 0, 0), 0))
@@ -148,7 +155,6 @@ class RvizPointsPublisher(ROSNode):
         while not self.pub.get_num_connections():
             rospy.sleep(0.1)
 
-        # print "publishing marker: \n{}".format(str(marker))
         self.pub.publish(marker)
 
     def broadcast_transform(self):
@@ -215,23 +221,18 @@ class RvizPointsPublisher(ROSNode):
             string += ch
             ch = getch()
 
-        if self.remove:
-            self.delete_marker()
-        return string
-
 
 if __name__ == '__main__':
     description = 'Publish and control markers in rviz environment'
     parser = ArgumentParser(description=description)
-    # parser.add_argument('-i', '--id', default=-1, type=int)
     parser.add_argument('-n', '--name', default='rviz_marker')
-    parser.add_argument('-r', '--remove', action='store_true',
-                        help='whether the object should be removed on node exit')
+    parser.add_argument('-d', '--delete', action='store_true',
+                        help='whether the object should be deleted on node exit')
     parser.add_argument('-t', '--type', default='0', choices={0, 1, 2},
                         help='{0}: ARROW, {1}: MESH, {2}: GRIPPER'.
-                        format(RvizPointsPublisher.ARROW,
-                               RvizPointsPublisher.MESH,
-                               RvizPointsPublisher.GRIPPER), type=int)
+                        format(RvizMarkerPublisher.ARROW,
+                               RvizMarkerPublisher.MESH,
+                               RvizMarkerPublisher.GRIPPER), type=int)
     parser.add_argument('-p', '--position', default='[0, 0, 0]',
                         type=yaml.load)
     parser.add_argument('-o', '--orientation', default='[0, 0, 0, 1]',
@@ -243,8 +244,12 @@ if __name__ == '__main__':
     pose.position = Point(*args.position)
     pose.orientation = Quaternion(*args.orientation)
 
-    publisher = RvizPointsPublisher(marker_type=args.type, name=args.name,
-                                    pose=pose, mesh_file=args.mesh_file,
-                                    remove=args.remove)
-
-    publisher.enter_control_loop()
+    # publisher = RvizMarkerPublisher(marker_type=args.type, name=args.name,
+    #                                 pose=pose, mesh_file=args.mesh_file,
+    #                                 remove=args.remove)
+    #
+    # publisher.enter_control_loop()
+    with RvizMarkerPublisher(marker_type=args.type, name=args.name,
+                             pose=pose, mesh_file=args.mesh_file,
+                             remove=args.remove) as publisher:
+        publisher.enter_control_loop()
