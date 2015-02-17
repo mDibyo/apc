@@ -3,9 +3,7 @@
 import roslib
 roslib.load_manifest('apc')
 
-import rospy
 import tf
-from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Pose, Point, Quaternion
 
 import os.path as osp
@@ -67,8 +65,6 @@ class RvizGraspAnnotator(ROSNode):
                                                  anonymous=False)
         self.object_name = object_name
 
-        self.listener = tf.TransformListener()
-
         mesh_file = osp.join(DATA_DIRECTORY, 'meshes', self.object_name)
         self.object_marker = RvizMarkerPublisher(marker_type=1,
                                                  name='object_marker',
@@ -97,11 +93,10 @@ class RvizGraspAnnotator(ROSNode):
             json.dump([grasp.to_json() for grasp in self.gripper_marker.grasps], f)
 
     def enter_control_loop(self):
-        pass
+        self.gripper_marker.enter_control_loop()
 
 
-
-
-
-
-
+if __name__ == "__main__":
+    import sys
+    with RvizGraspAnnotator(sys.argv[1]) as annotator:
+        annotator.enter_control_loop()
