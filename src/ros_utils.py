@@ -12,11 +12,13 @@ class ROSNode(object):
 
         :param name: the name of the node
         :param anonymous: whether the node is anonymous
+        :param init: whether the node should be initialized
         """
         self.name = name
         self.anonymous = kwargs.get('anonymous', False)
 
-        rospy.init_node(self.name, anonymous=self.anonymous)
+        if kwargs.get('init', True):
+            rospy.init_node(self.name, anonymous=self.anonymous)
 
     @staticmethod
     def spin():
@@ -102,3 +104,9 @@ class TopicPublisherNode(ROSNode):
         self.topic = topic
         self.msg_type = msg_type
         self.callback = kwargs.get('callback', None)
+
+        self.publisher = rospy.Subscriber(self.topic, self.msg_type, self.callback)
+
+    def publish(self, msg):
+        self.publisher.publish(msg)
+
