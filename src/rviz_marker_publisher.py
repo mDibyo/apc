@@ -3,7 +3,7 @@
 """
 usage:
 rosrun apc rviz_marker_publisher.py \
-    -n "rviz_marker_publisher" -t 1 -r \
+    -n "rviz_marker_publisher" -t 1 -r -u 50 -c "apc/marker_move"\
     -m "/home/dibyo/workspace/amazon_picking_challenge/expo_dry_erase_board_eraser/meshes/poisson.stl" \
     -p "[0, 0, 0]" -o "[0, 0, 0, 1]"
 """
@@ -32,34 +32,6 @@ class RvizMarkerPublisher(ROSNode):
     MESH = 1
     GRIPPER = 2
 
-    def __init__(self, marker_type, name, pose, mesh_file="", id=-1,
-                 control_topic=None, remove=False):
-        super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
-
-        self.publisher = rospy.Publisher('visualization_marker', Marker)
-        self.subscriber = None
-        self.br = tf.TransformBroadcaster()
-
-        self.id = random.randrange(1000000) if id < 0 else id
-        self.marker_type = marker_type
-        self.pose = pose
-        self.mesh_file = mesh_file
-        self.control_topic = control_topic
-        self.remove = remove
-
-        self.scale = 1.0
-
-        self.speed = 0.01
-        self.gripper_width = 0.06
-
-        self.refresh_marker_map = {
-            self.ARROW: self.refresh_marker_arrow,
-            self.MESH: self.refresh_marker_mesh,
-            self.GRIPPER: self.refresh_marker_gripper
-        }
-
-        self.refresh_marker_map[self.marker_type]()
-
     move_map = {
         # Position controls
         'w': ((1, 0, 0), (0, 0, 0), 0),
@@ -82,11 +54,49 @@ class RvizMarkerPublisher(ROSNode):
         'y': ((0, 0, 0), (0, 0, 0), 1)
     }
 
+    def __init__(self, marker_type, name, pose, mesh_file="", id=-1,
+                 control_topic=None, update_rate=0, delete=False):
+        super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
+
+        self.publisher = rospy.Publisher('visualization_marker', Marker)
+        self.subscriber = None
+        self.br = tf.TransformBroadcaster()
+
+        self.id = random.randrange(1000000) if id < 0 else id
+        self.marker_type = marker_type
+        self.pose = pose
+        self.mesh_file = mesh_file
+        self.control_topic = control_topic
+        self.update_rate = update_rate
+        self.delete = delete
+
+        self.scale = 1.0
+
+        self.speed = 0.01
+        self.gripper_width = 0.06
+
+        self.update_marker = {
+            self.ARROW: self.update_marker_arrow,
+            self.MESH: self.update_marker_mesh,
+            self.GRIPPER: self.update_marker_gripper
+        }[self.marker_type]
+
+        self.update_marker()
+
     def __enter__(self):
+        # Update constantly
+        if self.update_rate:
+            self.update_thread = LoopingThread(target=self.update_marker,
+                                               rate=self.update_rate)
+            self.update_thread.start()
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.remove:
+        if self.update_rate:
+            self.update_thread.stop()
+
+        if self.delete:
             self.delete_marker()
 
     def update_pose(self, move):
@@ -152,7 +162,7 @@ class RvizMarkerPublisher(ROSNode):
         self.br.sendTransform((p.x, p.y, p.z), (o.x, o.y, o.z, o.w),
                               rospy.Time.now(), self.name, "base_link")
 
-    def refresh_marker_mesh(self):
+    def update_marker_mesh(self):
         """
         """
         marker = self.create_marker_msg(pose=self.pose, type=Marker.MESH_RESOURCE,
@@ -164,7 +174,7 @@ class RvizMarkerPublisher(ROSNode):
         self.publish_marker_msg(marker)
         self.broadcast_transform()
 
-    def refresh_marker_arrow(self):
+    def update_marker_arrow(self):
         """
         :rtype: None
         """
@@ -177,7 +187,7 @@ class RvizMarkerPublisher(ROSNode):
         self.publish_marker_msg(marker)
         self.broadcast_transform()
 
-    def refresh_marker_gripper(self):
+    def update_marker_gripper(self):
         marker = self.create_marker_msg(pose=self.pose, type=Marker.CUBE_LIST,
                                         action=Marker.ADD, id=self.id,
                                         scale_x=self.scale*0.1,
@@ -212,7 +222,7 @@ class RvizMarkerPublisher(ROSNode):
 
     def execute_move(self, move):
         self.update_pose(move)
-        self.refresh_marker_map[self.marker_type]()
+        self.update_marker()
 
 
 if __name__ == '__main__':
@@ -232,6 +242,8 @@ if __name__ == '__main__':
                         type=yaml.load)
     parser.add_argument('-m', '--mesh-file', default='')
     parser.add_argument('-c', '--control-topic', default=None)
+    parser.add_argument('-u', '--update-rate', default='0', type=int,
+                        help='the rate at which updates should be published')
     args = parser.parse_args()
 
     pose = Pose()
@@ -246,5 +258,6 @@ if __name__ == '__main__':
     with RvizMarkerPublisher(marker_type=args.type, name=args.name,
                              pose=pose, mesh_file=args.mesh_file,
                              control_topic=args.control_topic,
-                             remove=args.remove) as publisher:
+                             update_rate=args.update_rate,
+                             delete=args.delete) as publisher:
         publisher.enter_control_loop()
