@@ -12,9 +12,11 @@ rosrun apc rviz_marker_publisher.py \
 import yaml
 import random
 from argparse import ArgumentParser
+import threading
 
 import roslib
 roslib.load_manifest('apc')
+from std_msgs.msg import String
 from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Pose, Point, Quaternion
 import rospy
@@ -22,22 +24,7 @@ import tf
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
 from ros_utils import ROSNode
-
-
-def getch():
-    import sys
-    import tty
-    import termios
-
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+from utils import LoopingThread, getch
 
 
 class RvizMarkerPublisher(ROSNode):
@@ -46,16 +33,18 @@ class RvizMarkerPublisher(ROSNode):
     GRIPPER = 2
 
     def __init__(self, marker_type, name, pose, mesh_file="", id=-1,
-                 remove=False):
+                 control_topic=None, remove=False):
         super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
 
-        self.pub = rospy.Publisher('visualization_marker', Marker)
+        self.publisher = rospy.Publisher('visualization_marker', Marker)
+        self.subscriber = None
         self.br = tf.TransformBroadcaster()
 
         self.id = random.randrange(1000000) if id < 0 else id
         self.marker_type = marker_type
         self.pose = pose
         self.mesh_file = mesh_file
+        self.control_topic = control_topic
         self.remove = remove
 
         self.scale = 1.0
@@ -152,10 +141,10 @@ class RvizMarkerPublisher(ROSNode):
         return marker
 
     def publish_marker_msg(self, marker):
-        while not self.pub.get_num_connections():
+        while not self.publisher.get_num_connections():
             rospy.sleep(0.1)
 
-        self.pub.publish(marker)
+        self.publisher.publish(marker)
 
     def broadcast_transform(self):
         p = self.pose.position
@@ -211,15 +200,19 @@ class RvizMarkerPublisher(ROSNode):
         self.publish_marker_msg(marker)
 
     def enter_control_loop(self):
-        string = "This was typed: "
-
-        ch = getch()
-        while ch != 'p':
-            self.update_pose(ch)
-            self.refresh_marker_map[self.marker_type]()
-
-            string += ch
+        if self.control_topic is not None:
+            self.subscriber = rospy.Subscriber(self.control_topic, String,
+                                               self.execute_move)
+            self.spin()
+        else:
             ch = getch()
+            while ch != 'p':
+                self.execute_move(ch)
+                ch = getch()
+
+    def execute_move(self, move):
+        self.update_pose(move)
+        self.refresh_marker_map[self.marker_type]()
 
 
 if __name__ == '__main__':
@@ -238,6 +231,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--orientation', default='[0, 0, 0, 1]',
                         type=yaml.load)
     parser.add_argument('-m', '--mesh-file', default='')
+    parser.add_argument('-c', '--control-topic', default=None)
     args = parser.parse_args()
 
     pose = Pose()
@@ -251,5 +245,6 @@ if __name__ == '__main__':
     # publisher.enter_control_loop()
     with RvizMarkerPublisher(marker_type=args.type, name=args.name,
                              pose=pose, mesh_file=args.mesh_file,
+                             control_topic=args.control_topic,
                              remove=args.remove) as publisher:
         publisher.enter_control_loop()
