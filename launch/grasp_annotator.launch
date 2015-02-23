@@ -1,0 +1,22 @@
+
+<!-- "roslaunch grasp_annotator.launch object_name:=expo_dry_erase_board_eraser" -->
+<launch>
+    <arg name="object_name" />
+    <arg name="object_marker" value="object_marker" />
+    <arg name="gripper_marker" value="gripper_marker" />
+    <arg name="object_moves_topic" value="apc/object_moves" />
+    <arg name="gripper_moves_topic" value="apc/gripper_moves" />
+    <arg name="gripper_width_topic" value="apc/gripper_width" />
+    <arg name="update_rate" value="50" />
+
+
+    <node name="$(arg object_marker)" package="apc" type="rviz_marker_publisher.py"
+            args="-n object_marker -t 1 -r -u 50 -c apc/$(arg object_moves_topic) -m $(arg object_name).stl" />
+
+    <node name="$(arg gripper_marker)" package="apc" type="rviz_marker_publisher.py"
+            args="-n gripper_marker -t 2 -r -u 50 -c apc/$(arg gripper_moves_topic) -g $(arg gripper_width_topic)" />
+
+    <node name="grasp annotator" package="apc" type="rviz_grasp_annotator.py"
+            args="--object-name $(arg object_name) --object-marker $(arg object_marker) --gripper-marker $(arg gripper_marker) --object-moves-topic $(arg object_moves_topic) --gripper-moves-topic $(arg gripper_moves_topic) --gripper-width-topic $(arg gripper_width_topic) --update-rate $(arg update_rate)" />
+
+</launch>
