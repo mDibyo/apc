@@ -28,21 +28,25 @@ class LoopingThread(threading.Thread):
         super(LoopingThread, self).__init__(group=group, target=target,
                                             name=name, args=args,
                                             kwargs=kwargs)
+        self.__target = target
+        self.__args = args
+        self.__kwargs = kwargs
 
         self._stop_event = threading.Event()
         self.rate = rate
 
     def run(self):
-        try:
-            if self.__target is not None:
-                import rospy
+        import rospy
+
+        if self.__target is not None:
+            try:
                 rate = rospy.Rate(self.rate)
 
                 while not self._stop_event.is_set():
                     self.__target(*self.__args, **self.__kwargs)
                     rate.sleep()
-        finally:
-            del self.__target, self.__args, self.__kwargs
+            finally:
+                del self.__target, self.__args, self.__kwargs
 
     def stop(self):
         self._stop_event.set()

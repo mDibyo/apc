@@ -16,9 +16,11 @@ class ROSNode(object):
         """
         self.name = name
         self.anonymous = kwargs.get('anonymous', False)
+        self.disable_signals = kwargs.get('disable_signals', False)
 
         if kwargs.get('init', True):
-            rospy.init_node(self.name, anonymous=self.anonymous)
+            rospy.init_node(self.name, anonymous=self.anonymous,
+                            disable_signals=self.disable_signals)
 
     @staticmethod
     def spin():
