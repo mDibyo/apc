@@ -5,7 +5,8 @@
     <arg name="position" default="'[0, 0, 0]'" />
     <arg name="orientation" default="'[0, 0, 0, 1]'" />
     <arg name="mesh_file" default="''" />
-    <arg name="control_topic" default="''" />
+    <arg name="moves_control_topic" default="''" />
+    <arg name="poses_control_topic" default="''" />
     <arg name="gripper_width_topic" default="''" />
     <arg name="update_rate" default="0" />
 
@@ -16,5 +17,5 @@
     <node name="$(arg name)"
           pkg="apc"
           type="rviz_marker_publisher.py"
-          args="-n $(arg name) $(arg delete) -t $(arg type) -p $(arg position) -o $(arg orientation) -m $(arg mesh_file) -c $(arg control_topic) -g $(arg gripper_width_topic) -u $(arg update_rate)" />
+          args="-n $(arg name) $(arg delete) -t $(arg type) -p $(arg position) -o $(arg orientation) -m $(arg mesh_file) --moves-control-topic $(arg moves_control_topic) --poses-control-topic $(arg poses_control_topic) -g $(arg gripper_width_topic) -u $(arg update_rate)" />
 </launch>

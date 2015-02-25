@@ -3,7 +3,7 @@
 """
 usage:
 rosrun apc rviz_marker_publisher.py \
-    -n "rviz_marker_publisher" -t 1 -r -u 50 -c "apc/marker_move"\
+    -n "rviz_marker_publisher" -t 1 -d -u 50 --moves-control-topic "apc/marker_moves"\
     -m "/home/dibyo/workspace/amazon_picking_challenge/expo_dry_erase_board_eraser/meshes/poisson.stl" \
     -p "[0, 0, 0]" -o "[0, 0, 0, 1]"
 """
@@ -25,9 +25,6 @@ from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
 from ros_utils import ROSNode, topic
 from utils import LoopingThread, getch
-
-
-APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 
 
 class RvizMarkerPublisher(ROSNode):
@@ -59,20 +56,22 @@ class RvizMarkerPublisher(ROSNode):
     QUIT_MOVE = 'q'
 
     def __init__(self, marker_type, name, pose, mesh_file="", id=-1,
-                 control_topic=None, gripper_width_topic=None, update_rate=0,
-                 delete=False):
+                 moves_control_topic=None, poses_control_topic=None,
+                 gripper_width_topic=None, update_rate=0, delete=False):
         super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
         self.shutdown = False
 
         self.publisher = rospy.Publisher('visualization_marker', Marker)
-        self.subscriber = None
+        self.moves_subscriber = None
+        self.poses_subscriber = None
         self.br = tf.TransformBroadcaster()
 
         self.id = random.randrange(1000000) if id < 0 else id
         self.marker_type = marker_type
         self.pose = pose
-        self.mesh_file = osp.join(APC_DIRECTORY, mesh_file)
-        self.control_topic = control_topic
+        self.mesh_file = mesh_file
+        self.moves_control_topic = moves_control_topic
+        self.poses_control_topic = poses_control_topic
         self.update_rate = update_rate
         self.delete = delete
 
@@ -107,7 +106,6 @@ class RvizMarkerPublisher(ROSNode):
         if self.update_rate:
             self.update_thread.stop()
 
-        rospy.logwarn(self.delete)
         if self.delete:
             self.delete_marker()
 
@@ -227,15 +225,21 @@ class RvizMarkerPublisher(ROSNode):
 
     def enter_control_loop(self):
         self.shutdown = False
-        if self.control_topic is not None:
-            self.subscriber = rospy.Subscriber(self.control_topic, String,
-                                               self.execute_move)
-            while not self.shutdown:
-                rospy.sleep(0.5)
-        else:
+        if self.moves_control_topic is None and self.poses_control_topic is None:
             while not self.shutdown:
                 move = getch()
                 self.execute_move(move)
+        else:
+            if self.moves_control_topic is not None:
+                self.moves_subscriber = rospy.Subscriber(self.moves_control_topic, String,
+                                                   self.execute_move)
+
+            if self.poses_control_topic is not None:
+                self.poses_subscriber = rospy.Subscriber(self.poses_control_topic, Pose,
+                                                         self.execute_pose)
+
+            while not self.shutdown:
+                rospy.sleep(0.5)
 
     def execute_move(self, move):
         if isinstance(move, String):
@@ -246,6 +250,10 @@ class RvizMarkerPublisher(ROSNode):
             return
 
         self.update_pose(move)
+        self.update_marker()
+
+    def execute_pose(self, pose):
+        self.pose = pose
         self.update_marker()
 
 
@@ -265,7 +273,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--orientation', default='[0, 0, 0, 1]',
                         type=yaml.load)
     parser.add_argument('-m', '--mesh-file', default='')
-    parser.add_argument('-c', '--control-topic', default=None, type=topic)
+    parser.add_argument('--moves-control-topic', default=None, type=topic)
+    parser.add_argument('--poses-control-topic', default=None, type=topic)
     parser.add_argument('-g', '--gripper-width-topic', default=None, type=topic)
     parser.add_argument('-u', '--update-rate', default='0', type=int,
                         help='the rate at which updates should be published')
@@ -278,7 +287,8 @@ if __name__ == '__main__':
     rospy.loginfo("mesh_file: {}".format(args.mesh_file))
     with RvizMarkerPublisher(marker_type=args.type, name=args.name,
                              pose=pose, mesh_file=args.mesh_file,
-                             control_topic=args.control_topic,
+                             moves_control_topic=args.moves_control_topic,
+                             poses_control_topic=args.poses_control_topic,
                              gripper_width_topic=args.gripper_width_topic,
                              update_rate=args.update_rate,
                              delete=args.delete) as publisher:

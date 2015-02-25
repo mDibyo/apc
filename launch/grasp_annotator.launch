@@ -20,8 +20,8 @@
             <arg name="name" value="$(arg object_marker)" />
             <arg name="type" value="1" />
             <arg name="delete_bool" value="true" />
-            <arg name="mesh_file" value="data/meshes/$(arg object_name).stl" />
-            <arg name="control_topic" value="$(arg object_moves_topic)" />
+            <arg name="mesh_file" value="$(find apc)/data/meshes/$(arg object_name).stl" />
+            <arg name="moves_control_topic" value="$(arg object_moves_topic)" />
             <arg name="update_rate" value="50" />
         </include>
 
@@ -30,7 +30,7 @@
             <arg name="name" value="$(arg gripper_marker)" />
             <arg name="type" value="2" />
             <arg name="delete_bool" value="true" />
-            <arg name="control_topic" value="$(arg gripper_moves_topic)" />
+            <arg name="moves_control_topic" value="$(arg gripper_moves_topic)" />
             <arg name="gripper_width_topic" value="$(arg gripper_width_topic)" />
             <arg name="update_rate" value="50" />
         </include>

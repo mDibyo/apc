@@ -53,51 +53,71 @@ class Grasp(object):
 
 
 class RvizGraspViewer(ROSNode):
-    move_handlers_dict = {
-        'q': 'quit_move',
-        'a': 'prev_move',
-        'd': 'next_move',
-        'f': 'flag_move',
-        'r': 'remove_move',
-    }
-
-    @classmethod
-    def _register_move_handler(cls, move):
-        def handler_register(handler):
-            cls.move_handlers_dict[move] = handler
-            return handler
-
-        return handler_register
-
-    @_register_move_handler('q')
-    @staticmethod
-    def _handle_quit_move():
+    def _handle_quit_move(self):
         pass
 
-    @_register_move_handler('a')
-    @staticmethod
-    def _handle_prev_grasp_move():
+    def _handle_prev_grasp_move(self):
         pass
 
-    @_register_move_handler('d')
-    @staticmethod
-    def _handle_next_grasp_move():
+    def _handle_next_grasp_move(self):
         pass
 
-    @_register_move_handler('f')
-    @staticmethod
-    def _handle_flag_grasp_move():
+    def _handle_flag_grasp_move(self):
         pass
 
-    @_register_move_handler('r')
-    @staticmethod
-    def _handle_remove_grasp_move():
+    def _handle_remove_grasp_move(self):
         pass
 
-    def __init__(self):
+    def create_move_handlers_dict(self):
+        self.move_handlers_dict = {
+            'q': self._handle_quit_move,
+            'a': self._handle_prev_grasp_move,
+            'd': self._handle_next_grasp_move,
+            'f': self._handle_flag_grasp_move,
+            'r': self._handle_remove_grasp_move,
+        }
+
+    def __init__(self, object_name, object_marker, gripper_marker,
+                 object_moves_topic, object_poses_topic,
+                 gripper_moves_topic, gripper_poses_topic, modify_grasps=False):
         super(RvizGraspViewer, self).__init__('rviz_grasp_viewer',
                                               anonymous=False)
-        pass
+        self.object_name = object_name
+        self.modify_grasps = modify_grasps
+        self.grasps = []
+        self.grasps_file = osp.join(DATA_DIRECTORY, 'grasps',
+                                    "{}.json".format(self.object_name))
+
+        self.object_marker = object_marker
+        self.object_moves_publisher = rospy.Publisher(object_moves_topic,
+                                                      String)
+        self.object_poses_publisher = rospy.Publisher(object_poses_topic,
+                                                      Pose)
+
+        self.gripper_marker = gripper_marker
+        self.gripper_moves_publisher = rospy.Publisher(gripper_moves_topic,
+                                                       String)
+        self.gripper_poses_publisher = rospy.Publisher(gripper_poses_topic,
+                                                       Pose)
+
+        self.move_handlers_dict = None
+        self.create_move_handlers_dict()
+
+    def __enter__(self):
+        with open(self.grasps_file, 'r') as f:
+            self.grasps = \
+                [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        with open(self.grasps_file, 'w') as f:
+            json.dump([grasp.to_json() for grasp in self.grasps], f,
+                      indent=4, separators=(', ', ': '))
+
+        self.object_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
+        self.gripper_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
+
 
 class RvizGraspSaver(ROSNode):
     QUIT_MOVE = 'q'
@@ -112,6 +132,8 @@ class RvizGraspSaver(ROSNode):
         self.update_rate = update_rate
         self.keep_old_grasps = keep_old_grasps
         self.grasps = []
+        self.grasps_file = osp.join(DATA_DIRECTORY, 'grasps',
+                                    "{}.json".format(self.object_name))
 
         self.object_marker = object_marker
         self.object_moves_publisher = rospy.Publisher(object_moves_topic,
@@ -127,21 +149,15 @@ class RvizGraspSaver(ROSNode):
         self.tf_listener = tf.TransformListener()
 
     def __enter__(self):
-        grasps_file = osp.join(DATA_DIRECTORY, 'grasps',
-                               "{}.json".format(self.object_name))
-
-        if self.keep_old_grasps and osp.exists(grasps_file):
-            with open(grasps_file, 'r') as f:
+        if self.keep_old_grasps and osp.exists(self.grasps_file):
+            with open(self.grasps_file, 'r') as f:
                 self.grasps = \
                     [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        grasps_file = osp.join(DATA_DIRECTORY, 'grasps',
-                               "{}.json".format(self.object_name))
-        print grasps_file
-        with open(grasps_file, 'w') as f:
+        with open(self.grasps_file, 'w') as f:
             json.dump([grasp.to_json() for grasp in self.grasps], f,
                       indent=4, separators=(', ', ': '))
 
