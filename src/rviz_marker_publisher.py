@@ -35,7 +35,7 @@ class RvizMarkerPublisher(ROSNode):
     MESH = 1
     GRIPPER = 2
 
-    move_map = {
+    moves_map = {
         # Position controls
         'w': ((1, 0, 0), (0, 0, 0), 0),
         'a': ((0, 1, 0), (0, 0, 0), 0),
@@ -112,7 +112,7 @@ class RvizMarkerPublisher(ROSNode):
             self.delete_marker()
 
     def update_pose(self, move):
-        delta = self.move_map.get(move, ((0, 0, 0), (0, 0, 0), 0))
+        delta = self.moves_map.get(move, ((0, 0, 0), (0, 0, 0), 0))
 
         # Position change
         self.pose.position.x += self.speed * delta[0][0]

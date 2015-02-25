@@ -52,6 +52,53 @@ class Grasp(object):
         return cls(pose, d['gripper_width'])
 
 
+class RvizGraspViewer(ROSNode):
+    move_handlers_dict = {
+        'q': 'quit_move',
+        'a': 'prev_move',
+        'd': 'next_move',
+        'f': 'flag_move',
+        'r': 'remove_move',
+    }
+
+    @classmethod
+    def _register_move_handler(cls, move):
+        def handler_register(handler):
+            cls.move_handlers_dict[move] = handler
+            return handler
+
+        return handler_register
+
+    @_register_move_handler('q')
+    @staticmethod
+    def _handle_quit_move():
+        pass
+
+    @_register_move_handler('a')
+    @staticmethod
+    def _handle_prev_grasp_move():
+        pass
+
+    @_register_move_handler('d')
+    @staticmethod
+    def _handle_next_grasp_move():
+        pass
+
+    @_register_move_handler('f')
+    @staticmethod
+    def _handle_flag_grasp_move():
+        pass
+
+    @_register_move_handler('r')
+    @staticmethod
+    def _handle_remove_grasp_move():
+        pass
+
+    def __init__(self):
+        super(RvizGraspViewer, self).__init__('rviz_grasp_viewer',
+                                              anonymous=False)
+        pass
+
 class RvizGraspSaver(ROSNode):
     QUIT_MOVE = 'q'
     GRASP_SAVE_MOVE = ' '
@@ -59,8 +106,8 @@ class RvizGraspSaver(ROSNode):
     def __init__(self, object_name, object_marker, gripper_marker,
                  object_moves_topic, gripper_moves_topic, gripper_width_topic,
                  update_rate, keep_old_grasps=False):
-        super(RvizGraspSaver, self).__init__('rviz_grasp_annotator',
-                                                 anonymous=False)
+        super(RvizGraspSaver, self).__init__('rviz_grasp_saver',
+                                             anonymous=False)
         self.object_name = object_name
         self.update_rate = update_rate
         self.keep_old_grasps = keep_old_grasps
