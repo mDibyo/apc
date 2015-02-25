@@ -174,8 +174,7 @@ class RvizMarkerPublisher(ROSNode):
 
         self.publisher.publish(marker)
 
-        if self.marker_type == self.GRIPPER and \
-                self.gripper_width_publisher is not None:
+        if self.gripper_width_publisher is not None:
             self.gripper_width_publisher.publish(self.gripper_width)
 
     def broadcast_transform(self):
