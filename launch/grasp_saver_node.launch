@@ -1,0 +1,19 @@
+<launch>
+    <arg name="object_name" />
+    <arg name="object_marker" default="object_marker" />
+    <arg name="gripper_marker" default="gripper_marker" />
+    <arg name="object_moves_topic" default="object_moves" />
+    <arg name="gripper_moves_topic" default="gripper_moves" />
+    <arg name="gripper_width_topic" default="gripper_width" />
+    <arg name="update_rate" default="50" />
+    <arg name="keep_old_grasps_bool" default="false" />
+
+    <!-- Handling for keep_old_grasps arg -->
+    <arg name="keep_old_grasps" value="-k" if="$(arg keep_old_grasps_bool)" />
+    <arg name="keep_old_grasps" value="" unless="$(arg keep_old_grasps_bool)" />
+
+    <node name="grasp_saver"
+          pkg="apc"
+          type="rviz_grasp_saver.py"
+          args="--mode 1 --object-name $(arg object_name) --object-marker $(arg object_marker) --gripper-marker $(arg gripper_marker) --object-moves-topic $(arg object_moves_topic) --gripper-moves-topic $(arg gripper_moves_topic) --gripper-width-topic $(arg gripper_width_topic) --update-rate $(arg update_rate) $(arg keep_old_grasps)" />
+</launch>

@@ -1,0 +1,19 @@
+<launch>
+    <arg name="object_name" />
+    <arg name="object_marker" default="object_marker" />
+    <arg name="gripper_marker" default="gripper_marker" />
+    <arg name="object_moves_topic" default="object_moves" />
+    <arg name="object_poses_topic" default="object_poses" />
+    <arg name="gripper_moves_topic" default="gripper_moves" />
+    <arg name="gripper_grasps_topic" default="gripper_grasps" />
+    <arg name="modify_grasps_bool" default="false" />
+
+    <!-- Handling for modify_grasps arg -->
+    <arg name="modify_grasps" value="-m" if="$(arg modify_grasps_bool)" />
+    <arg name="modify_grasps" value="" unless="$(arg modify_grasps_bool)" />
+
+    <node name="grasp_saver"
+          pkg="apc"
+          type="rviz_grasp_saver.py"
+          args="--mode 0 --object-name $(arg object_name) --object-marker $(arg object_marker) --gripper-marker $(arg gripper_marker) --object-moves-topic $(arg object_moves_topic) --object-poses-topic $(arg object_poses_topic) --gripper-moves-topic $(arg gripper_moves_topic) --gripper-grasps-topic $(arg gripper_grasps_topic) $(arg modify_grasps)" />
+</launch>

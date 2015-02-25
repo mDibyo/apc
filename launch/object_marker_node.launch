@@ -1,0 +1,22 @@
+<launch>
+    <arg name="name" default="object_marker" />
+    <arg name="delete_bool" default="false" />
+    <arg name="type" default="0" />
+    <arg name="position" default="'[0, 0, 0]'" />
+    <arg name="orientation" default="'[0, 0, 0, 1]'" />
+    <arg name="mesh_file" default="''" />
+    <arg name="moves_control_topic" default="''" />
+    <arg name="poses_control_topic" default="''" />
+    <arg name="grasps_control_topic" default="''" />
+    <arg name="gripper_width_topic" default="''" />
+    <arg name="update_rate" default="0" />
+
+    <!-- Handling for delete arg -->
+    <arg name="delete" value="-d" if="$(arg delete_bool)" />
+    <arg name="delete" value="" unless="$(arg delete_bool)" />
+
+    <node name="$(arg name)"
+          pkg="apc"
+          type="rviz_marker_publisher.py"
+          args="-n $(arg name) $(arg delete) -t $(arg type) -p $(arg position) -o $(arg orientation) -m $(arg mesh_file) --moves-control-topic $(arg moves_control_topic) --poses-control-topic $(arg poses_control_topic) --grasps-control-topic $(arg grasps_control_topic) -g $(arg gripper_width_topic) -u $(arg update_rate)" />
+</launch>
