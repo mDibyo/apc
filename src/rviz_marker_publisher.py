@@ -19,6 +19,7 @@ roslib.load_manifest('apc')
 from std_msgs.msg import String, Float64
 from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Pose, Point, Quaternion
+from apc.msg import Grasp
 import rospy
 import tf
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
@@ -57,37 +58,44 @@ class RvizMarkerPublisher(ROSNode):
 
     def __init__(self, marker_type, name, pose, mesh_file="", id=-1,
                  moves_control_topic=None, poses_control_topic=None,
-                 gripper_width_topic=None, update_rate=0, delete=False):
+                 grasps_control_topic=None, gripper_width_topic=None,
+                 update_rate=0, delete=False):
         super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
         self.shutdown = False
 
+        # Publishers and subscribers
         self.publisher = rospy.Publisher('visualization_marker', Marker)
         self.moves_subscriber = None
         self.poses_subscriber = None
+        self.grasps_subscriber = None
         self.br = tf.TransformBroadcaster()
 
+        # Other configuration
         self.id = random.randrange(1000000) if id < 0 else id
         self.marker_type = marker_type
         self.pose = pose
         self.mesh_file = mesh_file
         self.moves_control_topic = moves_control_topic
         self.poses_control_topic = poses_control_topic
+        self.grasps_control_topic = grasps_control_topic
         self.update_rate = update_rate
         self.delete = delete
 
+        # Other settings
         self.scale = 1.0
-
         self.speed = 0.01
         self.gripper_width = 0.06
 
+        # Marker update
         self.update_marker = {
             self.ARROW: self.update_marker_arrow,
             self.MESH: self.update_marker_mesh,
             self.GRIPPER: self.update_marker_gripper
         }[self.marker_type]
-        if self.marker_type == self.GRIPPER and gripper_width_topic is not None:
-            self.gripper_width_publisher = rospy.Publisher(gripper_width_topic,
-                                                           Float64)
+        if self.marker_type == self.GRIPPER:
+            if gripper_width_topic is not None:
+                self.gripper_width_publisher = rospy.Publisher(gripper_width_topic,
+                                                               Float64)
         else:
             self.gripper_width_publisher = None
 
@@ -231,12 +239,16 @@ class RvizMarkerPublisher(ROSNode):
                 self.execute_move(move)
         else:
             if self.moves_control_topic is not None:
-                self.moves_subscriber = rospy.Subscriber(self.moves_control_topic, String,
-                                                   self.execute_move)
+                self.moves_subscriber = rospy.Subscriber(self.moves_control_topic,
+                                                         String, self.execute_move)
 
             if self.poses_control_topic is not None:
-                self.poses_subscriber = rospy.Subscriber(self.poses_control_topic, Pose,
-                                                         self.execute_pose)
+                self.poses_subscriber = rospy.Subscriber(self.poses_control_topic,
+                                                         Pose, self.execute_pose)
+
+            if self.grasps_control_topic is not None:
+                self.grasps_subscriber = rospy.Subscriber(self.grasps_control_topic,
+                                                          Grasp, self.execute_grasp)
 
             while not self.shutdown:
                 rospy.sleep(0.5)
@@ -256,6 +268,11 @@ class RvizMarkerPublisher(ROSNode):
         self.pose = pose
         self.update_marker()
 
+    def execute_grasp(self, grasp):
+        self.pose = grasp.pose
+        self.gripper_width = grasp.gripper_width
+        self.update_marker()
+
 
 if __name__ == '__main__':
     description = 'Publish and control markers in rviz environment'
@@ -268,13 +285,12 @@ if __name__ == '__main__':
                         format(RvizMarkerPublisher.ARROW,
                                RvizMarkerPublisher.MESH,
                                RvizMarkerPublisher.GRIPPER), type=int)
-    parser.add_argument('-p', '--position', default='[0, 0, 0]',
-                        type=yaml.load)
-    parser.add_argument('-o', '--orientation', default='[0, 0, 0, 1]',
-                        type=yaml.load)
+    parser.add_argument('-p', '--position', default='[0, 0, 0]', type=yaml.load)
+    parser.add_argument('-o', '--orientation', default='[0, 0, 0, 1]', type=yaml.load)
     parser.add_argument('-m', '--mesh-file', default='')
     parser.add_argument('--moves-control-topic', default=None, type=topic)
     parser.add_argument('--poses-control-topic', default=None, type=topic)
+    parser.add_argument('--grasps-control-topic', default=None, type=topic)
     parser.add_argument('-g', '--gripper-width-topic', default=None, type=topic)
     parser.add_argument('-u', '--update-rate', default='0', type=int,
                         help='the rate at which updates should be published')

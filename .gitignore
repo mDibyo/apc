@@ -55,4 +55,8 @@ docs/_build/
 # PyBuilder
 target/
 
-
+# rosmake-generated
+bin/
+build/
+msg_gen/
+src/apc/
