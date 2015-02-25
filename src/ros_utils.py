@@ -112,3 +112,7 @@ class TopicPublisherNode(ROSNode):
     def publish(self, msg):
         self.publisher.publish(msg)
 
+
+def topic(topic_string):
+    return None if not topic_string else topic_string
+

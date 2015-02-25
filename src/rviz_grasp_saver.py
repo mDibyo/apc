@@ -52,14 +52,14 @@ class Grasp(object):
         return cls(pose, d['gripper_width'])
 
 
-class RvizGraspAnnotator(ROSNode):
+class RvizGraspSaver(ROSNode):
     QUIT_MOVE = 'q'
     GRASP_SAVE_MOVE = ' '
 
     def __init__(self, object_name, object_marker, gripper_marker,
                  object_moves_topic, gripper_moves_topic, gripper_width_topic,
                  update_rate, keep_old_grasps=False):
-        super(RvizGraspAnnotator, self).__init__('rviz_grasp_annotator',
+        super(RvizGraspSaver, self).__init__('rviz_grasp_annotator',
                                                  anonymous=False)
         self.object_name = object_name
         self.update_rate = update_rate
@@ -141,12 +141,12 @@ if __name__ == "__main__":
     parser.add_argument('--keep-old-grasps', '-k', action='store_true')
     args = parser.parse_known_args()[0]
 
-    with RvizGraspAnnotator(object_name=args.object_name,
-                            object_marker=args.object_marker,
-                            gripper_marker=args.gripper_marker,
-                            object_moves_topic=args.object_moves_topic,
-                            gripper_moves_topic=args.gripper_moves_topic,
-                            gripper_width_topic=args.gripper_width_topic,
-                            update_rate=args.update_rate,
-                            keep_old_grasps=args.keep_old_grasps) as annotator:
+    with RvizGraspSaver(object_name=args.object_name,
+                        object_marker=args.object_marker,
+                        gripper_marker=args.gripper_marker,
+                        object_moves_topic=args.object_moves_topic,
+                        gripper_moves_topic=args.gripper_moves_topic,
+                        gripper_width_topic=args.gripper_width_topic,
+                        update_rate=args.update_rate,
+                        keep_old_grasps=args.keep_old_grasps) as annotator:
         annotator.enter_control_loop()

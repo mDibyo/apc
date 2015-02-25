@@ -10,7 +10,7 @@
   <url>http://ros.org/wiki/apc</url>
   <depend package="rospy"/>
   <depend package="roscpp"/>
-  <depend package="stereo_click"/>
+  <!-- <depend package="stereo_click"/> -->
   <depend package="tfx"/>
   <depend package="std_msgs"/>
   <depend package="visualization_msgs"/>

@@ -23,7 +23,7 @@ import rospy
 import tf
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-from ros_utils import ROSNode
+from ros_utils import ROSNode, topic
 from utils import LoopingThread, getch
 
 
@@ -107,6 +107,7 @@ class RvizMarkerPublisher(ROSNode):
         if self.update_rate:
             self.update_thread.stop()
 
+        rospy.logwarn(self.delete)
         if self.delete:
             self.delete_marker()
 
@@ -132,7 +133,7 @@ class RvizMarkerPublisher(ROSNode):
         self.gripper_width += delta[2] * 0.005
 
     @staticmethod
-    def create_marker_msg(pose, type, id, frame_id='base_link', ns='apc',
+    def create_marker_msg(pose, type, id, frame_id='/base_link', ns='apc',
                           scale_x=1.0, scale_y=1.0, scale_z=1.0, color_a=1.0,
                           color_r=1.0, color_g=1.0, color_b=1.0, action=0,
                           mesh_resource=""):
@@ -264,8 +265,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--orientation', default='[0, 0, 0, 1]',
                         type=yaml.load)
     parser.add_argument('-m', '--mesh-file', default='')
-    parser.add_argument('-c', '--control-topic', default=None)
-    parser.add_argument('-g', '--gripper-width-topic', default=None)
+    parser.add_argument('-c', '--control-topic', default=None, type=topic)
+    parser.add_argument('-g', '--gripper-width-topic', default=None, type=topic)
     parser.add_argument('-u', '--update-rate', default='0', type=int,
                         help='the rate at which updates should be published')
     args = parser.parse_known_args()[0]
