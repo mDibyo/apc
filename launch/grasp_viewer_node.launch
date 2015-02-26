@@ -14,6 +14,6 @@
 
     <node name="grasp_saver"
           pkg="apc"
-          type="rviz_grasp_saver.py"
+          type="rviz_grasp_handlers.py"
           args="--mode 0 --object-name $(arg object_name) --object-marker $(arg object_marker) --gripper-marker $(arg gripper_marker) --object-moves-topic $(arg object_moves_topic) --object-poses-topic $(arg object_poses_topic) --gripper-moves-topic $(arg gripper_moves_topic) --gripper-grasps-topic $(arg gripper_grasps_topic) $(arg modify_grasps)" />
 </launch>
