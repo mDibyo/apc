@@ -14,7 +14,8 @@
                 "w": 1.0
             }
         }, 
-        "gripper_width": 0.06
+        "gripper_width": 0.06, 
+        "label": "grasp 1"
     }, 
     {
         "flag": false, 
@@ -31,6 +32,7 @@
                 "w": 1.0
             }
         }, 
-        "gripper_width": 0.06
+        "gripper_width": 0.06, 
+        "label": "grasp 2"
     }
 ]

@@ -27,7 +27,9 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 
 class Grasp(object):
-    def __init__(self, pose, gripper_width=None, flag=False):
+    def __init__(self, label, pose, gripper_width=None, flag=False):
+        self.label = label
+
         self.pose = pose
         self.gripper_width = gripper_width
         self.flag = flag
@@ -43,6 +45,7 @@ class Grasp(object):
         o = self.pose.orientation
 
         d = {
+            'label': self.label,
             'pose': {
                 'position': {'x': p.x, 'y': p.y, 'z': p.z},
                 'orientation': {'x': o.x, 'y': o.y, 'z': o.z, 'w': o.w}
@@ -58,19 +61,22 @@ class Grasp(object):
         pose.position = Point(**d['pose']['position'])
         pose.orientation = Quaternion(**d['pose']['orientation'])
 
-        return cls(pose, d['gripper_width'], d['flag'])
+        return cls(d['label'], pose, d['gripper_width'], d['flag'])
 
 
 class RvizGraspHandler(ROSNode):
     QUIT_MOVE = 'q'
 
     def __init__(self, handler_name, object_name, object_marker, gripper_marker,
-                 object_moves_topic, gripper_moves_topic, keep_old_grasps=False):
+                 object_moves_topic, gripper_moves_topic, keep_old_grasps=True):
         super(RvizGraspHandler, self).__init__(handler_name,
                                                anonymous=False)
         self.object_name = object_name
         self.keep_old_grasps = keep_old_grasps
-        self.grasps = []
+
+        self.grasps = {}
+        self.labels = []
+
         self.grasps_file = osp.join(DATA_DIRECTORY, 'grasps',
                                     "{}.json".format(self.object_name))
 
@@ -82,16 +88,23 @@ class RvizGraspHandler(ROSNode):
     def __enter__(self):
         if self.keep_old_grasps and osp.exists(self.grasps_file):
             with open(self.grasps_file, 'r') as f:
-                self.grasps = \
-                    [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
+                for grasp_json in json.load(f):
+                    grasp = Grasp.from_json(grasp_json)
+
+                    self.labels.append(grasp.label)
+                    self.grasps[grasp.label] = grasp
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.grasps:
             with open(self.grasps_file, 'w+') as f:
-                json.dump([grasp.to_json() for grasp in self.grasps], f,
-                          indent=4, separators=(', ', ': '))
+                ordered_grasps = []
+                for label in self.labels:
+                    grasp = self.grasps[label]
+                    ordered_grasps.append(grasp.to_json())
+
+                json.dump(ordered_grasps, f, indent=4, separators=(', ', ': '))
 
         self.object_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
         self.gripper_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
@@ -102,24 +115,47 @@ class RvizGraspViewer(RvizGraspHandler):
         """ Quit the viewer.  """
         pass
 
+    # Should be working right now.
     def _handle_prev_grasp_move(self):
         """ Display the previous grasp.  """
         self.current_grasp_index = (self.current_grasp_index-1) % len(self.grasps)
+        self.current_grasp_label = self.labels[self.current_grasp_index]
 
     def _handle_next_grasp_move(self):
         """ Display the next grasp.  """
         self.current_grasp_index = (self.current_grasp_index+1) % len(self.grasps)
+        self.current_grasp_label = self.labels[self.current_grasp_index]
 
     def _handle_flag_grasp_move(self):
         """ Toggle the flag boolean for the current grasp.  """
         if self.modify_grasps:
             self.current_grasp.flag = not self.current_grasp.flag
 
+    # This method is modified.
     def _handle_remove_grasp_move(self):
         """ Remove the current grasp.  """
         if self.modify_grasps:
-            self.grasps.pop(self.current_grasp_index)
-            self.current_grasp_index %= len(self.grasps)
+            self.labels.remove(self.current_grasp_label)
+            del self.grasps[self.current_grasp_label]
+
+            self.current_grasp_label = self.labels[self.current_grasp_index]
+
+    # A new method.
+    def _handle_labeled_grasp_move(self):
+        """ Display the grasp with the label according to user input.  """
+        while True:
+            label = raw_input("Enter a grasp label: ")
+            if label in self.grasps:
+                self.current_grasp_index = self.labels.index(label)
+                self.current_grasp_label = label
+                break
+            else:
+                rospy.logerr("No grasp labeled {}".format(label))
+
+    def _handle_display_label(self):
+        """ Display the name and the index of the current grasp."""
+        rospy.logwarn("The grasp has label {0}, index {1}.".format(self.current_grasp_label,
+                                                                   self.current_grasp_index))
 
     def create_move_handlers_dict(self):
         self.move_handlers_dict = {
@@ -128,6 +164,9 @@ class RvizGraspViewer(RvizGraspHandler):
             'd': self._handle_next_grasp_move,
             'f': self._handle_flag_grasp_move,
             'r': self._handle_remove_grasp_move,
+
+            'l': self._handle_labeled_grasp_move,
+            'v': self._handle_display_label
         }
 
     def __init__(self, object_name, object_marker, gripper_marker,
@@ -150,6 +189,7 @@ class RvizGraspViewer(RvizGraspHandler):
 
         # Set state
         self.current_grasp_index = None
+        self.current_grasp_label = None
 
     def __enter__(self):
         super(RvizGraspViewer, self).__enter__()
@@ -161,7 +201,7 @@ class RvizGraspViewer(RvizGraspHandler):
 
     @property
     def current_grasp(self):
-        return self.grasps[self.current_grasp_index]
+        return self.grasps[self.current_grasp_label]
 
     def update_grasp(self):
         self.object_poses_publisher.publish(Pose(Point(0.0, 0.0, 0.0),
@@ -173,6 +213,7 @@ class RvizGraspViewer(RvizGraspHandler):
             return
 
         self.current_grasp_index = 0
+        self.current_grasp_label = self.labels[self.current_grasp_index]
         self.update_grasp()
 
         ch = getch()
@@ -182,6 +223,7 @@ class RvizGraspViewer(RvizGraspHandler):
 
     def execute_move(self, move):
         self.move_handlers_dict[move]()
+        rospy.logwarn(self.current_grasp_label)
         self.update_grasp()
 
 
@@ -226,7 +268,21 @@ class RvizGraspSaver(RvizGraspHandler):
                     pose.position = Point(*trans)
                     pose.orientation = Quaternion(*rot)
                     gripper_width = self.gripper_width_subscriber.last_msg.data
-                    self.grasps.append(Grasp(pose, gripper_width))
+
+                    # Some modifications here.
+                    while True:
+                        label = raw_input("Enter a grasp label: ");
+                        if label in self.grasps:
+                            t = raw_input("Overwrite? [y] or [n]: ")
+                            if t == "y":
+                                self.grasps[label] = Grasp(label, pose, gripper_width)
+                                self.labels.append(label)
+                                break
+                        else:
+                            self.grasps[label] = Grasp(label, pose, gripper_width)
+                            self.labels.append(label)
+                            break
+                    
                     rospy.logwarn('saving grasp: SUCCESS!')
                 except tf.Exception:
                     rospy.logerr('saving grasp: FAILURE!')
@@ -249,8 +305,8 @@ if __name__ == "__main__":
     parser.add_argument('--gripper-grasps-topic', default=None, type=topic)
     parser.add_argument('--gripper-width-topic', default=None, type=topic)
     parser.add_argument('--update-rate', type=int)
-    parser.add_argument('-k', '--keep-old-grasps', action='store_true')
-    parser.add_argument('-m', '--modify-grasps', action='store_true')
+    parser.add_argument('-k', '--keep-old-grasps', default=True, action='store_true')
+    parser.add_argument('-m', '--modify-grasps', default=False, action='store_true')
     args = parser.parse_known_args()[0]
 
     if args.mode == 0:
