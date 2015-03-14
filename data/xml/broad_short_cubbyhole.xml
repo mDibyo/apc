@@ -1,33 +1,41 @@
 <kinBody name="BroadShortCubbyhole">
     <body name="BroadShortCubbyhole" type="dynamic">
-        <geom type="box" modifiable="false">
+        <geom name="leftWall" type="box" modifiable="false">
             <translation>0 -0.1492 0</translation>
             <extents>0.2159 0.001 0.1143</extents>
             <diffuseColor>1 0 0</diffuseColor>
         </geom>
 
-        <geom type="box" modifiable="false">
+        <geom name="rightWall" type="box" modifiable="false">
         <translation>0 0.1492 0</translation>
             <extents>0.2159 0.001 0.1143</extents>
             <diffuseColor>1 0 0</diffuseColor>
         </geom>
 
-        <geom type="box" modifiable="false">
+        <geom name="backWall" type="box" modifiable="false">
             <translation>0.2159 0 0</translation>
             <extents>0.001 0.1492 0.1143</extents>
             <diffuseColor>1 0 0</diffuseColor>
         </geom>
 
-        <geom type="box" modifiable="false">
+        <geom name="floor" type="box" modifiable="false">
             <translation>0 0 -0.1143</translation>
             <extents>0.2159 0.1492 0.001</extents>
             <diffuseColor>1 0 0</diffuseColor>
         </geom>
 
-        <geom type="box" modifiable="false">
+        <geom name="ceiling" type="box" modifiable="false">
             <translation>0 0 0.1143</translation>
             <extents>0.2159 0.1492 0.001</extents>
             <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="referenceDot" type="cylinder" modifiable="false">
+            <translation>0 0 -0.1153</translation>
+            <rotationaxis>1 0 0 90</rotationaxis>
+            <radius>0.01</radius>
+            <height>0.002</height>
+            <diffuseColor>0 0 1</diffuseColor>
         </geom>
     </body>
 </kinBody>
