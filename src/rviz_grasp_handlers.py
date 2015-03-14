@@ -35,6 +35,9 @@ class Grasp(object):
     def to_msg(self):
         return GraspMsg(self.pose, self.gripper_width)
 
+    def __str__(self):
+        return str(self.to_msg())
+
     def to_json(self):
         p = self.pose.position
         o = self.pose.orientation
@@ -82,9 +85,11 @@ class RvizGraspHandler(ROSNode):
                 self.grasps = \
                     [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
 
+        return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.grasps:
-            with open(self.grasps_file, 'w') as f:
+            with open(self.grasps_file, 'w+') as f:
                 json.dump([grasp.to_json() for grasp in self.grasps], f,
                           indent=4, separators=(', ', ': '))
 
@@ -145,12 +150,18 @@ class RvizGraspViewer(RvizGraspHandler):
 
         # Set state
         self.current_grasp_index = None
-        self.current_grasp = None
 
     def __enter__(self):
         super(RvizGraspViewer, self).__enter__()
         if not self.grasps:
-            raise Exception("No grasps available for {}".format(self.object_name))
+            rospy.logfatal("No grasps available for {}".format(self.object_name))
+
+        rospy.sleep(1)
+        return self
+
+    @property
+    def current_grasp(self):
+        return self.grasps[self.current_grasp_index]
 
     def update_grasp(self):
         self.object_poses_publisher.publish(Pose(Point(0.0, 0.0, 0.0),
@@ -158,8 +169,11 @@ class RvizGraspViewer(RvizGraspHandler):
         self.gripper_grasps_publisher.publish(self.current_grasp.to_msg())
 
     def enter_control_loop(self):
+        if not self.grasps:
+            return
+
         self.current_grasp_index = 0
-        self.current_grasp = self.grasps[self.current_grasp_index]
+        self.update_grasp()
 
         ch = getch()
         while ch != self.QUIT_MOVE:
@@ -200,12 +214,12 @@ class RvizGraspSaver(RvizGraspHandler):
         while ch != self.QUIT_MOVE:
             if ch == self.GRASP_SAVE_MOVE:
                 try:
-                    self.tf_listener.waitForTransform(self.gripper_marker,
-                                                      self.object_marker,
+                    self.tf_listener.waitForTransform(self.object_marker,
+                                                      self.gripper_marker,
                                                       rospy.Time(0),
                                                       rospy.Duration(2/self.update_rate))
-                    trans, rot = self.tf_listener.lookupTransform(self.gripper_marker,
-                                                                  self.object_marker,
+                    trans, rot = self.tf_listener.lookupTransform(self.object_marker,
+                                                                  self.gripper_marker,
                                                                   rospy.Time(0))
 
                     pose = Pose()

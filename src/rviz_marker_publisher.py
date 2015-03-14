@@ -92,10 +92,9 @@ class RvizMarkerPublisher(ROSNode):
             self.MESH: self.update_marker_mesh,
             self.GRIPPER: self.update_marker_gripper
         }[self.marker_type]
-        if self.marker_type == self.GRIPPER:
-            if gripper_width_topic is not None:
-                self.gripper_width_publisher = rospy.Publisher(gripper_width_topic,
-                                                               Float64)
+        if self.marker_type == self.GRIPPER and gripper_width_topic is not None:
+            self.gripper_width_publisher = rospy.Publisher(gripper_width_topic,
+                                                           Float64)
         else:
             self.gripper_width_publisher = None
 
@@ -304,6 +303,7 @@ if __name__ == '__main__':
                              pose=pose, mesh_file=args.mesh_file,
                              moves_control_topic=args.moves_control_topic,
                              poses_control_topic=args.poses_control_topic,
+                             grasps_control_topic=args.grasps_control_topic,
                              gripper_width_topic=args.gripper_width_topic,
                              update_rate=args.update_rate,
                              delete=args.delete) as publisher:

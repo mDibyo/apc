@@ -34,7 +34,7 @@
         </include>
 
         <!-- Node for grasp viewer -->
-        <include file="$(find apc)/launch/grasp_viewer.launch">
+        <include file="$(find apc)/launch/grasp_viewer_node.launch">
             <arg name="object_name" value="$(arg object_name)" />
             <arg name="object_marker" value="$(arg object_marker)" />
             <arg name="gripper_marker" value="$(arg gripper_marker)" />
