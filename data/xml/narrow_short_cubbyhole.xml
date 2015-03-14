@@ -1,0 +1,33 @@
+<kinBody name="NarrowShortCubbyhole">
+    <body name="NarrowShortCubbyhole" type="dynamic">
+        <geom type="box" modifiable="false">
+            <translation>0 -0.1244 0</translation>
+            <extents>0.2159 0.001 0.1143</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom type="box" modifiable="false">
+            <translation>0 0.1244 0</translation>
+            <extents>0.2159 0.001 0.1143</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom type="box" modifiable="false">
+            <translation>0.2159 0 0</translation>
+            <extents>0.001 0.1244 0.1143</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom type="box" modifiable="false">
+            <translation>0 0 -0.1143</translation>
+            <extents>0.2159 0.1244 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom type="box" modifiable="false">
+            <translation>0 0 0.1143</translation>
+            <extents>0.2159 0.1244 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+    </body>
+</kinBody>
