@@ -61,6 +61,7 @@ class RvizMarkerPublisher(ROSNode):
                  grasps_control_topic=None, gripper_width_topic=None,
                  update_rate=0, delete=False):
         super(RvizMarkerPublisher, self).__init__(name, anonymous=True)
+
         self.shutdown = False
 
         # Publishers and subscribers

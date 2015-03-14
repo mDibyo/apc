@@ -1,0 +1,13 @@
+<launch>
+    <arg name="update_rate" default="10" />
+
+    <arg name="name" />
+
+    <include file="$(find apc)/launch/object_marker_node.launch">
+        <arg name="name" value="object_$(arg name)" />
+        <arg name="type" value="1" />
+        <arg name="delete_bool" value="true" />
+        <arg name="mesh_file" value="$(find apc)/data/meshes/objects/$(arg name).stl" />
+        <arg name="update_rate" value="$(arg update_rate)" />
+    </include>
+</launch>
