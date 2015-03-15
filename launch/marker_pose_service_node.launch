@@ -1,0 +1,8 @@
+<launch>
+    <arg name="marker_poses_topic" default="visualization_marker" />
+
+    <node name="marker_pose_server"
+          pkg="apc"
+          type="rviz_marker_pose_service.py"
+          args="$(arg marker_poses_topic)" />
+</launch>

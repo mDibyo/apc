@@ -139,7 +139,7 @@ class RvizMarkerPublisher(ROSNode):
         self.gripper_width += delta[2] * 0.005
 
     @staticmethod
-    def create_marker_msg(pose, type, id, frame_id='/base_link', ns='apc',
+    def create_marker_msg(pose, type, id, text='', frame_id='/base_link', ns='apc',
                           scale_x=1.0, scale_y=1.0, scale_z=1.0, color_a=1.0,
                           color_r=1.0, color_g=1.0, color_b=1.0, action=0,
                           mesh_resource=""):
@@ -150,6 +150,7 @@ class RvizMarkerPublisher(ROSNode):
 
         marker.ns = ns
         marker.id = id
+        marker.text = text
 
         marker.type = type
         marker.action = action
@@ -187,7 +188,7 @@ class RvizMarkerPublisher(ROSNode):
         """
         """
         marker = self.create_marker_msg(pose=self.pose, type=Marker.MESH_RESOURCE,
-                                        action=Marker.ADD, id=self.id,
+                                        action=Marker.ADD, id=self.id, text=self.name,
                                         mesh_resource="file://{}".format(self.mesh_file),
                                         scale_x=self.scale, scale_y=self.scale,
                                         scale_z=self.scale)
@@ -201,7 +202,7 @@ class RvizMarkerPublisher(ROSNode):
         """
         marker = self.create_marker_msg(pose=self.pose, type=Marker.ARROW,
                                         action=Marker.ADD, id=self.id,
-                                        scale_x=self.scale*0.2,
+                                        text=self.name, scale_x=self.scale*0.2,
                                         scale_y=self.scale*0.2,
                                         scale_z=self.scale*0.2)
 
@@ -211,7 +212,7 @@ class RvizMarkerPublisher(ROSNode):
     def update_marker_gripper(self):
         marker = self.create_marker_msg(pose=self.pose, type=Marker.CUBE_LIST,
                                         action=Marker.ADD, id=self.id,
-                                        scale_x=self.scale*0.1,
+                                        text=self.name, scale_x=self.scale*0.1,
                                         scale_y=self.scale*0.01,
                                         scale_z=self.scale*0.05)
 
@@ -225,7 +226,7 @@ class RvizMarkerPublisher(ROSNode):
         self.broadcast_transform()
 
     def delete_marker(self):
-        marker = self.create_marker_msg(pose=self.pose, type=0,
+        marker = self.create_marker_msg(pose=self.pose, type=0, text=self.name,
                                         action=Marker.DELETE, id=self.id)
 
         self.publish_marker_msg(marker)

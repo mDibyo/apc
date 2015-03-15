@@ -59,4 +59,5 @@ target/
 bin/
 build/
 msg_gen/
+srv_gen/
 src/apc/
