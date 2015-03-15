@@ -27,7 +27,7 @@ class RvizMarkerPoseService(ROSNode):
         self.get_marker_pose_server = rospy.Service('get_marker_pose', GetMarkerPose,
                                                     self.handle_get_marker_pose)
 
-        rospy.spin()
+        self.spin()
 
     def update_markers(self, marker):
         if marker.action == Marker.ADD:
@@ -42,4 +42,4 @@ class RvizMarkerPoseService(ROSNode):
 
 if __name__ == '__main__':
     import sys
-    service = RvizMarkerPoseService(sys.argv[1])
+    RvizMarkerPoseService(sys.argv[1])
