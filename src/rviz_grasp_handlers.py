@@ -60,6 +60,17 @@ class Grasp(object):
 
         return cls(pose, d['gripper_width'], d['flag'])
 
+    @classmethod
+    def grasps_from_file(cls, grasps_file):
+        with open(grasps_file, 'r') as f:
+            return [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
+
+    @classmethod
+    def grasps_to_file(cls, grasps, grasps_file):
+        with open(grasps_file, 'w+') as f:
+            json.dump([grasp.to_json() for grasp in grasps], f,
+                      indent=4, separators=(', ', ': '))
+
 
 class RvizGraspHandler(ROSNode):
     QUIT_MOVE = 'q'
@@ -81,17 +92,13 @@ class RvizGraspHandler(ROSNode):
 
     def __enter__(self):
         if self.keep_old_grasps and osp.exists(self.grasps_file):
-            with open(self.grasps_file, 'r') as f:
-                self.grasps = \
-                    [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
+            self.grasps = Grasp.grasps_from_file(self.grasps_file)
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.grasps:
-            with open(self.grasps_file, 'w+') as f:
-                json.dump([grasp.to_json() for grasp in self.grasps], f,
-                          indent=4, separators=(', ', ': '))
+            Grasp.grasps_to_file(self.grasps, self.grasps_file)
 
         self.object_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
         self.gripper_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
