@@ -1,5 +1,5 @@
-<kinBody name="broad_tall_cubbyhole">
-    <body name="broad_tall_cubbyhole" type="dynamic">
+<kinBody name="cubbyhole_broad_tall">
+    <body name="cubbyhole_broad_tall" type="dynamic">
         <geom name="left_wall" type="box" modifiable="false">
             <translation>0 -0.1492 0</translation>
             <extents>0.2159 0.001 0.1333</extents>

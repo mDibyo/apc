@@ -4,17 +4,17 @@
 		<contributor>
 			<authoring_tool>OpenRAVE Collada Writer</authoring_tool>
 		</contributor>
-		<created>2015-03-14T23:52:11.000000</created>
-		<modified>2015-03-14T23:52:11.000000</modified>
+		<created>2015-03-15T00:10:46.000000</created>
+		<modified>2015-03-15T00:10:46.000000</modified>
 		<unit/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
 	<library_visual_scenes id="vscenes">
 		<visual_scene id="vscene" name="Visual Scene">
-			<node id="visual1" name="broad_short_cubbyhole" sid="visual1">
+			<node id="visual1" name="cubbyhole_broad_short" sid="visual1">
 				<translate>0 0 0</translate>
 				<rotate>1 0 0 0</rotate>
-				<instance_node url="#v1.node0" sid="node0" name="broad_short_cubbyhole"/>
+				<instance_node url="#v1.node0" sid="node0" name="cubbyhole_broad_short"/>
 			</node>
 		</visual_scene>
 	</library_visual_scenes>
@@ -344,7 +344,7 @@
 		</material>
 	</library_materials>
 	<library_nodes id="nodes">
-		<node id="v1.node0" name="broad_short_cubbyhole" sid="node0">
+		<node id="v1.node0" name="cubbyhole_broad_short" sid="node0">
 			<translate>0 0 0</translate>
 			<rotate>1 0 0 0</rotate>
 			<instance_geometry url="#g1_link0_geom0">
@@ -392,12 +392,12 @@
 		</node>
 	</library_nodes>
 	<library_kinematics_models id="kmodels">
-		<kinematics_model id="kmodel1" name="broad_short_cubbyhole">
+		<kinematics_model id="kmodel1" name="cubbyhole_broad_short">
 			<asset>
 				<subject/>
 			</asset>
 			<technique_common>
-				<link sid="link0" name="broad_short_cubbyhole">
+				<link sid="link0" name="cubbyhole_broad_short">
 					<translate>0 0 0</translate>
 					<rotate>1 0 0 0</rotate>
 				</link>
@@ -445,7 +445,7 @@
 	</library_articulated_systems>
 	<library_kinematics_scenes id="kscenes">
 		<kinematics_scene id="kscene" name="Kinematics Scene">
-			<instance_articulated_system sid="body1_motion_inst" url="#body1_motion" name="broad_short_cubbyhole">
+			<instance_articulated_system sid="body1_motion_inst" url="#body1_motion" name="cubbyhole_broad_short">
 				<newparam sid="kscene_kmodel1_inst">
 					<SIDREF>body1_motion/body1_motion_kmodel1_inst</SIDREF>
 				</newparam>
@@ -463,8 +463,8 @@
 		</physics_scene>
 	</library_physics_scenes>
 	<library_physics_models id="pmodels">
-		<physics_model id="pmodel1" name="broad_short_cubbyhole">
-			<rigid_body sid="rigid0" name="broad_short_cubbyhole">
+		<physics_model id="pmodel1" name="cubbyhole_broad_short">
+			<rigid_body sid="rigid0" name="cubbyhole_broad_short">
 				<technique_common>
 					<dynamic>true</dynamic>
 					<mass>1</mass>
