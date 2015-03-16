@@ -4,6 +4,11 @@ from __future__ import division
 
 import os.path as osp
 from copy import deepcopy
+import json
+
+import openravepy as rave
+import numpy as np
+import trajoptpy
 
 import roslib
 roslib.load_manifest('apc')
@@ -18,9 +23,6 @@ from apc.srv import *
 from ros_utils import ROSNode
 from rviz_grasp_handlers import Grasp
 
-import openravepy as rave
-import numpy as np
-
 
 __author__ = 'dibyo'
 
@@ -32,11 +34,13 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 class APCPlanner(ROSNode):
     PREGRASP_POSE_DISTANCE = 0.05
 
-    def __init__(self, work_orders_topic, update_rate):
-        super(APCPlanner, self).__init__('APCPlanner')
+    def __init__(self, work_orders_topic, update_rate,
+                 manipulator_name='leftarm'):
+        super(APCPlanner, self).__init__('plan')
 
         self.work_orders_topic = work_orders_topic
         self.update_rate = update_rate
+        self.manipulator_name = manipulator_name
 
         self.object_poses = {}
         self.cubbyhole_pose = None
@@ -58,8 +62,9 @@ class APCPlanner(ROSNode):
         self.env = rave.Environment()
         self.env.Load("robots/pr2-beta-static.zae")
         self.robot = self.env.GetRobot('pr2')
-        self.manipulator = self.robot.SetActiveManipulator('leftarm_torso')
-        self.link = self.robot.GetLink('l_gripper_tool_frame')
+        self.manipulator = self.robot.SetActiveManipulator(self.manipulator_name)
+        self.link = self.robot.GetLink('{}_gripper_tool_frame'.
+                                       format(self.manipulator_name[0]))
         self.ikmodel = \
             rave.databases.inversekinematics. \
                 InverseKinematicsModel(self.robot,
@@ -78,21 +83,21 @@ class APCPlanner(ROSNode):
             "start_fixed": True
         },
         "costs": [{
-                      "type": "joint_vel",
-                      "params": {"coeffs": [1]}
-                  }, {
-                      "type": "collision",
-                      "params": {
-                          "coeffs": [20],
-                          "dist_pen": [0.005]
-                      }
-                  }],
+              "type": "joint_vel",
+              "params": {"coeffs": [1]}
+        }, {
+            "type": "collision",
+            "params": {
+                "coeffs": [20],
+                "dist_pen": [0.005]
+            }
+        }],
         "constraints": [{
-                            "type": "joint",
-                            "params": {"vals": None }
-                        }],
+            "type": "joint",
+            "params": {"vals": None }
+        }],
         "init_info": {
-            "type": "straing_line",
+            "type": "straight_line",
             "endpoint": None
         }
     }
@@ -130,13 +135,30 @@ class APCPlanner(ROSNode):
 
         return Pose(Point(*(trans + offset)), Quaternion(*rot))
 
-    def get_robot_joint_angles(self, gripper_pose):
+    def get_robot_joints(self, gripper_pose):
         T = np.linalg.solve(self.link.GetTransform(),
                             self.manipulator.GetEndEffectorTransform())
-        ikparam = rave.IkParameterization(self.pose_to_transform_matrix(gripper_pose).dot(T),
-                                          self.ikmodel.iktype)
-        return self.manipulator.FindIKSolutions(ikparam,
-                                                rave.IkFilterOptions.CheckEnvCollisions)
+        with self.robot:
+            ikparam = rave.IkParameterization(self.pose_to_transform_matrix(gripper_pose).dot(T),
+                                              self.ikmodel.iktype)
+            return self.manipulator.FindIKSolutions(ikparam,
+                                                    rave.IkFilterOptions.CheckEnvCollisions)
+
+    def get_robot_trajectory(self, target_joints, start_joints=None):
+        if start_joints is None:
+            start_joints = self.robot.GetDOFValues(self.manipulator.GetArmIndices())
+
+        request = self.trajopt_request_template
+        request['constraints'][0]['params']['vals'] = \
+            request['init_info']['endpoint'] = list(target_joints)
+        request['basic_info']['manip'] = self.manipulator.GetName()
+
+        with self.robot:
+            self.robot.SetDOFValues(start_joints, self.manipulator.GetArmIndices())
+            problem = trajoptpy.ConstructProblem(json.dumps(request),
+                                                 self.env)
+            result = trajoptpy.OptimizeProblem(problem)
+            return result.GetTraj().tolist()
 
     def set_kinbody_transform(self, body_name, pose):
         body = self.env.GetKinBody(body_name)
@@ -211,13 +233,15 @@ class APCPlanner(ROSNode):
             target_pregrasp_poses.append(self.get_grasp_prepose(grasp.pose))
 
         # Filter out impossible pregrasp poses
-        pregrasp_joint_angles = {}
+        pregrasp_joint_angles = []
         for pregrasp_pose in target_pregrasp_poses:
-            solutions = self.get_robot_joint_angles(pregrasp_pose)
+            solutions = self.get_robot_joints(pregrasp_pose)
             if solutions:
-                pregrasp_joint_angles[pregrasp_pose] = solutions
+                pregrasp_joint_angles.append(solutions)
 
+        pregrasp_trajectories = [self.get_robot_trajectory(solution[0])
+                                 for solution in pregrasp_joint_angles]
 
-# if __name__ == '__main__':
-#     with APCPlanner("work_orders", 10) as planner:
-#         pass
+if __name__ == '__main__':
+    with APCPlanner("work_orders", 10, 'leftarm') as planner:
+        planner.spin()
