@@ -16,7 +16,7 @@ __author__ = 'dibyo'
 
 class RvizMarkerPoseService(ROSNode):
     def __init__(self, markers_pose_topic):
-        super(RvizMarkerPoseService, self).__init__("RvizMarkerPoseService",
+        super(RvizMarkerPoseService, self).__init__("rviz_marker_pose_service",
                                                     anonymous=True)
 
         self.markers = {}

@@ -3,12 +3,15 @@
 from __future__ import division
 
 import os.path as osp
+from copy import deepcopy
 
 import roslib
 roslib.load_manifest('apc')
 import rospy
 import tf
-from geometry_msgs.msg import Point, Pose, Quaternion
+import tf.transformations
+from geometry_msgs.msg import Point, Pose, Quaternion, PoseStamped
+from std_msgs.msg import Header
 
 from apc.msg import BinWorkOrder
 from apc.srv import *
@@ -27,10 +30,13 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 
 class APCPlanner(ROSNode):
-    def __init__(self, work_orders_topic):
+    PREGRASP_POSE_DISTANCE = 0.05
+
+    def __init__(self, work_orders_topic, update_rate):
         super(APCPlanner, self).__init__('APCPlanner')
 
         self.work_orders_topic = work_orders_topic
+        self.update_rate = update_rate
 
         self.object_poses = {}
         self.cubbyhole_pose = None
@@ -42,6 +48,7 @@ class APCPlanner(ROSNode):
         self.work_orders_subscriber = rospy.Subscriber(self.work_orders_topic,
                                                        BinWorkOrder,
                                                        self.execute_work_order)
+        self.tf_listener = tf.TransformListener()
 
         rospy.wait_for_service('get_marker_pose')
         self.get_marker_pose_client = rospy.ServiceProxy('get_marker_pose',
@@ -51,7 +58,8 @@ class APCPlanner(ROSNode):
         self.env = rave.Environment()
         self.env.Load("robots/pr2-beta-static.zae")
         self.robot = self.env.GetRobot('pr2')
-        self.manip = self.robot.SetActiveManipulator('leftarm_torso')
+        self.manipulator = self.robot.SetActiveManipulator('leftarm_torso')
+        self.link = self.robot.GetLink('l_gripper_tool_frame')
         self.ikmodel = \
             rave.databases.inversekinematics. \
                 InverseKinematicsModel(self.robot,
@@ -63,6 +71,35 @@ class APCPlanner(ROSNode):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         rave.RaveDestroy()
+
+    _trajopt_request_template = {
+        "basic_info": {
+            "n_steps": 10,
+            "start_fixed": True
+        },
+        "costs": [{
+                      "type": "joint_vel",
+                      "params": {"coeffs": [1]}
+                  }, {
+                      "type": "collision",
+                      "params": {
+                          "coeffs": [20],
+                          "dist_pen": [0.005]
+                      }
+                  }],
+        "constraints": [{
+                            "type": "joint",
+                            "params": {"vals": None }
+                        }],
+        "init_info": {
+            "type": "straing_line",
+            "endpoint": None
+        }
+    }
+
+    @property
+    def trajopt_request_template(self):
+        return deepcopy(self._trajopt_request_template)
 
     @staticmethod
     def pose_to_transform_matrix(pose):
@@ -89,9 +126,17 @@ class APCPlanner(ROSNode):
                         grasp_pose.orientation.w])
 
         T = tf.transformations.quaternion_matrix(rot)
-        offset = T.dot([0.075, 0, 0])
+        offset = T[:3, :3].dot([-APCPlanner.PREGRASP_POSE_DISTANCE, 0, 0])
 
         return Pose(Point(*(trans + offset)), Quaternion(*rot))
+
+    def get_robot_joint_angles(self, gripper_pose):
+        T = np.linalg.solve(self.link.GetTransform(),
+                            self.manipulator.GetEndEffectorTransform())
+        ikparam = rave.IkParameterization(self.pose_to_transform_matrix(gripper_pose).dot(T),
+                                          self.ikmodel.iktype)
+        return self.manipulator.FindIKSolutions(ikparam,
+                                                rave.IkFilterOptions.CheckEnvCollisions)
 
     def set_kinbody_transform(self, body_name, pose):
         body = self.env.GetKinBody(body_name)
@@ -108,7 +153,7 @@ class APCPlanner(ROSNode):
                 self.cubbyhole_pose = res.marker_pose
 
                 for object_name in self.work_order.bin_contents:
-                    res = self.get_marker_pose_client(object_name)
+                    res = self.get_marker_pose_client("object_{}".format(object_name))
                     self.object_poses[object_name] = res.marker_pose
             except rospy.ServiceException as e:
                 rospy.logerr("Service call failed: {}".format(e))
@@ -119,6 +164,21 @@ class APCPlanner(ROSNode):
                 DATA_DIRECTORY, 'grasps',
                 '{}.json'.format(self.work_order.target_object)))
 
+        object_frame = "/object_{}".format(self.work_order.target_object)
+        try:
+            self.tf_listener.waitForTransform(object_frame,
+                                              "/base_link",
+                                              rospy.Time(0),
+                                              rospy.Duration(2/self.update_rate))
+            header = Header(0, rospy.Time(0), object_frame)
+            for grasp in self.target_object_grasps:
+                grasp.pose = \
+                    self.tf_listener.transformPose("/base_link",
+                                                   PoseStamped(header, grasp.pose)).pose
+
+        except tf.Exception, e:
+            rospy.logerr(e)
+
     def update_simulation_environment(self):
         # Remove old objects
         for body in self.env.GetBodies():
@@ -127,8 +187,8 @@ class APCPlanner(ROSNode):
 
         # Insert new cubbyhole
         cubbyhole_model_name = 'cubbyhole_{}'.format(self.work_order.bin_type)
-        self.env.Load(osp.join(DATA_DIRECTORY, 'models', 'cubbyholes',
-                                   '{}.kinbody.xml'.format(cubbyhole_model_name)))
+        self.env.Load(osp.join(DATA_DIRECTORY, 'models',
+                               '{}.kinbody.xml'.format(cubbyhole_model_name)))
         self.set_kinbody_transform(cubbyhole_model_name, self.cubbyhole_pose)
 
         # Insert new objects
@@ -146,26 +206,18 @@ class APCPlanner(ROSNode):
         self.update_simulation_environment()
 
         # Get grasp preposes
-        target_preposes = []
+        target_pregrasp_poses = []
         for grasp in self.target_object_grasps:
-            target_preposes.append(self.get_grasp_prepose(grasp.pose))
+            target_pregrasp_poses.append(self.get_grasp_prepose(grasp.pose))
 
-        # Filter out impossible poses
+        # Filter out impossible pregrasp poses
+        pregrasp_joint_angles = {}
+        for pregrasp_pose in target_pregrasp_poses:
+            solutions = self.get_robot_joint_angles(pregrasp_pose)
+            if solutions:
+                pregrasp_joint_angles[pregrasp_pose] = solutions
 
 
-
-if __name__ == '__main__':
-    with APCPlanner("work_orders") as planner:
-        pass
-
-# marker_pose:
-# position:
-# x: 0.03
-# y: 0.01
-# z: 0.42
-# orientation:
-# x: -0.247139573138
-# y: -0.304817115648
-# z: -0.261567431794
-# w: 0.881811224709
-
+# if __name__ == '__main__':
+#     with APCPlanner("work_orders", 10) as planner:
+#         pass
