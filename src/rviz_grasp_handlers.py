@@ -98,7 +98,15 @@ class RvizGraspHandler(ROSNode):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.grasps:
-            Grasp.grasps_to_file(self.grasps, self.grasps_file)
+            saved = False
+            while not saved:
+                try:
+                    Grasp.grasps_to_file(self.grasps, self.grasps_file)
+                    saved = True
+                except Exception as e:
+                    rospy.logerr("Grasps not saved because of {}".format(e))
+                    rospy.logerr("Press ENTER to retry")
+                    saved = raw_input()
 
         self.object_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
         self.gripper_moves_publisher.publish(RvizMarkerPublisher.QUIT_MOVE)
