@@ -18,8 +18,7 @@ import tf.transformations
 from geometry_msgs.msg import Point, Pose, Quaternion, PoseStamped
 from std_msgs.msg import Header
 
-from apc.msg import BinWorkOrder
-from apc.srv import *
+from apc.srv import GetMarkerPose, GetMotionPlan
 from ros_utils import ROSNode
 from rviz_grasp_handlers import Grasp
 
@@ -31,12 +30,12 @@ APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 
-class APCPlanner(ROSNode):
+class APCPlannerService(ROSNode):
     PREGRASP_POSE_DISTANCE = 0.05
 
     def __init__(self, work_orders_topic, update_rate,
                  manipulator_name='leftarm'):
-        super(APCPlanner, self).__init__('plan')
+        super(APCPlannerService, self).__init__('plan')
 
         self.work_orders_topic = work_orders_topic
         self.update_rate = update_rate
@@ -47,16 +46,14 @@ class APCPlanner(ROSNode):
         self.work_order = None
         self.target_object_grasps = []
 
-
-
-        self.work_orders_subscriber = rospy.Subscriber(self.work_orders_topic,
-                                                       BinWorkOrder,
-                                                       self.execute_work_order)
         self.tf_listener = tf.TransformListener()
 
         rospy.wait_for_service('get_marker_pose')
         self.get_marker_pose_client = rospy.ServiceProxy('get_marker_pose',
                                                          GetMarkerPose)
+        self.get_motion_plan_service = rospy.Service('get_motion_plan',
+                                                     GetMotionPlan,
+                                                     self.handle_get_motion_plan)
 
     def __enter__(self):
         self.env = rave.Environment()
@@ -71,6 +68,11 @@ class APCPlanner(ROSNode):
                                        iktype=rave.IkParameterization.Type.Transform6D)
         if not self.ikmodel.load():
             self.ikmodel.autogenerate()
+
+        self.joint_names = [self.robot.GetJointFromDOFIndex(index).GetName()
+                            for index in self.manipulator.GetArmIndices()]
+        self.joint_names += [self.robot.GetJointFromDOFIndex(index).GetName()
+                             for index in self.manipulator.GetGripperIndices()]
 
         return self
 
@@ -131,7 +133,7 @@ class APCPlanner(ROSNode):
                         grasp_pose.orientation.w])
 
         T = tf.transformations.quaternion_matrix(rot)
-        offset = T[:3, :3].dot([-APCPlanner.PREGRASP_POSE_DISTANCE, 0, 0])
+        offset = T[:3, :3].dot([-APCPlannerService.PREGRASP_POSE_DISTANCE, 0, 0])
 
         return Pose(Point(*(trans + offset)), Quaternion(*rot))
 
@@ -220,7 +222,7 @@ class APCPlanner(ROSNode):
             self.set_kinbody_transform(object_name,
                                        self.object_poses[object_name])
 
-    def execute_work_order(self, work_order):
+    def handle_get_motion_plan(self, work_order):
         self.work_order = work_order
 
         self.update_cubbyhole_and_objects()
@@ -243,5 +245,5 @@ class APCPlanner(ROSNode):
                                  for solution in pregrasp_joint_angles]
 
 if __name__ == '__main__':
-    with APCPlanner("work_orders", 10, 'leftarm') as planner:
+    with APCPlannerService("work_orders", 10, 'leftarm') as planner:
         planner.spin()
