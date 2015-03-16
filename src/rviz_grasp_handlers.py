@@ -8,7 +8,7 @@ import tf
 import rospy
 from std_msgs.msg import String, Float64
 from geometry_msgs.msg import Pose, Point, Quaternion
-from apc.msg import Grasp as GraspMsg
+from apc.msg import Grasp
 
 import os.path as osp
 import json
@@ -17,6 +17,7 @@ from argparse import ArgumentParser
 from utils import getch
 from ros_utils import ROSNode, TopicSubscriberNode, topic
 from rviz_marker_publisher import RvizMarkerPublisher
+from message_wrappers import GraspWrapper
 
 
 __author__ = 'dibyo'
@@ -24,52 +25,6 @@ __author__ = 'dibyo'
 
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
-
-
-class Grasp(object):
-    def __init__(self, pose, gripper_width=None, flag=False):
-        self.pose = pose
-        self.gripper_width = gripper_width
-        self.flag = flag
-
-    def to_msg(self):
-        return GraspMsg(self.pose, self.gripper_width)
-
-    def __str__(self):
-        return str(self.to_msg())
-
-    def to_json(self):
-        p = self.pose.position
-        o = self.pose.orientation
-
-        d = {
-            'gripper_pose': {
-                'position': {'x': p.x, 'y': p.y, 'z': p.z},
-                'orientation': {'x': o.x, 'y': o.y, 'z': o.z, 'w': o.w}
-            },
-            'gripper_width': self.gripper_width,
-            'flag': self.flag
-        }
-        return d
-
-    @classmethod
-    def from_json(cls, d):
-        pose = Pose()
-        pose.position = Point(**d['gripper_pose']['position'])
-        pose.orientation = Quaternion(**d['gripper_pose']['orientation'])
-
-        return cls(pose, d['gripper_width'], d['flag'])
-
-    @classmethod
-    def grasps_from_file(cls, grasps_file):
-        with open(grasps_file, 'r') as f:
-            return [Grasp.from_json(grasp_json) for grasp_json in json.load(f)]
-
-    @classmethod
-    def grasps_to_file(cls, grasps, grasps_file):
-        with open(grasps_file, 'w+') as f:
-            json.dump([grasp.to_json() for grasp in grasps], f,
-                      indent=4, separators=(', ', ': '))
 
 
 class RvizGraspHandler(ROSNode):
@@ -92,7 +47,7 @@ class RvizGraspHandler(ROSNode):
 
     def __enter__(self):
         if self.keep_old_grasps and osp.exists(self.grasps_file):
-            self.grasps = Grasp.grasps_from_file(self.grasps_file)
+            self.grasps = GraspWrapper.grasps_from_file(self.grasps_file)
 
         return self
 
@@ -101,7 +56,7 @@ class RvizGraspHandler(ROSNode):
             saved = False
             while not saved:
                 try:
-                    Grasp.grasps_to_file(self.grasps, self.grasps_file)
+                    GraspWrapper.grasps_to_file(self.grasps, self.grasps_file)
                     saved = True
                 except Exception as e:
                     rospy.logerr("Grasps not saved because of {}".format(e))
@@ -158,7 +113,7 @@ class RvizGraspViewer(RvizGraspHandler):
         self.modify_grasps = modify_grasps
 
         self.object_poses_publisher = rospy.Publisher(object_poses_topic, Pose)
-        self.gripper_grasps_publisher = rospy.Publisher(gripper_grasps_topic, GraspMsg)
+        self.gripper_grasps_publisher = rospy.Publisher(gripper_grasps_topic, Grasp)
 
         self.move_handlers_dict = None
         self.create_move_handlers_dict()
@@ -241,7 +196,7 @@ class RvizGraspSaver(RvizGraspHandler):
                     pose.position = Point(*trans)
                     pose.orientation = Quaternion(*rot)
                     gripper_width = self.gripper_width_subscriber.last_msg.data
-                    self.grasps.append(Grasp(pose, gripper_width))
+                    self.grasps.append(GraspWrapper(pose, gripper_width))
                     rospy.logwarn('saving grasp: SUCCESS!')
                 except tf.Exception:
                     rospy.logerr('saving grasp: FAILURE!')
