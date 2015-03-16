@@ -15,14 +15,14 @@ __author__ = 'dibyo'
 
 
 class RvizMarkerPoseService(ROSNode):
-    def __init__(self, markers_pose_topic):
+    def __init__(self, marker_poses_topic):
         super(RvizMarkerPoseService, self).__init__("rviz_marker_pose_service",
                                                     anonymous=True)
 
         self.markers = {}
-        self.markers_pose_topic = markers_pose_topic
+        self.marker_poses_topic = marker_poses_topic
 
-        self.markers_pose_subscriber = rospy.Subscriber(self.markers_pose_topic,
+        self.markers_pose_subscriber = rospy.Subscriber(self.marker_poses_topic,
                                                         Marker, self.update_markers)
         self.get_marker_pose_server = rospy.Service('get_marker_pose', GetMarkerPose,
                                                     self.handle_get_marker_pose)

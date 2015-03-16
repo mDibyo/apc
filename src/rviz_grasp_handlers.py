@@ -43,7 +43,7 @@ class Grasp(object):
         o = self.pose.orientation
 
         d = {
-            'pose': {
+            'gripper_pose': {
                 'position': {'x': p.x, 'y': p.y, 'z': p.z},
                 'orientation': {'x': o.x, 'y': o.y, 'z': o.z, 'w': o.w}
             },
@@ -55,8 +55,8 @@ class Grasp(object):
     @classmethod
     def from_json(cls, d):
         pose = Pose()
-        pose.position = Point(**d['pose']['position'])
-        pose.orientation = Quaternion(**d['pose']['orientation'])
+        pose.position = Point(**d['gripper_pose']['position'])
+        pose.orientation = Quaternion(**d['gripper_pose']['orientation'])
 
         return cls(pose, d['gripper_width'], d['flag'])
 

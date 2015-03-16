@@ -269,7 +269,7 @@ class RvizMarkerPublisher(ROSNode):
         self.update_marker()
 
     def execute_grasp(self, grasp):
-        self.pose = grasp.pose
+        self.pose = grasp.gripper_pose
         self.gripper_width = grasp.gripper_width
         self.update_marker()
 
