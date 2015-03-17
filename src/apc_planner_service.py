@@ -109,8 +109,7 @@ class APCPlannerService(ROSNode):
         self.joint_names += [self.robot.GetJointFromDOFIndex(index).GetName()
                              for index in self.manipulator.GetGripperIndices()]
         self.gripper_limits = \
-            [limit[0] for limit in
-             self.robot.GetDOFLimits(self.manipulator.GetGripperIndices())]
+            self.robot.GetDOFLimits(self.manipulator.GetGripperIndices())
 
         return self
 
@@ -222,11 +221,13 @@ class APCPlannerService(ROSNode):
             for grasp in target_object_grasps:
                 grasp.gripper_pose = \
                     self.tf_listener.transformPose("/base_link",
-                                                   PoseStamped(header, grasp.gripper_pose)).pose
+                                                   PoseStamped(header,
+                                                               grasp.gripper_pose)).pose
         except tf.Exception, e:
             rospy.logerr(e)
 
-        self.target_object_approaches = [Approach(grasp.gripper_pose, grasp.gripper_width)
+        self.target_object_approaches = [Approach(grasp.gripper_pose,
+                                                  grasp.gripper_width)
                                          for grasp in target_object_grasps]
 
     def update_simulation_environment(self):
@@ -253,27 +254,83 @@ class APCPlannerService(ROSNode):
         self.update_target_object_approaches()
         self.update_simulation_environment()
 
-    def filter_approaches_by_impossible_ik(self):
-        print "I am here"
+    def _find_joints(self, joints_attr, pose_attr):
         for approach in self.target_object_approaches:
-            print approach.pregrasp_pose
-            approach.pregrasp_joints = self.get_robot_joints(approach.pregrasp_pose)
+            setattr(approach, joints_attr,
+                    self.get_robot_joints(getattr(approach, pose_attr)))
+
+    def _find_trajectory(self, trajectory_attr, target_joints_attr,
+                         start_joints_attr=''):
+        for approach in self.target_object_approaches:
+            setattr(approach, trajectory_attr,
+                    self.get_robot_trajectory(
+                        getattr(approach, target_joints_attr),
+                        getattr(approach, start_joints_attr, None)
+                    ))
+
+    def _filter_approaches_by(self, filter_attr):
         self.target_object_approaches[:] = \
             [approach for approach in self.target_object_approaches
-             if approach.pregrasp_joints is not None]
+             if getattr(approach, filter_attr, None) is not None]
 
-    def filter_approaches_by_trajectory_collision(self):
-        pass
+    # def find_pregrasp_joints(self):
+    #     for approach in self.target_object_approaches:
+    #         approach.pregrasp_joints = \
+    #             self.get_robot_joints(approach.pregrasp_pose)
+    #
+    # def find_pregrasp_trajectory(self):
+    #     for approach in self.target_object_approaches:
+    #         approach.pregrasp_trajectory = \
+    #             self.get_robot_trajectory(approach.pregrasp_joints)
+    #
+    # def find_grasp_joints(self):
+    #     for approach in self.target_object_approaches:
+    #         approach.grasp_joints = \
+    #             self.get_robot_joints(approach.grasp_pose)
+    #
+    # def find_grasp_trajectory(self):
+    #     for approach in self.target_object_approaches:
+    #         approach.grasp_trajectory = \
+    #             self.get_robot_trajectory(approach.grasp_joints,
+    #                                       approach.pregrasp_joints)
 
-    def filter_approaches(self):
-        self.filter_approaches_by_impossible_ik()
+    def find_pregrasp_joints(self):
+        self._find_joints('pregrasp_joints', 'pregrasp_pose')
+
+    def find_pregrasp_trajectory(self):
+        self._find_trajectory('pregrasp_trajectory', 'pregrasp_joints')
+
+    def find_grasp_joints(self):
+        self._find_joints('grasp_joints', 'grasp_pose')
+
+    def find_grasp_trajectory(self):
+        self._find_trajectory('grasp_trajectory', 'grasp_joints',
+                              'pregrasp_joints')
+
 
     def handle_get_motion_plan(self, work_order):
         self.work_order = work_order
         self.update_state()
 
-        # Filter out grasps which are unreachable
-        self.filter_approaches()
+        self._find_joints('pregrasp_joints', 'pregrasp_pose')
+        self._filter_approaches_by('pregrasp_joints')
+
+        self._find_trajectory('pregrasp_trajectory', 'pregrasp_joints')
+        self._filter_approaches_by('pregrasp_trajectory')
+
+        self.robot.SetDOFValues(self.gripper_limits[1],
+                                self.manipulator.GetGripperIndices())
+
+        self._find_joints('grasp_joints', 'grasp_pose')
+        self._filter_approaches_by('grasp_joints')
+
+        self._find_trajectory('grasp_trajectory', 'grasp_joints',
+                              'pregrasp_joints')
+        self._filter_approaches_by('grasp_trajectory')
+
+
+
+
 
 # if __name__ == '__main__':
 #     with APCPlannerService("work_orders", 10, 'leftarm') as planner:
