@@ -18,9 +18,10 @@ import tf.transformations
 from geometry_msgs.msg import Point, Pose, Quaternion, PoseStamped
 from std_msgs.msg import Header
 
-from apc.srv import GetMarkerPose, GetMotionPlan
+from apc.msg import MotionPlan
+from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode
-from message_wrappers import GraspWrapper
+from message_wrappers import GraspWrapper, JointTrajectoryWrapper
 
 
 __author__ = 'dibyo'
@@ -32,21 +33,32 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 class Approach(object):
     PREGRASP_POSE_DISTANCE = 0.05
+    DROPZONE_POSE = Pose(Point(0.37946294703187866,
+                               0.7371332656419127,
+                               0.9694018168496691),
+                         Quaternion(-0.5517710937068498,
+                                    0.3620950514477245,
+                                    0.5284559388562138,
+                                    0.5340132531634529))
 
     def __init__(self, target_gripper_pose, target_gripper_width):
-        self.grasp_pose = target_gripper_pose
         self.gripper_width = target_gripper_width
 
-        self.pregrasp_pose = self.get_grasp_prepose(self.grasp_pose)
+        self.pregrasp_pose = self.get_grasp_prepose(target_gripper_pose)
         self.pregrasp_joints = None
         self.pregrasp_trajectory = None
 
+        self.grasp_pose = target_gripper_pose
         self.grasp_joints = None
         self.grasp_trajectory = None
 
-        self.postgrasp_pose = None
+        self.postgrasp_pose = self.pregrasp_pose
         self.postgrasp_joints = None
         self.postgrasp_trajectory = None
+
+        self.dropzone_pose = self.DROPZONE_POSE
+        self.dropzone_joints = None
+        self.dropzone_trajectory = None
 
     @staticmethod
     def get_grasp_prepose(grasp_pose):
@@ -104,10 +116,11 @@ class APCPlannerService(ROSNode):
         self.T_l2ee = np.linalg.solve(self.link.GetTransform(),
                                       self.manipulator.GetEndEffectorTransform())
 
-        self.joint_names = [self.robot.GetJointFromDOFIndex(index).GetName()
-                            for index in self.manipulator.GetArmIndices()]
-        self.joint_names += [self.robot.GetJointFromDOFIndex(index).GetName()
-                             for index in self.manipulator.GetGripperIndices()]
+        self.arm_joint_names = [self.robot.GetJointFromDOFIndex(index).GetName()
+                                for index in self.manipulator.GetArmIndices()]
+        self.gripper_joint_names = [self.robot.GetJointFromDOFIndex(index).GetName()
+                                    for index in self.manipulator.GetGripperIndices()]
+        self.torso_joint_names = ['torso_lift_joint']
         self.gripper_limits = \
             self.robot.GetDOFLimits(self.manipulator.GetGripperIndices())
 
@@ -273,63 +286,86 @@ class APCPlannerService(ROSNode):
             [approach for approach in self.target_object_approaches
              if getattr(approach, filter_attr, None) is not None]
 
-    # def find_pregrasp_joints(self):
-    #     for approach in self.target_object_approaches:
-    #         approach.pregrasp_joints = \
-    #             self.get_robot_joints(approach.pregrasp_pose)
-    #
-    # def find_pregrasp_trajectory(self):
-    #     for approach in self.target_object_approaches:
-    #         approach.pregrasp_trajectory = \
-    #             self.get_robot_trajectory(approach.pregrasp_joints)
-    #
-    # def find_grasp_joints(self):
-    #     for approach in self.target_object_approaches:
-    #         approach.grasp_joints = \
-    #             self.get_robot_joints(approach.grasp_pose)
-    #
-    # def find_grasp_trajectory(self):
-    #     for approach in self.target_object_approaches:
-    #         approach.grasp_trajectory = \
-    #             self.get_robot_trajectory(approach.grasp_joints,
-    #                                       approach.pregrasp_joints)
-
-    def find_pregrasp_joints(self):
+    def find_motion_plan(self):
+        # Go to pregrasp
         self._find_joints('pregrasp_joints', 'pregrasp_pose')
-
-    def find_pregrasp_trajectory(self):
+        self._filter_approaches_by('pregrasp_joints')
         self._find_trajectory('pregrasp_trajectory', 'pregrasp_joints')
+        self._filter_approaches_by('pregrasp_trajectory')
 
-    def find_grasp_joints(self):
+        # Open gripper
+        self.robot.SetDOFValues(self.gripper_limits[1],
+                                self.manipulator.GetGripperIndices())
+
+        # Go to grasp
         self._find_joints('grasp_joints', 'grasp_pose')
-
-    def find_grasp_trajectory(self):
+        self._filter_approaches_by('grasp_joints')
         self._find_trajectory('grasp_trajectory', 'grasp_joints',
                               'pregrasp_joints')
+        self._filter_approaches_by('grasp_trajectory')
 
+        # Close gripper
+
+        # Go to postgrasp
+        self._find_joints('postgrasp_joints', 'postgrasp_pose')
+        self._find_trajectory('postgrasp_trajectory', 'postgrasp_joints',
+                              'grasp_joints')
+
+        # Go to dropzone
+        self._find_joints('dropzone_joints', 'dropzone_pose')
+        self._find_trajectory('dropzone_trajectory', 'dropzone_joints',
+                              'postgrasp_joints')
+
+        # Open gripper
+
+    def create_motion_plan(self):
+        if not len(self.target_object_approaches):
+            return None
+
+        approach = self.target_object_approaches[0]
+        # Strategy: Simple
+        joint_trajectories = [
+            # Adjust torse
+            JointTrajectoryWrapper(self.torso_joint_names,
+                                   self.robot.GetDOFValues([12])).to_msg(),
+
+            # Go to pregrasp
+            JointTrajectoryWrapper(self.arm_joint_names,
+                                   approach.pregrasp_trajectory).to_msg(),
+
+            # Open gripper
+            JointTrajectoryWrapper(self.gripper_joint_names,
+                                   self.gripper_limits[1]).to_msg(),
+
+            # Go to grasp
+            JointTrajectoryWrapper(self.arm_joint_names,
+                                   approach.grasp_trajectory).to_msg(),
+
+            # Close gripper
+            JointTrajectoryWrapper(self.gripper_joint_names,
+                                   self.gripper_limits[0]).to_msg(),
+
+            # Go to postgrasp
+            JointTrajectoryWrapper(self.arm_joint_names,
+                                   approach.postgrasp_trajectory).to_msg(),
+
+            # Go to dropzone
+            JointTrajectoryWrapper(self.arm_joint_names,
+                                   approach.dropzone_trajectory).to_msg(),
+
+            # Open gripper
+            JointTrajectoryWrapper(self.gripper_joint_names,
+                                   self.gripper_limits[1]).to_msg()
+        ]
+
+        return MotionPlan(self.work_order.strategy, joint_trajectories)
 
     def handle_get_motion_plan(self, work_order):
         self.work_order = work_order
         self.update_state()
 
-        self._find_joints('pregrasp_joints', 'pregrasp_pose')
-        self._filter_approaches_by('pregrasp_joints')
-
-        self._find_trajectory('pregrasp_trajectory', 'pregrasp_joints')
-        self._filter_approaches_by('pregrasp_trajectory')
-
-        self.robot.SetDOFValues(self.gripper_limits[1],
-                                self.manipulator.GetGripperIndices())
-
-        self._find_joints('grasp_joints', 'grasp_pose')
-        self._filter_approaches_by('grasp_joints')
-
-        self._find_trajectory('grasp_trajectory', 'grasp_joints',
-                              'pregrasp_joints')
-        self._filter_approaches_by('grasp_trajectory')
-
-
-
+        self.find_motion_plan()
+        return GetMotionPlanResponse(self.create_motion_plan())
 
 
 # if __name__ == '__main__':
