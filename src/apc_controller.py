@@ -43,7 +43,7 @@ class APCController(ROSNode):
         self._robot_exec_status = exec_status
 
     def record_exec_status(self, status):
-        self.robot_exec_status = status
+        self.robot_exec_status = status.status
 
     def wait_for_busy_exec_status(self):
         while self.robot_exec_status != ExecStatus.BUSY:
@@ -65,12 +65,23 @@ class APCController(ROSNode):
     def execute_work_order(self, work_order):
         try:
             res = self.get_motion_plan_client(work_order)
+            self.execute_motion_plan(res.motion_plan)
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
 
 
+
+
 if __name__ == '__main__':
+    start_joints = [1.2649260742043886,
+                    -0.35354764645244385,
+                    1.2638167606524484,
+                    -0.8134383377306724,
+                    1.49048266209742,
+                    -1.8862530453060153,
+                    1.7517736670157182]
+
     controller = APCController('joint_trajectories', 'exec_status')
-    work_order = BinWorkOrder('broad_tall', ['dove_beauty_bar'],
-                              'dove_beauty_bar', 'simple')
+    work_order = BinWorkOrder('all_combined', ['dove_beauty_bar'],
+                              'dove_beauty_bar', start_joints, 'simple')
     controller.execute_work_order(work_order)
