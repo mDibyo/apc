@@ -33,8 +33,9 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 
 class Approach(object):
-    PREGRASP_POSE_DISTANCE = 0.2
-    POSTGRASP_POSE_DISTANCE = 0.29
+    PREGRASP_POSE_OFFSET = -0.15
+    GRASP_POSE_OFFSET = 0.045
+    POSTGRASP_POSE_OFFSET = -0.2
 
     WAYPOINT_POSE = Pose(Point(0.35, 0.00739935381367, 1.2),
                          Quaternion(-0.00363820843569, -0.0145515141784,
@@ -47,18 +48,21 @@ class Approach(object):
     def __init__(self, target_gripper_pose, target_gripper_width):
         self.gripper_width = target_gripper_width
 
-        self.pregrasp_pose = self.get_pregrasp_pose(target_gripper_pose)
+        self.pregrasp_pose = self.get_offset_pose(target_gripper_pose,
+                                                  self.PREGRASP_POSE_OFFSET)
         self.pregrasp_joints = None
         self.pregrasp_trajectory = None
 
-        self.grasp_pose = target_gripper_pose
+        self.grasp_pose = self.get_offset_pose(target_gripper_pose,
+                                               self.GRASP_POSE_OFFSET)
         self.grasp_joints = None
         self.grasp_trajectory = None
 
         p = self.grasp_pose.position
         q = self.grasp_pose.orientation
 
-        self.postgrasp_pose = Pose(Point(p.x-0.25, p.y, p.z+0.03), q)
+        self.postgrasp_pose = self.get_offset_pose(target_gripper_pose,
+                                                   self.POSTGRASP_POSE_OFFSET)
         self.postgrasp_joints = None
         self.postgrasp_trajectory = None
 
@@ -71,32 +75,20 @@ class Approach(object):
         self.dropzone_trajectory = None
 
     @staticmethod
-    def get_pregrasp_pose(grasp_pose):
-        trans = np.array([grasp_pose.position.x,
-                          grasp_pose.position.y,
-                          grasp_pose.position.z])
-        rot = np.array([grasp_pose.orientation.x,
-                        grasp_pose.orientation.y,
-                        grasp_pose.orientation.z,
-                        grasp_pose.orientation.w])
+    def get_offset_pose(pose, offset):
+        if not offset:
+            return pose
+
+        trans = np.array([pose.position.x,
+                          pose.position.y,
+                          pose.position.z])
+        rot = np.array([pose.orientation.x,
+                        pose.orientation.y,
+                        pose.orientation.z,
+                        pose.orientation.w])
 
         T = tf.transformations.quaternion_matrix(rot)
-        offset = T[:3, :3].dot([-Approach.PREGRASP_POSE_DISTANCE, 0, 0])
-
-        return Pose(Point(*(trans + offset)), Quaternion(*rot))
-
-    @staticmethod
-    def get_postgrasp_pose(grasp_pose):
-        trans = np.array([grasp_pose.position.x,
-                          grasp_pose.position.y,
-                          grasp_pose.position.z])
-        rot = np.array([grasp_pose.orientation.x,
-                        grasp_pose.orientation.y,
-                        grasp_pose.orientation.z,
-                        grasp_pose.orientation.w])
-
-        T = tf.transformations.quaternion_matrix(rot)
-        offset = T[:3, :3].dot([-Approach.POSTGRASP_POSE_DISTANCE, 0, 0])
+        offset = T[:3, :3].dot([offset, 0, 0])
 
         return Pose(Point(*(trans + offset)), Quaternion(*rot))
 
@@ -165,7 +157,7 @@ class APCPlannerService(ROSNode):
         },
         "costs": [{
             "type": "joint_vel",
-            "params": {"coeffs": [1]}
+            "params": {"coeffs": [2]}
         }, {
             "type": "collision",
             "params": {
@@ -349,7 +341,7 @@ class APCPlannerService(ROSNode):
         self._find_joints('postgrasp_joints', 'postgrasp_pose')
         # self._filter_approaches_by('postgrasp_joints')
         self._find_trajectory('postgrasp_trajectory', 'postgrasp_joints',
-                              'grasp_joints', 0.05)
+                              'grasp_joints', 0.02)
         # self._filter_approaches_by('postgrasp_trajectory')
 
         # # Go to waypoint

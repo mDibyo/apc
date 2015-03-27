@@ -18,6 +18,29 @@ __author__ = 'dibyo'
 
 
 class APCTrajectoryExecutor(ROSNode):
+    class ExecStatusContextManager(object):
+        def __init__(self, topic):
+            self.topic = topic
+
+            self.status = ExecStatus.IDLE
+
+            self.publisher = rospy.Publisher(topic,
+                                             ExecStatus)
+            self.publisher_thread = LoopingThread(target=self.publish,
+                                                  rate=50)
+
+        def __enter__(self):
+            self.status = ExecStatus.BUSY
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.status = ExecStatus.IDLE
+
+        def publish(self):
+            header = Header()
+            header.stamp = rospy.Time.now()
+            self.publisher.publish(ExecStatus(header, self.status))
+
     def __init__(self, joint_trajectories_topic, exec_status_topic):
         super(APCTrajectoryExecutor, self).__init__('execute')
 
@@ -25,7 +48,7 @@ class APCTrajectoryExecutor(ROSNode):
         self.exec_status_topic = exec_status_topic
         self.exec_status = ExecStatus.IDLE
 
-        self.larm = Arm('left', default_speed=0.2)
+        self.larm = Arm('left', default_speed=0.3)
         self.larm_gripper_name = 'l_gripper_l_finger_joint'
         # self.rarm = Arm('right')
         # self.rarm_gripper_name = 'r_gripper_l_finger_joint'
