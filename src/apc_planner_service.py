@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-
+from scipy.optimize import fmin_l_bfgs_b
 import os.path as osp
 from copy import deepcopy
 import json
@@ -33,8 +33,9 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 
 class Approach(object):
-    PREGRASP_POSE_DISTANCE = 0.2
-    POSTGRASP_POSE_DISTANCE = 0.29
+    PREGRASP_POSE_OFFSET = -0.15
+    GRASP_POSE_OFFSET = 0.045
+    POSTGRASP_POSE_OFFSET = -0.2
 
     WAYPOINT_POSE = Pose(Point(0.35, 0.00739935381367, 1.2),
                          Quaternion(-0.00363820843569, -0.0145515141784,
@@ -47,18 +48,21 @@ class Approach(object):
     def __init__(self, target_gripper_pose, target_gripper_width):
         self.gripper_width = target_gripper_width
 
-        self.pregrasp_pose = self.get_pregrasp_pose(target_gripper_pose)
+        self.pregrasp_pose = self.get_offset_pose(target_gripper_pose,
+                                                  self.PREGRASP_POSE_OFFSET)
         self.pregrasp_joints = None
         self.pregrasp_trajectory = None
 
-        self.grasp_pose = target_gripper_pose
+        self.grasp_pose = self.get_offset_pose(target_gripper_pose,
+                                               self.GRASP_POSE_OFFSET)
         self.grasp_joints = None
         self.grasp_trajectory = None
 
         p = self.grasp_pose.position
         q = self.grasp_pose.orientation
 
-        self.postgrasp_pose = Pose(Point(p.x-0.25, p.y, p.z+0.03), q)
+        self.postgrasp_pose = self.get_offset_pose(target_gripper_pose,
+                                                   self.POSTGRASP_POSE_OFFSET)
         self.postgrasp_joints = None
         self.postgrasp_trajectory = None
 
@@ -71,39 +75,32 @@ class Approach(object):
         self.dropzone_trajectory = None
 
     @staticmethod
-    def get_pregrasp_pose(grasp_pose):
-        trans = np.array([grasp_pose.position.x,
-                          grasp_pose.position.y,
-                          grasp_pose.position.z])
-        rot = np.array([grasp_pose.orientation.x,
-                        grasp_pose.orientation.y,
-                        grasp_pose.orientation.z,
-                        grasp_pose.orientation.w])
+    def get_offset_pose(pose, offset):
+        if not offset:
+            return pose
 
+        trans,rot = Approach.TR_from_pose(pose)
+        
         T = tf.transformations.quaternion_matrix(rot)
-        offset = T[:3, :3].dot([-Approach.PREGRASP_POSE_DISTANCE, 0, 0])
+        offset = T[:3, :3].dot([offset, 0, 0])
 
         return Pose(Point(*(trans + offset)), Quaternion(*rot))
-
+        
     @staticmethod
-    def get_postgrasp_pose(grasp_pose):
-        trans = np.array([grasp_pose.position.x,
-                          grasp_pose.position.y,
-                          grasp_pose.position.z])
-        rot = np.array([grasp_pose.orientation.x,
-                        grasp_pose.orientation.y,
-                        grasp_pose.orientation.z,
-                        grasp_pose.orientation.w])
-
-        T = tf.transformations.quaternion_matrix(rot)
-        offset = T[:3, :3].dot([-Approach.POSTGRASP_POSE_DISTANCE, 0, 0])
-
-        return Pose(Point(*(trans + offset)), Quaternion(*rot))
+    def TR_from_pose(pose):
+        trans = np.array([pose.position.x,
+                          pose.position.y,
+                          pose.position.z])
+        rot = np.array([pose.orientation.x,
+                        pose.orientation.y,
+                        pose.orientation.z,
+                        pose.orientation.w])
+        return trans,rot
 
 
 class APCPlannerService(ROSNode):
     def __init__(self, work_orders_topic, update_rate,
-                 manipulator_name='leftarm'):
+                 manipulator_name='leftarm_torso'):
         super(APCPlannerService, self).__init__('plan')
 
         self.work_orders_topic = work_orders_topic
@@ -126,15 +123,18 @@ class APCPlannerService(ROSNode):
 
     def __enter__(self):
         self.env = rave.Environment()
-        self.env.Load("robots/pr2-beta-static.zae")
+        self.env.Load(osp.join(DATA_DIRECTORY, "models", "pr2-beta-static.zae"))
         self.robot = self.env.GetRobot('pr2')
         self.manipulator = self.robot.SetActiveManipulator(self.manipulator_name)
         self.link = self.robot.GetLink('{}_gripper_tool_frame'.
                                        format(self.manipulator_name[0]))
 
+        self.robot.SetActiveDOFs(self.manipulator.GetArmIndices(), 
+                    rave.DOFAffine.X + rave.DOFAffine.Y + rave.DOFAffine.RotationAxis, [0,0,1])
+                             
         self.robot.SetDOFValues([-0.4, -0.52, 0, -0.4, 0, 0, 0],
                                 self.robot.GetManipulator('rightarm').GetArmIndices())
-
+       
         self.ikmodel = \
             rave.databases.inversekinematics. \
                 InverseKinematicsModel(self.robot,
@@ -161,11 +161,11 @@ class APCPlannerService(ROSNode):
     _trajopt_request_template = {
         "basic_info": {
             "n_steps": 10,
-            "start_fixed": True
+            "start_fixed": False
         },
         "costs": [{
             "type": "joint_vel",
-            "params": {"coeffs": [1]}
+            "params": {"coeffs": [2]}
         }, {
             "type": "collision",
             "params": {
@@ -208,8 +208,57 @@ class APCPlannerService(ROSNode):
             ikparam = rave.IkParameterization(
                 self.pose_to_transform_matrix(gripper_pose).dot(T),
                 self.ikmodel.iktype)
-            return self.manipulator.FindIKSolution(ikparam,
+            iksol = self.manipulator.FindIKSolution(ikparam,
                                                    rave.IkFilterOptions.CheckEnvCollisions)
+            distance = 0
+            
+            if iksol is None:
+                rospy.logwarn("trying numerical IK")
+                iksol, distance = self.numIK(gripper_pose)
+            
+            return iksol, distance
+            
+    def numIK(self, targetPose, weights=[1,1,1,1,15,15,15], Cw = 100):
+        """
+        def gripPointDir(q):
+            m = rave.matrixFromQuat(q)[:3,3]
+            return m.dot(np.array([[1],[0],[0]]))
+            
+        def gripOpenDir(q):
+            m = rave.matrixFromQuat(q)[:3,3]
+            return m.dot(np.array([[0],[0],[1]]))
+            
+        def gripperState(pose):
+            q = pose[:4]
+            pointdir = gripPointDir(q)
+            opendir = gripOpenDir(q)
+            rospy.logwarn(pointdir.shape, opendir.shape)
+            return np.vstack([pointdir,opendir])
+        """
+        rave.RaveSetDebugLevel(rave.DebugLevel.Error)
+        robot = self.env.GetRobot('pr2')
+        manip = self.robot.SetActiveManipulator(self.manipulator_name)
+        joint_start = robot.GetDOFValues(manip.GetArmIndices())
+
+
+        robot.SetDOFValues(joint_start, manip.GetArmIndices())
+        trans,rot = Approach.TR_from_pose(targetPose)
+        target = np.hstack([rot, trans])
+        rospy.logwarn(target)
+        bounds = []
+        lowers,uppers = robot.GetDOFLimits()
+        for j in manip.GetArmIndices():
+            bounds.append( (lowers[j], uppers[j]) )
+       
+        def cost(armjoints):    
+            robot.SetDOFValues(armjoints, manip.GetArmIndices())
+            grippose = rave.poseFromMatrix(manip.GetTransform())
+            distCost = np.linalg.norm( (grippose - target) * np.array(weights) )
+            collCost = Cw * sum([sum([1 if self.env.CheckCollision(f,o) else 0 for o in self.env.GetBodies()[1:]]) for f in manip.GetChildLinks()])
+            return distCost + collCost
+            
+        final, fmin, d = fmin_l_bfgs_b(cost, joint_start, maxfun=500, approx_grad=True,bounds=bounds,pgtol=1e-12,factr=1)
+        return final, fmin
 
     def get_robot_trajectory(self, target_joints, start_joints=None, dist_pen=0.02):
         if start_joints is None:
@@ -307,8 +356,12 @@ class APCPlannerService(ROSNode):
 
     def _find_joints(self, joints_attr, pose_attr):
         for approach in self.target_object_approaches:
-            setattr(approach, joints_attr,
-                    self.get_robot_joints(getattr(approach, pose_attr)))
+            joints, distance = self.get_robot_joints(getattr(approach, pose_attr))
+            setattr(approach, joints_attr, joints)
+            setattr(approach, "{}_dist".format(joints_attr), distance)
+            
+            if getattr(approach, joints_attr) is None:
+                rospy.logwarn("no IK solution for " + pose_attr)
 
     def _find_trajectory(self, trajectory_attr, target_joints_attr,
                          start_joints_attr='', dist_pen=0.02):
@@ -349,7 +402,7 @@ class APCPlannerService(ROSNode):
         self._find_joints('postgrasp_joints', 'postgrasp_pose')
         # self._filter_approaches_by('postgrasp_joints')
         self._find_trajectory('postgrasp_trajectory', 'postgrasp_joints',
-                              'grasp_joints', 0.05)
+                              'grasp_joints', 0.02)
         # self._filter_approaches_by('postgrasp_trajectory')
 
         # # Go to waypoint
@@ -370,8 +423,16 @@ class APCPlannerService(ROSNode):
         if not len(self.target_object_approaches):
             return None
 
-        approach = self.target_object_approaches[0]
+        approach = min(self.target_object_approaches, key=lambda approach: approach.pregrasp_joints_dist + approach.grasp_joints_dist) 
+        
         # Strategy: Simple
+        def simulate_trajectory(traj):
+            for joints in traj:
+                self.robot.SetDOFValues(joints, self.manipulator.GetArmIndices())
+                rospy.sleep(0.5)
+        
+        simulate_trajectory(approach.pregrasp_trajectory)
+        simulate_trajectory(approach.grasp_trajectory)
         joint_trajectories = [
             # Adjust torse
             JointTrajectoryWrapper(self.torso_joint_names,
@@ -419,7 +480,7 @@ class APCPlannerService(ROSNode):
         self.find_motion_plan()
         return GetMotionPlanResponse(self.create_motion_plan())
 
-
+"""
 if __name__ == '__main__':
     with APCPlannerService("work_orders", 10, 'leftarm') as planner:
-        planner.spin()
+        planner.spin()"""

@@ -59,16 +59,17 @@ class APCController(ROSNode):
         for joint_trajectory in motion_plan.trajectories:
             self.joint_trajectories_publisher.publish(joint_trajectory)
             # self.wait_for_busy_exec_status()
-            rospy.sleep(0.1)
+            rospy.sleep(1.0)
             self.wait_for_idle_exec_status()
 
     def execute_work_order(self, work_order):
         try:
+            rospy.logwarn("Here")
             res = self.get_motion_plan_client(work_order)
+            rospy.logwarn("Here too")
             self.execute_motion_plan(res.motion_plan)
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
-
 
 
 
