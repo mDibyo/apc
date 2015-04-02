@@ -1,10 +1,12 @@
 from __future__ import division
 
 import threading
-
+import os.path as osp
 
 __author__ = 'dibyo'
 
+APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
+DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 def getch():
     import sys
