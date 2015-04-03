@@ -91,8 +91,9 @@ class APCTrajectoryExecutor(ROSNode):
         except rospy.ROSException:
             self.exec_status = ExecStatus.ERROR
 
-
+"""
 if __name__ == '__main__':
     executor = APCTrajectoryExecutor('joint_trajectories', 'exec_status')
     print "ready for execution"
     executor.spin()
+"""
