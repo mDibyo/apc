@@ -33,9 +33,9 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 
 class Approach(object):
-    PREGRASP_POSE_OFFSET = -0.15
+    PREGRASP_POSE_OFFSET = -0.09
     GRASP_POSE_OFFSET = 0.045
-    POSTGRASP_POSE_OFFSET = -0.2
+    POSTGRASP_POSE_OFFSET = -0.10
 
     WAYPOINT_POSE = Pose(Point(0.35, 0.00739935381367, 1.2),
                          Quaternion(-0.00363820843569, -0.0145515141784,
@@ -109,6 +109,7 @@ class APCPlannerService(ROSNode):
 
         self.tf_listener = tf.TransformListener()
 
+        rospy.loginfo('Waiting for get_marker_pose service...')
         rospy.wait_for_service('get_marker_pose')
         self.get_marker_pose_client = rospy.ServiceProxy('get_marker_pose',
                                                          GetMarkerPose)

@@ -310,3 +310,4 @@ if __name__ == '__main__':
                              update_rate=args.update_rate,
                              delete=args.delete) as publisher:
         publisher.enter_control_loop()
+        rospy.loginfo(publisher.pose)

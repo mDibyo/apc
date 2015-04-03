@@ -151,7 +151,8 @@ class RvizGraspViewer(RvizGraspHandler):
             ch = getch()
 
     def execute_move(self, move):
-        self.move_handlers_dict[move]()
+        self.move_handlers_dict.get(move, lambda: None)()
+        # self.move_handlers_dict[move]()
         self.update_grasp()
 
 
