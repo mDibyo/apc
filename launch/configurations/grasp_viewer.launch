@@ -4,10 +4,10 @@
     <arg name="object_marker" value="object_marker" />
     <arg name="gripper_marker" value="gripper_marker" />
     <arg name="object_moves_topic" value="object_moves" />
+    <arg name="object_poses_topic" value="object_poses" />
     <arg name="gripper_moves_topic" value="gripper_moves" />
-    <arg name="gripper_width_topic" value="gripper_width" />
-    <arg name="update_rate" default="50" />
-    <arg name="keep_old_grasps_bool" default="false" />
+    <arg name="gripper_grasps_topic" value="gripper_grasps" />
+    <arg name="modify_grasps_bool" default="false" />
 
     <!-- Handling for object_name argument -->
     <arg name="object_name" />
@@ -15,35 +15,34 @@
     <!-- APC nodes in apc namespace -->
     <group ns="apc">
         <!-- Node for object marker -->
-        <include file="$(find apc)/launch/object_marker_node.launch">
+        <include file="$(find apc)/launch/nodes/object_marker_node.launch">
             <arg name="name" value="$(arg object_marker)" />
             <arg name="type" value="1" />
             <arg name="delete_bool" value="true" />
-            <arg name="mesh_file" value="$(find apc)/data/meshes/objects/$(arg object_name).stl" />
+            <arg name="mesh_file" value="$(find apc)/data/meshes/$(arg object_name).stl" />
             <arg name="moves_control_topic" value="$(arg object_moves_topic)" />
-            <arg name="update_rate" value="$(arg update_rate)" />
+            <arg name="poses_control_topic" value="$(arg object_poses_topic)" />
         </include>
 
         <!-- Node for gripper marker -->
-        <include file="$(find apc)/launch/object_marker_node.launch">
+        <include file="$(find apc)/launch/nodes/object_marker_node.launch">
             <arg name="name" value="$(arg gripper_marker)" />
             <arg name="type" value="2" />
             <arg name="delete_bool" value="true" />
             <arg name="moves_control_topic" value="$(arg gripper_moves_topic)" />
-            <arg name="gripper_width_topic" value="$(arg gripper_width_topic)" />
-            <arg name="update_rate" value="$(arg update_rate)" />
+            <arg name="grasps_control_topic" value="$(arg gripper_grasps_topic)" />
         </include>
 
-        <!-- Node for grasp annotator -->
-        <include file="$(find apc)/launch/grasp_saver_node.launch">
+        <!-- Node for grasp viewer -->
+        <include file="$(find apc)/launch/nodes/grasp_viewer_node.launch">
             <arg name="object_name" value="$(arg object_name)" />
             <arg name="object_marker" value="$(arg object_marker)" />
             <arg name="gripper_marker" value="$(arg gripper_marker)" />
             <arg name="object_moves_topic" value="$(arg object_moves_topic)" />
+            <arg name="object_poses_topic" value="$(arg object_poses_topic)" />
             <arg name="gripper_moves_topic" value="$(arg gripper_moves_topic)" />
-            <arg name="gripper_width_topic" value="$(arg gripper_width_topic)" />
-            <arg name="update_rate" value="$(arg update_rate)" />
-            <arg name="keep_old_grasps_bool" value="$(arg keep_old_grasps_bool)" />
+            <arg name="gripper_grasps_topic" value="$(arg gripper_grasps_topic)" />
+            <arg name="modify_grasps_bool" value="$(arg modify_grasps_bool)" />
         </include>
     </group>
 </launch>
