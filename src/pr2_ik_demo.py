@@ -7,16 +7,14 @@ import openravepy as rave
 from IK import *
 import time
 
-def plotPose(env, robot, pose):
-    point = rave.matrixFromPose(pose).dot(O)[:3]
-    return env.plot3(points=point,pointsize=15)
-    
-def plotPoint(env, point):
-    px = point.copy() + [0.25,0,0]
-    py = point.copy() + [0,0.25,0]
-    pz = point.copy() + [0,0,0.25]
-    linepts = np.vstack([px,point,py,point,pz])
-    return linepts, e.drawlinestrip(points=linepts, linewidth=2.0)
+def plotPose(env, toPlot):
+    if toPlot.shape == (4,4):
+        mat = toPlot
+    else:
+        mat = rave.matrixFromPose(toPlot)
+    p1 = mat.dot([0,0,0,1])[:3]
+    p2 = mat.dot([1,0,0,1])[:3]
+    return env.drawarrow(p1,p2,linewidth=0.02)
     
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
@@ -24,42 +22,52 @@ e.Load("robots/pr2-beta-sim.robot.xml")
 e.Load("../data/meshes/cubbyholes/pod_lowres.stl")
 e.Load("../data/meshes/objects/dove_beauty_bar_centered.stl")
 e.SetViewer("qtcoin")
+
 r = e.GetRobots()[0]
 r.SetDOFValues([0.54,-1.57],[22,27])
+r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0])))
+
 m = r.SetActiveManipulator("leftarm_torso")
-initPose = m.GetTransformPose()
 shelf = e.GetBodies()[1]
-shelf.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,1.3,0,0])))
 obj = e.GetBodies()[2]
-e.Remove(shelf)
-aabb = shelf.ComputeAABB()
+
 def randomObjPose():
-    y = np.random.random() * aabb.extents()[1] + aabb.pos()[1]
-    z = 0.8*np.random.random() + 0.78
-    theta = 0.8*np.random.random()-0.4
+    biny, binz = np.random.randint(3), np.random.randint(3)
+    xlow, xhigh = -0.2, -0.43
+    ystep = 0.55/2
+    zss = 0.23
+    zsl = 0.27
+    zvals = [0, zsl, zsl+zss, zsl+2*zss]
+    size = obj.ComputeAABB().extents()
+    theta = 0.4*np.random.random()-0.2
     quat = np.array([theta,0,0,np.sqrt(1-theta**2)])
-    return np.hstack([quat, [0.92, y, z]])
+    x = np.random.random()*(xhigh-xlow+size[1]) + xlow
+    y = ystep * (biny-1)
+    z = zvals[binz] + 0.80 + size[2]
+    return np.hstack([quat, [x,y,z]])
 
 ik = IkSolver(e)
 
-print "press 'ENTER' to start, 'q' to quit",
+print "press 'ENTER' to start, 'q' to quit"
 
-while "q" not in str(raw_input()):
-    r.SetTransform(np.eye(4))
+while "q" not in str(raw_input("continue?" )):
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0])))
     objPose = randomObjPose()
     obj.SetTransform(rave.matrixFromPose(objPose))
     
     st = time.time()
     rsol = ik.GetRaveIkSol("dove_beauty_bar_centered")
     pos = r.GetTransform()
-    while rsol == [] and pos[0,3] < obj.GetTransformPose()[-3]:
+    while rsol == [] and pos[0,3] < rave.poseFromMatrix(obj.GetTransform())[-3]:
         pos = r.GetTransform()
         pos[0,3] += 0.02
         r.SetTransform(pos)
         rsol = ik.GetRaveIkSol("dove_beauty_bar_centered")
     if rsol != []:
-        print "found sol in " + str(time.time()-st) + "s",
-        r.SetDOFValues(rsol[0], m.GetArmIndices())
+        print "found " + str(len(rsol)) + " sol in " + str(time.time()-st) + "s",
+        for sol in rsol:
+            r.SetDOFValues(sol, m.GetArmIndices())
+            raw_input("next sol? ")
     else:
         print "no IK sol found"
     
