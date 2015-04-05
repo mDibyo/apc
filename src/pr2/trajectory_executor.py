@@ -50,8 +50,8 @@ class APCTrajectoryExecutor(ROSNode):
 
         self.larm = Arm('left', default_speed=0.3)
         self.larm_gripper_name = 'l_gripper_l_finger_joint'
-        # self.rarm = Arm('right')
-        # self.rarm_gripper_name = 'r_gripper_l_finger_joint'
+        self.rarm = Arm('right')
+        self.rarm_gripper_name = 'r_gripper_l_finger_joint'
 
         self.joint_trajectories_subscriber = rospy.Subscriber(self.joint_trajectories_topic,
                                                               JointTrajectory,
