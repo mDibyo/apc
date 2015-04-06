@@ -1,6 +1,7 @@
 from __future__ import division
 
 import threading
+import multiprocessing as mp
 import os.path as osp
 
 __author__ = 'dibyo'
@@ -9,15 +10,16 @@ APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 def runInParallel(func, args):
-    result = []
-    
+    result = mp.Manager().list()
+    processes = []
     for a in args:
-        t = threading.Thread(target=func, args=a+[result])
-        t.start()
-
-    return result
-
-
+        p = mp.Process(target=func, args=a+[result])
+        processes.append(p)
+        p.start()
+    for p in processes:
+        p.join()
+    return list(result)
+    
 def getch():
     import sys
     import tty

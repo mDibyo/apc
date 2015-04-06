@@ -18,6 +18,7 @@ class IkSolver(object):
     def __init__(self, env):
         self.env = env
         r = env.GetRobot("pr2")
+        self.robot = r
         m = r.GetActiveManipulator()
         lower = [float(j.GetLimits()[0])+self.EPS for j in r.GetJoints(m.GetArmIndices())]
         upper = [float(j.GetLimits()[1])-self.EPS for j in r.GetJoints(m.GetArmIndices())]
@@ -27,26 +28,29 @@ class IkSolver(object):
         if not self.ikmodel.load():
                 self.ikmodel.autogenerate()
                 
-    def solveIK(self, target, result):
+    def solveIK(self, target, manipName, out):
         ikparam = rave.IkParameterization(target, self.ikmodel.iktype)
-        iks = self.env.GetRobot("pr2").GetActiveManipulator().FindIKSolution(ikparam, rave.IkFilterOptions.CheckEnvCollisions) #IgnoreEndEffectorEnvCollisions)
-        if iks is not None:
-            result.append(iks)
-
+        iksol = self.env.GetRobot("pr2").GetManipulator(manipName).FindIKSolution(ikparam, rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions)
+        if iksol is not None:
+            self.robot.SetDOFValues(iksol, self.robot.GetManipulator(manipName).GetArmIndices())
+            links = self.robot.GetLinks()
+            numCols = sum([sum([1 if self.env.CheckCollision(l,o) else 0 for l in links]) for o in self.env.GetBodies()[1:]])
+            if numCols == 0:
+                out.append({"joints": iksol, "manip": manipName})
 
     def GetRaveIkSol(self, objName):
         grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
         obj = self.env.GetKinBody(objName)
         targets = grasps.GetTargets(obj)
-        sols = runInParallel(self.solveIK, [[t] for t in targets])
+        sols = []
+        manips = ["leftarm_torso", "rightarm_torso"]
+        if obj.GetTransform()[1,3] < 0:
+            manips.reverse()
+            
+        for manip in manips:
+            sols.extend(runInParallel(self.solveIK, [[t,manip] for t in targets]))
+            print '',
+            if sols != []:
+                break
         return sols
         
-
-        """
-        sols = []
-        for t in targets:
-            iksol = self.solveIK(t)
-            if iksol is not None:
-                sols.append(iksol)
-        return sols
-        """

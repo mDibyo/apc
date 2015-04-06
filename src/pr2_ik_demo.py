@@ -16,6 +16,10 @@ def plotPose(env, toPlot):
     p2 = mat.dot([1,0,0,1])[:3]
     return env.drawarrow(p1,p2,linewidth=0.02)
     
+def resetRobot():
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0])))
+    r.SetDOFValues([0.54,-1.57, 1.57, 0.54],[22,27,15,34])
+    
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 e.Load("robots/pr2-beta-sim.robot.xml")
@@ -24,8 +28,7 @@ e.Load("../data/meshes/objects/dove_beauty_bar_centered.stl")
 e.SetViewer("qtcoin")
 
 r = e.GetRobots()[0]
-r.SetDOFValues([0.54,-1.57],[22,27])
-r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0])))
+resetRobot()
 
 m = r.SetActiveManipulator("leftarm_torso")
 shelf = e.GetBodies()[1]
@@ -51,7 +54,7 @@ ik = IkSolver(e)
 print "press 'ENTER' to start, 'q' to quit"
 
 while "q" not in str(raw_input("continue?" )):
-    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0])))
+    resetRobot()
     objPose = randomObjPose()
     obj.SetTransform(rave.matrixFromPose(objPose))
     
@@ -66,7 +69,8 @@ while "q" not in str(raw_input("continue?" )):
     if rsol != []:
         print "found " + str(len(rsol)) + " sol in " + str(time.time()-st) + "s",
         for sol in rsol:
-            r.SetDOFValues(sol, m.GetArmIndices())
+            m = r.SetActiveManipulator(sol["manip"])
+            r.SetDOFValues(sol["joints"], m.GetArmIndices())
             raw_input("next sol? ")
     else:
         print "no IK sol found"
