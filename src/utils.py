@@ -8,6 +8,16 @@ __author__ = 'dibyo'
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
+def runInParallel(func, args):
+    result = []
+    
+    for a in args:
+        t = threading.Thread(target=func, args=a+[result])
+        t.start()
+
+    return result
+
+
 def getch():
     import sys
     import tty

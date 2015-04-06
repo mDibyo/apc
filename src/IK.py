@@ -27,18 +27,26 @@ class IkSolver(object):
         if not self.ikmodel.load():
                 self.ikmodel.autogenerate()
                 
-    def solveIK(self, target):
+    def solveIK(self, target, result):
         ikparam = rave.IkParameterization(target, self.ikmodel.iktype)
         iks = self.env.GetRobot("pr2").GetActiveManipulator().FindIKSolution(ikparam, rave.IkFilterOptions.CheckEnvCollisions) #IgnoreEndEffectorEnvCollisions)
-        return iks
-        
+        if iks is not None:
+            result.append(iks)
+
+
     def GetRaveIkSol(self, objName):
         grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
         obj = self.env.GetKinBody(objName)
         targets = grasps.GetTargets(obj)
+        sols = runInParallel(self.solveIK, [[t] for t in targets])
+        return sols
+        
+
+        """
         sols = []
         for t in targets:
             iksol = self.solveIK(t)
             if iksol is not None:
                 sols.append(iksol)
         return sols
+        """
