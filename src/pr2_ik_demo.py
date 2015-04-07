@@ -17,7 +17,10 @@ def plotPose(env, toPlot):
     return env.drawarrow(p1,p2,linewidth=0.02)
     
 def resetRobot():
-    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0])))
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0.2])))
+    resetArms()
+    
+def resetArms():
     r.SetDOFValues([0.54,-1.57, 1.57, 0.54],[22,27,15,34])
     
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
@@ -35,7 +38,7 @@ shelf = e.GetBodies()[1]
 obj = e.GetBodies()[2]
 
 def randomObjPose():
-    biny, binz = np.random.randint(3), np.random.randint(3)
+    biny, binz = np.random.randint(3), np.random.randint(4)
     xlow, xhigh = -0.2, -0.43
     ystep = 0.55/2
     zss = 0.23
@@ -59,13 +62,7 @@ while "q" not in str(raw_input("continue?" )):
     obj.SetTransform(rave.matrixFromPose(objPose))
     
     st = time.time()
-    rsol = ik.GetRaveIkSol("dove_beauty_bar_centered")
-    pos = r.GetTransform()
-    while rsol == [] and pos[0,3] < rave.poseFromMatrix(obj.GetTransform())[-3]:
-        pos = r.GetTransform()
-        pos[0,3] += 0.02
-        r.SetTransform(pos)
-        rsol = ik.GetRaveIkSol("dove_beauty_bar_centered")
+    rsol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=True)
     if rsol != []:
         print "found " + str(len(rsol)) + " sol in " + str(time.time()-st) + "s",
         for sol in rsol:

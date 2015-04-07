@@ -7,6 +7,7 @@ from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
 import json 
 import multiprocessing as mp
+from joblib import Parallel, delayed
 from utils import *
 from IK_utils import *
 
@@ -14,6 +15,10 @@ class IkSolver(object):
 
     O = np.array([0,0,0,1])
     EPS = 1e-4
+    
+    def resetArms(self):
+        self.robot.SetDOFValues([0.54,-1.57, 1.57, 0.54],[22,27,15,34])
+    
 
     def __init__(self, env):
         self.env = env
@@ -37,8 +42,9 @@ class IkSolver(object):
             numCols = sum([sum([1 if self.env.CheckCollision(l,o) else 0 for l in links]) for o in self.env.GetBodies()[1:]])
             if numCols == 0:
                 out.append({"joints": iksol, "manip": manipName})
+                return {"joints": iksol, "manip": manipName}
 
-    def GetRaveIkSol(self, objName):
+    def GetIkSol(self, objName, parallel):
         grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
         obj = self.env.GetKinBody(objName)
         targets = grasps.GetTargets(obj)
@@ -48,9 +54,27 @@ class IkSolver(object):
             manips.reverse()
             
         for manip in manips:
-            sols.extend(runInParallel(self.solveIK, [[t,manip] for t in targets]))
-            print '',
+            if parallel:
+                soln = runInParallel(self.solveIK, [[t,manip] for t in targets])
+                sols.extend(soln)
+            else:
+                for t in targets:
+                    soln = self.solveIK(t,manip,[])
+                    if soln is not None:
+                        sols.append(soln)
             if sols != []:
                 break
         return sols
+        
+    def GetRaveIkSol(self, objName, parallel=False):
+        rsol = []
+        obj = self.env.GetKinBody(objName)
+        pos = self.robot.GetTransform()
+        while rsol == [] and pos[0,3] < rave.poseFromMatrix(obj.GetTransform())[-3]:
+            pos = self.robot.GetTransform()
+            pos[0,3] += 0.05
+            self.robot.SetTransform(pos)
+            rsol = self.GetIkSol("dove_beauty_bar_centered", parallel)
+            self.resetArms()
+        return rsol
         
