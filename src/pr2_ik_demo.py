@@ -28,7 +28,7 @@ e = rave.Environment()
 e.Load("robots/pr2-beta-sim.robot.xml")
 e.Load("../data/meshes/cubbyholes/pod_lowres.stl")
 e.Load("../data/meshes/objects/dove_beauty_bar_centered.stl")
-e.SetViewer("qtcoin")
+#e.SetViewer("qtcoin")
 
 r = e.GetRobots()[0]
 resetRobot()
@@ -56,7 +56,7 @@ ik = IkSolver(e)
 
 failure = []
 
-i,N = 0, 1e1
+i,N = 0, 1e4
 start = time.time()
 print "press 'ENTER' to start, 'q' to quit"
 #while "q" not in str(raw_input("continue?" )):
