@@ -9,16 +9,12 @@ __author__ = 'dibyo'
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
+
+
 def runInParallel(func, args):
-    result = mp.Manager().list()
-    processes = []
-    for a in args:
-        p = mp.Process(target=func, args=a+[result])
-        processes.append(p)
-        p.start()
-    for p in processes:
-        p.join()
-    return list(result)
+    pool = mp.Pool(4)
+    result = pool.map_async(func, args)
+    return result
     
 def getch():
     import sys

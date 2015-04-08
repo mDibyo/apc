@@ -54,23 +54,35 @@ def randomObjPose():
 
 ik = IkSolver(e)
 
-print "press 'ENTER' to start, 'q' to quit"
+failure = []
 
-while "q" not in str(raw_input("continue?" )):
+i,N = 0, 1e1
+start = time.time()
+print "press 'ENTER' to start, 'q' to quit"
+#while "q" not in str(raw_input("continue?" )):
+while i < N:
     resetRobot()
     objPose = randomObjPose()
     obj.SetTransform(rave.matrixFromPose(objPose))
     
     st = time.time()
-    rsol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=True)
+    rsol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=False)
     if rsol != []:
+        """
         print "found " + str(len(rsol)) + " sol in " + str(time.time()-st) + "s",
         for sol in rsol:
             m = r.SetActiveManipulator(sol["manip"])
             r.SetDOFValues(sol["joints"], m.GetArmIndices())
             raw_input("next sol? ")
+        """
     else:
+        failure.append(objPose)
         print "no IK sol found"
-    
-    
+        
+    i += 1
+    print i
+
+print "average:", (time.time() - start) / N
+np.save("failures.npy", failure)    
+
     
