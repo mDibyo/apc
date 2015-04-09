@@ -10,6 +10,7 @@ import multiprocessing as mp
 from joblib import Parallel, delayed
 from utils import *
 from IK_utils import *
+import time
 
 class IkSolver(object):
 
@@ -17,6 +18,7 @@ class IkSolver(object):
     EPS = 1e-4
     env = None
     robot = None
+    ARM_LENGTH = 1
     
     @staticmethod
     def resetArms():
@@ -30,9 +32,10 @@ class IkSolver(object):
         m = r.GetActiveManipulator()
         
         IkSolver.ikmodel = rave.databases.inversekinematics.InverseKinematicsModel(r, iktype=rave.IkParameterization.Type.Transform6D)
+        
         if not IkSolver.ikmodel.load():
                 IkSolver.ikmodel.autogenerate()
-    
+
     @staticmethod            
     def solveIK(target, manipName, check=True):
         ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
@@ -56,15 +59,15 @@ class IkSolver(object):
 
     @staticmethod
     def GetIkSol(objName, parallel):
-        grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
+        IkSolver.grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
         obj = IkSolver.env.GetKinBody(objName)
-        targets = grasps.GetTargets(obj)
+        targets = IkSolver.grasps.GetTargets(obj)
 
         manips = ["leftarm_torso", "rightarm_torso"]
         if obj.GetTransform()[1,3] < 0:
             manips.reverse()
             
-        for manip in manips:
+        for manip in manips[:1]:
             for opt in [True]:
                 IkSolver.resetArms()
                 if parallel:
@@ -84,9 +87,25 @@ class IkSolver(object):
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):
             pos = IkSolver.robot.GetTransform()
-            pos[0,3] += 0.05
+            pos[:2,3] += IkSolver.computeMove(obj.GetTransform())
+            
             IkSolver.robot.SetTransform(pos)
             rsol = IkSolver.GetIkSol("dove_beauty_bar_centered", parallel)
             IkSolver.resetArms()
         return rsol
+        
+    @staticmethod
+    def computeMove(obj):
+        if obj[1,3] < 0:
+            shoulder = IkSolver.robot.GetLink("r_shoulder_pan_link").GetTransform()
+            shoulder[1,3] -= 0.1
+        else:
+            shoulder = IkSolver.robot.GetLink("l_shoulder_pan_link").GetTransform()
+            shoulder[1,3] += 0.1
+
+        disp = obj[:3,3] - shoulder[:3,3]
+        dy = np.sign(disp[1]) * 0.05
+        dx = 0.05
+        return dx,dy
+        
         

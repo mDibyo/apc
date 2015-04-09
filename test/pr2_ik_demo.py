@@ -7,19 +7,21 @@ import openravepy as rave
 from IK import *
 import time
 
-from pymongo import MongoClient
-
 def plotPose(env, toPlot):
     if toPlot.shape == (4,4):
         mat = toPlot
     else:
         mat = rave.matrixFromPose(toPlot)
     p1 = mat.dot([0,0,0,1])[:3]
-    p2 = mat.dot([1,0,0,1])[:3]
-    return (p1-p2), env.drawarrow(p1,p2,linewidth=0.02)
+    p2 = mat.dot([1,0,0,1])[:3] 
+    p3 = mat.dot([0,1,0,1])[:3]
+    p4 = mat.dot([0,0,1,1])[:3]
+    return [env.drawarrow(p1,p2,linewidth=0.015),
+            env.drawarrow(p1,p3,linewidth=0.007),
+            env.drawarrow(p1,p4,linewidth=0.007)]
     
 def resetRobot():
-    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.3,0,0.2])))
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.25,0,0.40])))
     resetArms()
     
 def resetArms():
@@ -40,8 +42,8 @@ shelf = e.GetBodies()[1]
 obj = e.GetBodies()[2]
 
 def randomObjPose():
-    biny, binz = np.random.randint(3), np.random.randint(2,4)
-    xlow, xhigh = -0.125, -0.25#-0.43
+    biny, binz = np.random.randint(3), np.random.randint(4)
+    xlow, xhigh = -0.15, -0.43
     ystep = 0.55/2
     zss = 0.23
     zsl = 0.27
@@ -56,9 +58,6 @@ def randomObjPose():
     
 if __name__ == "__main__":
     ik = IkSolver(e)
-
-    db = MongoClient()['apc']
-    db_collection = db['ik']
 
     print "press 'ENTER' to start, 'q' to quit"
     while "q" not in str(raw_input("continue?" )):
@@ -75,8 +74,4 @@ if __name__ == "__main__":
         else:
             print "no IK sol found"
 
-        db_collection.insert_one({
-            'pose': objPose,
-            'joint_angles': sol['joints'] if sol is not None else None,
-            'manip': sol['manip'] if sol is not None else None
-        })
+        

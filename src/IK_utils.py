@@ -21,14 +21,18 @@ class Grasp():
     initial = rave.matrixFromQuat(np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0]))
     
 
-    def __init__(self, quat, pos):
+    def __init__(self, quat, pos, parent):
         self.pose = np.hstack([quat, pos])
         self.mat = rave.matrixFromPose(self.pose)
+        self.parent = parent
             
-    def GetTargetPose(self, obj):
+    def GetTargetPose(self, obj):       
         mat = obj.GetTransform().dot(self.mat).dot(Grasp.initial)
-        return [rave.poseFromMatrix(mat)]
-
+        pose = rave.poseFromMatrix(mat)
+        objPose = rave.poseFromMatrix(obj.GetTransform())
+        if self.parent.grasps.index(self) and np.sign((pose - objPose)[-3]) < 0:
+            return pose
+            
 class GraspSet():
 
     def __init__(self, fname):
@@ -39,7 +43,7 @@ class GraspSet():
             qdict, pdict = grasp["gripper_pose"]["orientation"], grasp["gripper_pose"]["position"]
             quat = np.array([qdict['w'], qdict['x'], qdict['y'], qdict['z']])
             pos = np.array([pdict['x'], pdict['y'], pdict['z']])
-            self.grasps.append(Grasp(quat, pos))
+            self.grasps.append(Grasp(quat, pos, self))
             
     def __getitem__(self, i):
         return self.grasps[i]
@@ -49,8 +53,14 @@ class GraspSet():
         
     def GetTargets(self, obj):
         targets = []
-        for g in self.grasps:
-            targets.extend(g.GetTargetPose(obj))
+        bad = []
+        for i,g in enumerate(self.grasps):
+            t = g.GetTargetPose(obj)
+            if t is not None:
+                targets.append(t)
+            else:
+                bad.append(i)
+        self.grasps = [g for i,g in enumerate(self.grasps) if i not in bad]
         return targets
         
 class Approach(object):

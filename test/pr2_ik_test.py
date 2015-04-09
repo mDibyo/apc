@@ -6,6 +6,8 @@ import numpy as np
 import openravepy as rave
 from IK import *
 import time
+from pymongo import MongoClient
+
 
 def plotPose(env, toPlot):
     if toPlot.shape == (4,4):
@@ -39,7 +41,7 @@ obj = e.GetBodies()[2]
 
 def randomObjPose():
     biny, binz = np.random.randint(3), np.random.randint(4)
-    xlow, xhigh = -0.125, -0.43
+    xlow, xhigh = -0.15, -0.43
     ystep = 0.55/2
     zss = 0.23
     zsl = 0.27
@@ -51,15 +53,16 @@ def randomObjPose():
     y = ystep * (biny-1)
     z = zvals[binz] + 0.80 + size[2]
     return np.hstack([quat, [x,y,z]])
-try: 
-    ik = IkSolver(e)
+    
+    
+db = MongoClient()['apc']
+db_collection = db['ik2']
 
-    outcomes = np.zeros([N,10])
+if __name__ == "__main__":
+    ik = IkSolver(e)
 
     i,N = 0, 1e4
     start = time.time()
-    print "press 'ENTER' to start, 'q' to quit"
-    #while "q" not in str(raw_input("continue?" )):
     while i < N:
         resetRobot()
         objPose = randomObjPose()
@@ -67,19 +70,15 @@ try:
         
         st = time.time()
         sol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=False)
-        if sol
-        outcomes[i,:8] = sol["joints"]
-        if sol["manip"] == "leftarm_torso""
-            outcomes[i,8] = 1
-        else:
-            outcomes[i,8] = 0
-        
-            
+ 
         i += 1
         print i
+        
+        db_collection.insert_one({
+            'pose': objPose.tolist(),
+            'joint_angles': sol['joints'].tolist() if sol is not None else None,
+            'manip': sol['manip'] if sol is not None else None
+        })
+        
+    print time.time()-start
 
-    print "average:", (time.time() - start) / N
-finally:
-    np.save("failures.npy", np.array(failure))    
-
-    
