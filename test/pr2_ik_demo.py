@@ -7,6 +7,8 @@ import openravepy as rave
 from IK import *
 import time
 
+from pymongo import MongoClient
+
 def plotPose(env, toPlot):
     if toPlot.shape == (4,4):
         mat = toPlot
@@ -55,7 +57,8 @@ def randomObjPose():
 if __name__ == "__main__":
     ik = IkSolver(e)
 
-    failure = []
+    db = MongoClient()['apc']
+    db_collection = db['ik']
 
     print "press 'ENTER' to start, 'q' to quit"
     while "q" not in str(raw_input("continue?" )):
@@ -70,7 +73,10 @@ if __name__ == "__main__":
             m = r.SetActiveManipulator(sol["manip"])
             r.SetDOFValues(sol["joints"], m.GetArmIndices())
         else:
-            failure.append(objPose)
             print "no IK sol found"
 
-    
+        db_collection.insert_one({
+            'pose': objPose,
+            'joint_angles': sol['joints'] if sol is not None else None,
+            'manip': sol['manip'] if sol is not None else None
+        })
