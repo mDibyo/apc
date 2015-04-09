@@ -24,41 +24,10 @@ class Grasp():
     def __init__(self, quat, pos):
         self.pose = np.hstack([quat, pos])
         self.mat = rave.matrixFromPose(self.pose)
-        
-    def GetTargetPose2(self, obj):
-        pos = obj.ComputeAABB().pos()
-        initial = rave.matrixFromQuat(np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0]))
-        mat = obj.GetTransform().dot(initial)
-        quat = rave.poseFromMatrix(mat)[:4]
-        pose1 = np.hstack([quat, pos])
-        mat = rave.matrixFromQuat([0,0,0,1]).dot(mat)
-        quat = rave.poseFromMatrix(mat)[:4]
-        pose2 = np.hstack([quat, pos])
-        return [pose1, pose2]
-        
+            
     def GetTargetPose(self, obj):
         mat = obj.GetTransform().dot(self.mat).dot(Grasp.initial)
         return [rave.poseFromMatrix(mat)]
-       
-    @staticmethod 
-    def gripPointDir(quat):
-        mat = rave.matrixFromQuat(quat)
-        pointDir = mat.dot(np.array([0,0,1,1]))[:3]
-        return pointDir
-
-    @staticmethod 
-    def gripOpenDir(quat):
-        mat = rave.matrixFromQuat(quat)
-        openDir = mat.dot(np.array([-1,0,0,1]))[:3]
-        return openDir
-        
-    @staticmethod   
-    def gripPose(mat):
-        quat = rave.poseFromMatrix(mat)[:4]
-        pointDir = Grasp.gripPointDir(quat)
-        openDir = Grasp.gripOpenDir(quat)
-        gripPos = mat.dot(np.array([0,0,0,1]))[:3]
-        return np.hstack([pointDir,openDir,gripPos])
 
 class GraspSet():
 
@@ -71,16 +40,12 @@ class GraspSet():
             quat = np.array([qdict['w'], qdict['x'], qdict['y'], qdict['z']])
             pos = np.array([pdict['x'], pdict['y'], pdict['z']])
             self.grasps.append(Grasp(quat, pos))
-        self.grasps = sorted(self.grasps, key=lambda g: -Grasp.gripPointDir(g.pose[:4])[0])
             
     def __getitem__(self, i):
         return self.grasps[i]
 
     def __len__(self):
         return len(self.grasps)
-        
-    def GetTargets2(self, obj):
-        return self.grasps[0].GetTargetPose2(obj)
         
     def GetTargets(self, obj):
         targets = []

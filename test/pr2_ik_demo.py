@@ -14,10 +14,10 @@ def plotPose(env, toPlot):
         mat = rave.matrixFromPose(toPlot)
     p1 = mat.dot([0,0,0,1])[:3]
     p2 = mat.dot([1,0,0,1])[:3]
-    return env.drawarrow(p1,p2,linewidth=0.02)
+    return (p1-p2), env.drawarrow(p1,p2,linewidth=0.02)
     
 def resetRobot():
-    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.1,0,0.2])))
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.3,0,0.2])))
     resetArms()
     
 def resetArms():
@@ -38,8 +38,8 @@ shelf = e.GetBodies()[1]
 obj = e.GetBodies()[2]
 
 def randomObjPose():
-    biny, binz = np.random.randint(3), np.random.randint(4)
-    xlow, xhigh = -0.2, -0.43
+    biny, binz = np.random.randint(3), np.random.randint(2,4)
+    xlow, xhigh = -0.125, -0.25#-0.43
     ystep = 0.55/2
     zss = 0.23
     zsl = 0.27
@@ -51,38 +51,26 @@ def randomObjPose():
     y = ystep * (biny-1)
     z = zvals[binz] + 0.80 + size[2]
     return np.hstack([quat, [x,y,z]])
-
-ik = IkSolver(e)
-
-failure = []
-
-i,N = 0, 1e1
-start = time.time()
-print "press 'ENTER' to start, 'q' to quit"
-#while "q" not in str(raw_input("continue?" )):
-while i < N:
-    resetRobot()
-    objPose = randomObjPose()
-    obj.SetTransform(rave.matrixFromPose(objPose))
     
-    st = time.time()
-    rsol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=False)
-    if rsol != []:
-        """
-        print "found " + str(len(rsol)) + " sol in " + str(time.time()-st) + "s",
-        for sol in rsol:
+if __name__ == "__main__":
+    ik = IkSolver(e)
+
+    failure = []
+
+    print "press 'ENTER' to start, 'q' to quit"
+    while "q" not in str(raw_input("continue?" )):
+        resetRobot()
+        objPose = randomObjPose()
+        obj.SetTransform(rave.matrixFromPose(objPose))
+        
+        st = time.time()
+        sol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=False)
+        if sol is not None:
+            print "found sol in " + str(time.time()-st) + "s",
             m = r.SetActiveManipulator(sol["manip"])
             r.SetDOFValues(sol["joints"], m.GetArmIndices())
-            raw_input("next sol? ")
-        """
-    else:
-        failure.append(objPose)
-        print "no IK sol found"
-        
-    i += 1
-    print i
-
-print "average:", (time.time() - start) / N
-np.save("failures.npy", failure)    
+        else:
+            failure.append(objPose)
+            print "no IK sol found"
 
     
