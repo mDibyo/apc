@@ -141,54 +141,7 @@ class APCPlannerService(ROSNode):
             iksol = self.manipulator.FindIKSolution(ikparam,
                                                    rave.IkFilterOptions.CheckEnvCollisions)
             distance = 0
-            
-            if iksol is None:
-                rospy.logwarn("trying numerical IK")
-                iksol, distance = self.numIK(gripper_pose)
-            
             return iksol, distance
-            
-    def numIK(self, targetPose, weights=[1,1,1,1,15,15,15], Cw = 100):
-        """
-        def gripPointDir(q):
-            m = rave.matrixFromQuat(q)[:3,3]
-            return m.dot(np.array([[1],[0],[0]]))
-            
-        def gripOpenDir(q):
-            m = rave.matrixFromQuat(q)[:3,3]
-            return m.dot(np.array([[0],[0],[1]]))
-            
-        def gripperState(pose):
-            q = pose[:4]
-            pointdir = gripPointDir(q)
-            opendir = gripOpenDir(q)
-            rospy.logwarn(pointdir.shape, opendir.shape)
-            return np.vstack([pointdir,opendir])
-        """
-        rave.RaveSetDebugLevel(rave.DebugLevel.Error)
-        robot = self.env.GetRobot('pr2')
-        manip = self.robot.SetActiveManipulator(self.manipulator_name)
-        joint_start = robot.GetDOFValues(manip.GetArmIndices())
-
-
-        robot.SetDOFValues(joint_start, manip.GetArmIndices())
-        trans,rot = Approach.TR_from_pose(targetPose)
-        target = np.hstack([rot, trans])
-        rospy.logwarn(target)
-        bounds = []
-        lowers,uppers = robot.GetDOFLimits()
-        for j in manip.GetArmIndices():
-            bounds.append( (lowers[j], uppers[j]) )
-       
-        def cost(armjoints):    
-            robot.SetDOFValues(armjoints, manip.GetArmIndices())
-            grippose = rave.poseFromMatrix(manip.GetTransform())
-            distCost = np.linalg.norm( (grippose - target) * np.array(weights) )
-            collCost = Cw * sum([sum([1 if self.env.CheckCollision(f,o) else 0 for o in self.env.GetBodies()[1:]]) for f in manip.GetChildLinks()])
-            return distCost + collCost
-            
-        final, fmin, d = fmin_l_bfgs_b(cost, joint_start, maxfun=500, approx_grad=True,bounds=bounds,pgtol=1e-12,factr=1)
-        return final, fmin
 
     def get_robot_trajectory(self, target_joints, start_joints=None, dist_pen=0.02):
         if start_joints is None:

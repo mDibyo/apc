@@ -1,6 +1,7 @@
 from __future__ import division
 
 import threading
+import multiprocessing as mp
 import os.path as osp
 
 __author__ = 'dibyo'
@@ -8,6 +9,13 @@ __author__ = 'dibyo'
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
+
+
+def runInParallel(func, args):
+    pool = mp.Pool(4)
+    result = pool.map_async(func, args)
+    return result
+    
 def getch():
     import sys
     import tty

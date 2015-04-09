@@ -7,6 +7,7 @@ from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
 import json 
 import multiprocessing as mp
+from joblib import Parallel, delayed
 from utils import *
 from IK_utils import *
 
@@ -14,69 +15,78 @@ class IkSolver(object):
 
     O = np.array([0,0,0,1])
     EPS = 1e-4
+    env = None
+    robot = None
+    
+    @staticmethod
+    def resetArms():
+        IkSolver.robot.SetDOFValues([0.54,-1.57, 1.57, 0.54],[22,27,15,34])
+    
 
     def __init__(self, env):
-        self.env = env
+        IkSolver.env = env
         r = env.GetRobot("pr2")
+        IkSolver.robot = r
         m = r.GetActiveManipulator()
-        lower = [float(j.GetLimits()[0])+self.EPS for j in r.GetJoints(m.GetArmIndices())]
-        upper = [float(j.GetLimits()[1])-self.EPS for j in r.GetJoints(m.GetArmIndices())]
-        self.limits = zip(lower, upper)
         
-        X, Y = np.load(osp.join(DATA_DIRECTORY, "numIK", "poses.npy")), np.load(osp.join(DATA_DIRECTORY, "numIK", "joints.npy"))
-        self.interpolator = interp(X, Y)
-        
-        
-        self.ikmodel = rave.databases.inversekinematics.InverseKinematicsModel(r, iktype=rave.IkParameterization.Type.Transform6D)
-        if not self.ikmodel.load():
-                self.ikmodel.autogenerate()
-        
-    def solveNumIk(self, targetPose, env, grasp):
-        rob = env.GetRobot("pr2")
-        man = rob.GetActiveManipulator()
-        
-        jointStart = self.interpolator(targetPose[np.newaxis] )[0]
+        IkSolver.ikmodel = rave.databases.inversekinematics.InverseKinematicsModel(r, iktype=rave.IkParameterization.Type.Transform6D)
+        if not IkSolver.ikmodel.load():
+                IkSolver.ikmodel.autogenerate()
+    
+    @staticmethod            
+    def solveIK(target, manipName, check=True):
+        ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
+        if check:
+            opt = rave.IkFilterOptions.CheckEnvCollisions
+        else:
+            opt = rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions
+            
+        iksol = IkSolver.robot.GetManipulator(manipName).FindIKSolution(ikparam, opt)        
+        if iksol is not None:
+            if check:
+                return {"joints": iksol, "manip": manipName}
+            else:
+                IkSolver.robot.SetDOFValues(iksol, IkSolver.robot.GetManipulator(manipName).GetArmIndices())
+                links = IkSolver.robot.GetLinks()
+                numCols = sum([sum([1 if IkSolver.env.CheckCollision(l,o) else 0 for l in links]) for o in IkSolver.env.GetBodies()[1:]])
+                if numCols == 0:
+                    return {"joints": iksol, "manip": manipName}
 
-        rob.SetDOFValues(jointStart, man.GetArmIndices())
-        bodies = env.GetBodies()
-        bodies.remove(env.GetKinBody("pr2"))
-        
-        target = targetPose
-        rob.SetDOFValues(jointStart, man.GetArmIndices())
-
-        def cost(joints, weights=[1,1,1,1,15,15,15], collW=100, ignoreShelf=True):
-            rob.SetDOFValues(joints, man.GetArmIndices())  
-            current = man.GetTransformPose()
-            distCost = np.linalg.norm( (current - target)*np.array(weights))
-            collCost = collW * sum([sum([1 if env.CheckCollision(link, obj) else 0 for obj in bodies]) for link in rob.GetLinks()])
-            return distCost + collCost
-                
-        final, fmin, d = fmin_l_bfgs_b(cost, jointStart, maxfun=200, iprint=10, m=20, approx_grad=True, bounds=self.limits)
-        rob.SetDOFValues(final, man.GetArmIndices()) 
-        iks = {"joints": final, "pose":man.GetTransformPose(), "dist":fmin, "target":target}
-        self.sols.put(iks)
-        return iks
-        
-    def GetNumIkSol(self, objName):
-        self.sols = mp.Queue()
-        grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", "dove_beauty_bar.json"))
-        obj = self.env.GetKinBody(objName)
-        g = grasps[0]
-        return self.solveNumIk(g.GetTargetPose(obj), self.env.CloneSelf(rave.CloningOptions.Bodies), g)
-        """processes = [mp.Process(target=self.solveNumIk,args=(g.GetTargetPose(obj), self.env.CloneSelf(rave.CloningOptions.Bodies), g)) for g in grasps]
-        [p.start() for p in processes]
-        [p.join() for p in processes]
-        return [self.sols.get() for p in processes] """
-        
-        
-    def GetRaveIkSol(self, objName):
-        grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", "dove_beauty_bar.json"))
-        obj = self.env.GetKinBody(objName)
-        targets = grasps[0].GetTargetPose(obj)
+    @staticmethod
+    def GetIkSol(objName, parallel):
+        grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
+        obj = IkSolver.env.GetKinBody(objName)
+        targets = grasps.GetTargets(obj)
         sols = []
-        for target in targets:
-            ikparam = rave.IkParameterization(target, self.ikmodel.iktype)
-            iks = self.env.GetRobot("pr2").GetActiveManipulator().FindIKSolution(ikparam, rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions)
-            if iks is not None:
-                sols.append(iks)
+        manips = ["leftarm_torso", "rightarm_torso"]
+        if obj.GetTransform()[1,3] < 0:
+            manips.reverse()
+            
+        for manip in manips:
+            for opt in [False, True]:
+                IkSolver.resetArms()
+                if parallel:
+                    soln = runInParallel(IkSolver.solveIK, [[t,manip] for t in targets])
+                    sols = soln
+                else:
+                    for t in targets:
+                        soln = IkSolver.solveIK(t,manip,opt)
+                        if soln is not None:
+                            sols.append(soln)
+                            return sols
         return sols
+        
+    @staticmethod    
+    def GetRaveIkSol(objName, parallel=False):
+        rsol = []
+        obj = IkSolver.env.GetKinBody(objName)
+        pos = IkSolver.robot.GetTransform()
+        while rsol == [] and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
+                                                             IkSolver.env.GetKinBody("pod_lowres")):
+            pos = IkSolver.robot.GetTransform()
+            pos[0,3] += 0.10
+            IkSolver.robot.SetTransform(pos)
+            rsol = IkSolver.GetIkSol("dove_beauty_bar_centered", parallel)
+            IkSolver.resetArms()
+        return rsol
+        

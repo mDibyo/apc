@@ -18,13 +18,16 @@ DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
 class Grasp():
 
+    initial = rave.matrixFromQuat(np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0]))
+    
+
     def __init__(self, quat, pos):
         self.pose = np.hstack([quat, pos])
         self.mat = rave.matrixFromPose(self.pose)
         
-    def GetTargetPose(self, obj):
+    def GetTargetPose2(self, obj):
         pos = obj.ComputeAABB().pos()
-        initial = rave.matrixFromQuat(np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])) #self.pose[:4]
+        initial = rave.matrixFromQuat(np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0]))
         mat = obj.GetTransform().dot(initial)
         quat = rave.poseFromMatrix(mat)[:4]
         pose1 = np.hstack([quat, pos])
@@ -32,6 +35,10 @@ class Grasp():
         quat = rave.poseFromMatrix(mat)[:4]
         pose2 = np.hstack([quat, pos])
         return [pose1, pose2]
+        
+    def GetTargetPose(self, obj):
+        mat = obj.GetTransform().dot(self.mat).dot(Grasp.initial)
+        return [rave.poseFromMatrix(mat)]
        
     @staticmethod 
     def gripPointDir(quat):
@@ -58,6 +65,7 @@ class GraspSet():
     def __init__(self, fname):
         self.json = json.load(open(fname))
         self.grasps = []
+        self.targets = []
         for grasp in self.json:
             qdict, pdict = grasp["gripper_pose"]["orientation"], grasp["gripper_pose"]["position"]
             quat = np.array([qdict['w'], qdict['x'], qdict['y'], qdict['z']])
@@ -71,13 +79,15 @@ class GraspSet():
     def __len__(self):
         return len(self.grasps)
         
-    def bestGrasp(self):
-        best = None
+    def GetTargets2(self, obj):
+        return self.grasps[0].GetTargetPose2(obj)
+        
+    def GetTargets(self, obj):
+        targets = []
         for g in self.grasps:
-            if hasattr(g, "iksol") and (best is None or g.iksol["dist"] < best.iksol["dist"]):
-                best = g
-        return best
-
+            targets.extend(g.GetTargetPose(obj))
+        return targets
+        
 class Approach(object):
     PREGRASP_POSE_OFFSET = -0.15
     GRASP_POSE_OFFSET = 0.045
