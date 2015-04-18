@@ -56,12 +56,12 @@ def randomObjPose():
     
     
 db = MongoClient()['apc']
-db_collection = db['ik2']
+db_collection = db['ik3']
 
 if __name__ == "__main__":
     ik = IkSolver(e)
 
-    i,N = 0, 1e4
+    i,N = 0, 1e5
     start = time.time()
     while i < N:
         resetRobot()
@@ -77,7 +77,8 @@ if __name__ == "__main__":
         db_collection.insert_one({
             'pose': objPose.tolist(),
             'joint_angles': sol['joints'].tolist() if sol is not None else None,
-            'manip': sol['manip'] if sol is not None else None
+            'manip': sol['manip'] if sol is not None else None,
+            'base_pos': r.GetTransform()[:3,3].tolist()
         })
         
     print time.time()-start
