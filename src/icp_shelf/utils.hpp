@@ -1,0 +1,24 @@
+#include <iostream>
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/passthrough.h>
+
+
+typedef pcl::PointXYZ Point;
+typedef pcl::PointCloud<Point> PointCloud;
+
+namespace utils {
+
+    float volume(Point, Point);
+
+    Point diff(Point, Point);
+    
+    Point add(Point, Point);
+    
+    PointCloud::Ptr loadCloud(std::string);
+    
+    PointCloud::Ptr trimCloud(PointCloud::Ptr, Point, Point, bool); 
+    
+    float densityWithinBox(PointCloud::Ptr, Point, Point);
+}
