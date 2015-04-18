@@ -16,4 +16,3 @@ int main(int argc, char* argv[]) {
     std::cout << "keypoints detected: " << keypoints->size() << std::endl;
 }
 
-

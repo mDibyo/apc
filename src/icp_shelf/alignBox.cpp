@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
     
     /*
     int STEP = atoi(argv[4]);
+
     Point best;
     float maxD;
     for (float x = gmin.x; x < gmax.x; x += STEP) {

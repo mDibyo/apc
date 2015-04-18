@@ -38,15 +38,26 @@ namespace utils {
         PointCloud::Ptr cloudTrim (new PointCloud);
         std::vector<int> indices;
         pcl::removeNaNFromPointCloud(*cloudRaw, *cloudTrim, indices);
+<<<<<<< HEAD
         std::cout << "Cleaned cloud has " << cloudTrim->points.size() << " points." << std::endl;
+=======
+        std::cout << "Trimmed cloud has " << cloudTrim->points.size() << " points." << std::endl;
+>>>>>>> b85f30e27d8da3314ab1c65330fd13751675a3a4
         
         return cloudTrim;
     }
     
+<<<<<<< HEAD
     PointCloud::Ptr trimCloud(PointCloud::Ptr cloud, Point lower, Point upper, bool save=false) { 
         pcl::PassThrough<Point> pass;
         std::cout << lower << std::endl;
         std::cout << upper << std::endl;
+=======
+    PointCloud::Ptr trimCloud(PointCloud::Ptr cloudIn, Point lower, Point upper, bool save=false) { 
+        pcl::PassThrough<Point> pass;
+        PointCloud::Ptr cloud(new PointCloud);
+        pcl::copyPointCloud(*cloudIn, *cloud);
+>>>>>>> b85f30e27d8da3314ab1c65330fd13751675a3a4
         if (lower.z != upper.z) {
             pass.setInputCloud(cloud);
             pass.setFilterFieldName ("z");
@@ -83,6 +94,7 @@ namespace utils {
         return cloud;
     }
     
+
     float densityWithinBox(PointCloud::Ptr cloudIn, Point lower, Point upper) {
         PointCloud::Ptr cloud(new PointCloud);
         pcl::copyPointCloud(*cloudIn, *cloud);
@@ -94,6 +106,7 @@ namespace utils {
         pcl::getMinMax3D(*trimmed, low, high);
         float vol = utils::volume(low, high);
         return numPoints * vol;
+
     }
 }
 
