@@ -1,0 +1,85 @@
+#include <iostream>
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/passthrough.h>
+#include "utils.hpp"
+
+namespace utils {
+
+    Point diff(Point lower, Point upper) {
+        return Point(upper.x - lower.x,
+                     upper.y - lower.y,
+                     upper.z - lower.z);
+    }
+    
+    float volume(Point lower, Point upper) {
+        Point d = diff(lower, upper);
+        return d.x * d.y * d.z;
+    }
+    
+    Point add(Point one, Point two) {
+        return Point(one.x + two.x,
+                     one.y + two.y,
+                     one.z + two.z);
+    }
+
+    PointCloud::Ptr loadCloud(std::string name) {
+        std::cout << "Loading " << name <<  "..." << std::endl;
+        PointCloud::Ptr cloudRaw (new PointCloud);
+        if (pcl::io::loadPCDFile<Point> (name, *cloudRaw) == -1) {
+            PCL_ERROR ("Couldn't read file\n");
+            return cloudRaw;
+        }
+
+        std::cout << "Loaded cloud with " << cloudRaw->points.size() << " points." << std::endl;
+      
+        std::cout << "Removing NaN's..." << std::endl;
+        PointCloud::Ptr cloudTrim (new PointCloud);
+        std::vector<int> indices;
+        pcl::removeNaNFromPointCloud(*cloudRaw, *cloudTrim, indices);
+        std::cout << "Trimmed cloud has " << cloudTrim->points.size() << " points." << std::endl;
+        
+        return cloudTrim;
+    }
+    
+    PointCloud::Ptr trimCloud(PointCloud::Ptr cloudIn, Point lower, Point upper, bool save=false) { 
+        pcl::PassThrough<Point> pass;
+        PointCloud::Ptr cloud(new PointCloud);
+        pcl::copyPointCloud(*cloudIn, *cloud);
+        if (lower.z != upper.z) {
+            pass.setInputCloud(cloud);
+            pass.setFilterFieldName ("z");
+            pass.setFilterLimits (lower.z, upper.z);
+            pass.filter (*cloud);
+        }
+        
+        if (lower.y != upper.y) {
+            pass.setInputCloud(cloud);
+            pass.setFilterFieldName ("y");
+            pass.setFilterLimits (lower.y, upper.y);
+            pass.filter (*cloud);
+        }
+
+        if (lower.x != upper.x) {
+            pass.setInputCloud(cloud);
+            pass.setFilterFieldName ("x");
+            pass.setFilterLimits (lower.x, upper.x);
+            pass.filter (*cloud);
+        }
+        
+        if (save) {
+            pcl::io::savePCDFile("trimmed.pcd", *cloud);
+        }
+        return cloud;
+    }
+    
+    float densityWithinBox(PointCloud::Ptr cloud, Point lower, Point upper) {
+        PointCloud::Ptr trimmed = trimCloud(cloud, lower, upper);
+        int numPoints = trimmed->points.size();
+        float vol = volume(lower, upper);
+        return numPoints/vol;
+    }
+}
+
+
