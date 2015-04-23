@@ -71,6 +71,7 @@ if __name__ == "__main__":
             print "found sol in " + str(time.time()-st) + "s",
             m = r.SetActiveManipulator(sol["manip"])
             r.SetDOFValues(sol["joints"], m.GetArmIndices())
+            r.SetTransform(sol["base"])
         else:
             print "no IK sol found"
 
