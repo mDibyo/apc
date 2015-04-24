@@ -66,7 +66,7 @@ if __name__ == "__main__":
         obj.SetTransform(rave.matrixFromPose(objPose))
         
         st = time.time()
-        sol = ik.GetRaveIkSol("dove_beauty_bar_centered", parallel=False)
+        sol = ik.GetIkSol("dove_beauty_bar_centered", parallel=False)
         if sol is not None:
             print "found sol in " + str(time.time()-st) + "s",
             m = r.SetActiveManipulator(sol["manip"])

@@ -142,7 +142,7 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
                   upper(shelfMat(0,3) + SHELF_WIDTH, shelfMat(1,3) + SHELF_HEIGHT, 0);
     utils::trimCloud(segmented, lower, upper, true);
     
-    / remove planes and save
+    // remove planes and save
     /*
     pcl::ExtractIndices<Point> extract;
     extract.setInputCloud(segmented);
@@ -182,11 +182,19 @@ int main(int argc, char* argv[]) {
     pcl::transformPointCloud(*cloud, *cloud, cameraToBase);
     
     utils::SEG_OPT options;
-    options.minInliers = atoi(argv[2]);
-    options.angThresh = atof(argv[3]);
-    options.distThresh = atof(argv[4]);
-    options.tol = atof(argv[5]);
-    options.spacingThresh = 10.0f;
+    if (argc > 5) {
+        options.minInliers = atoi(argv[2]);
+        options.angThresh = atof(argv[3]);
+        options.distThresh = atof(argv[4]);
+        options.tol = atof(argv[5]);
+        options.spacingThresh = 10.0f;
+    } else {
+        options.minInliers = 50;
+        options.angThresh = 0.05;
+        options.distThresh = 0.05;
+        options.tol = 0.1;
+        options.spacingThresh = 10.0f;
+    }
     
     Eigen::Matrix4f shelfTransform;
     PointCloud::Ptr segmented(new PointCloud);

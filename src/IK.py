@@ -90,9 +90,10 @@ class IkSolver(object):
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):
             IkSolver.resetArms()
-            if i == 1:
+            if i == 0:
+                st = time.time()
                 pos[:3,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])
-            elif i > 1:
+            else:
                 pos[:2,3] += IkSolver.computeMove(obj.GetTransform())  
                           
             IkSolver.robot.SetTransform(pos)
