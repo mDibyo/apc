@@ -2,7 +2,6 @@
 
 import os.path as osp
 import numpy as np
-from scipy.optimize import fmin_l_bfgs_b
 from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
 import json 
@@ -19,6 +18,9 @@ class IkSolver(object):
     env = None
     robot = None
     ARM_LENGTH = 1
+    basePositions = np.load(osp.join(DATA_DIRECTORY,"simulated","basePositions.npy"))
+    objPoses = np.load(osp.join(DATA_DIRECTORY,"simulated","poseData.npy"))
+    nn = interp(objPoses,basePositions)
     
     @staticmethod
     def resetArms():
@@ -71,7 +73,7 @@ class IkSolver(object):
             for opt in [True]:
                 IkSolver.resetArms()
                 if parallel:
-                    soln = runInParallel(IkSolver.solveIK, [[t,manip] for t in targets])
+                    soln = runInParallel(IkSolver.solveIK, [[t,manip] for t in targets], check=True)
                     sols = soln
                 else:
                     for t in targets:
@@ -84,14 +86,21 @@ class IkSolver(object):
         rsol = None
         obj = IkSolver.env.GetKinBody(objName)
         pos = IkSolver.robot.GetTransform()
+        i = 0
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):
-            pos = IkSolver.robot.GetTransform()
-            pos[:2,3] += IkSolver.computeMove(obj.GetTransform())
-            
-            IkSolver.robot.SetTransform(pos)
-            rsol = IkSolver.GetIkSol("dove_beauty_bar_centered", parallel)
             IkSolver.resetArms()
+            if i == 0:
+                st = time.time()
+                pos[:3,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])
+            else:
+                pos[:2,3] += IkSolver.computeMove(obj.GetTransform())  
+                          
+            IkSolver.robot.SetTransform(pos)
+            rsol = IkSolver.GetIkSol("dove_beauty_bar_centered", parallel)        
+            
+        if rsol is not None:
+            rsol["base"] = pos
         return rsol
         
     @staticmethod
