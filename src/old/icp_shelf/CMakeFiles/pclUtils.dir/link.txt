@@ -1,0 +1,2 @@
+/usr/bin/ar cr libpclUtils.a  CMakeFiles/pclUtils.dir/pclUtils.cpp.o
+/usr/bin/ranlib libpclUtils.a

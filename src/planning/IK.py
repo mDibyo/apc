@@ -1,23 +1,19 @@
-#!/usr/bin/env python
+from __future__ import division
 
 import os.path as osp
+
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
-import json 
-import multiprocessing as mp
-from joblib import Parallel, delayed
-from utils import *
-from IK_utils import *
-import time
+
+from utils import DATA_DIRECTORY
+from Grasps import Grasp, GraspSet
 
 class IkSolver(object):
 
-    O = np.array([0,0,0,1])
     EPS = 1e-4
     env = None
     robot = None
-    ARM_LENGTH = 1
     basePositions = np.load(osp.join(DATA_DIRECTORY,"simulated","basePositions.npy"))
     objPoses = np.load(osp.join(DATA_DIRECTORY,"simulated","poseData.npy"))
     nn = interp(objPoses,basePositions)
@@ -26,7 +22,6 @@ class IkSolver(object):
     def resetArms():
         IkSolver.robot.SetDOFValues([0.54,-1.57, 1.57, 0.54],[22,27,15,34])
     
-
     def __init__(self, env):
         IkSolver.env = env
         r = env.GetRobot("pr2")
@@ -36,12 +31,12 @@ class IkSolver(object):
         IkSolver.ikmodel = rave.databases.inversekinematics.InverseKinematicsModel(r, iktype=rave.IkParameterization.Type.Transform6D)
         
         if not IkSolver.ikmodel.load():
-                IkSolver.ikmodel.autogenerate()
+            IkSolver.ikmodel.autogenerate()
 
     @staticmethod            
     def solveIK(target, manipName, check=True):
         ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
-        if check:
+        if False: #check:
             opt = rave.IkFilterOptions.CheckEnvCollisions
         else:
             opt = rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions
@@ -61,7 +56,7 @@ class IkSolver(object):
 
     @staticmethod
     def GetIkSol(objName, parallel):
-        IkSolver.grasps = GraspSet(osp.join(DATA_DIRECTORY, "grasps", objName + ".json"))
+        IkSolver.grasps = GraspSet(objName)
         obj = IkSolver.env.GetKinBody(objName)
         targets = IkSolver.grasps.GetTargets(obj)
 

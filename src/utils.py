@@ -4,12 +4,12 @@ import threading
 import multiprocessing as mp
 import os.path as osp
 
-__author__ = 'dibyo'
-
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
-
-
+MESH_DIRECTORY = osp.join(DATA_DIRECTORY, "meshes")
+OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "clean")
+SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
+GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "coll_free")
 
 def runInParallel(func, args):
     pool = mp.Pool(4)
