@@ -54,6 +54,7 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
         if (fabs(c.values[1]) < opt.tol) {
             if (fabs(c.values[2]) > fabs(c.values[0])) {
                 front.push_back(i);
+                valid.push_back(i);
             } else {
                 side.push_back(i);
                 valid.push_back(i);
@@ -140,10 +141,11 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
     pcl::copyPointCloud(*cloud, *segmented);
     pcl::PointXYZ lower(shelfMat(0,3) - SHELF_WIDTH, shelfMat(1,3), -6*SHELF_DEPTH),
                   upper(shelfMat(0,3) + SHELF_WIDTH, shelfMat(1,3) + SHELF_HEIGHT, 0);
-    utils::trimCloud(segmented, lower, upper, true);
+    utils::trimCloud(segmented, lower, upper, false);
+    
+    pcl::io::savePCDFile("cropped.pcd", *segmented);
     
     // remove planes and save
-    /*
     pcl::ExtractIndices<Point> extract;
     extract.setInputCloud(segmented);
     extract.setKeepOrganized(true);
@@ -152,9 +154,12 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
         pcl::PointIndices::Ptr ind(new pcl::PointIndices(inlierInd[valid[i]]));
         extract.setIndices(ind);
         extract.setNegative(true);
+        extract.setKeepOrganized(false);
         extract.filterDirectly(segmented);
-    }*/
-    pcl::io::savePCDFile("trimmed.pcd", *segmented);
+    }
+    std::vector<int> nanIdx;
+    pcl::removeNaNFromPointCloud(*segmented, *segmented, nanIdx);
+    pcl::io::savePCDFile("segmented.pcd", *segmented);
     
     
     // view planes found    

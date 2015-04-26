@@ -7,19 +7,16 @@ import time
 
 import numpy as np
 import openravepy as rave
-import IK as ik
+from planning import IK as ik
 from pymongo import MongoClient
 
 from message_wrappers import GraspWrapper
 
 import IPython
+from utils import OBJ_MESH_DIR as OBJECT_MESH_DIR, DATA_DIRECTORY, GRASP_DIR
 
-APC_DIRECTORY = os.path.abspath(os.path.join(__file__, "../.."))
-DATA_DIRECTORY = os.path.join(APC_DIRECTORY, "data")
-
-PR2_MODEL_FILE = "data/models/pr2.robot.xml"
-CUBBYHOLE_MODEL_FILE = "data/meshes/cubbyholes/pod_lowres.stl"
-OBJECT_MESH_DIR = "data/meshes/objects"
+PR2_MODEL_FILE = "robots/pr2-beta-sim.robot.xml"
+CUBBYHOLE_MODEL_FILE = os.path.join(DATA_DIRECTORY, "meshes/cubbyholes/pod_lowres.stl") #"data/meshes/cubbyholes/pod_lowres.stl"
 
 def plotPose(env, toPlot):
     if toPlot.shape == (4,4):
@@ -63,12 +60,12 @@ if __name__ == "__main__":
     object_name = sys.argv[1]
     object_filename = os.path.join(OBJECT_MESH_DIR, object_name + '.stl')
 
-    object_grasps_filename = os.path.join(DATA_DIRECTORY, 'grasps',
+    object_grasps_filename = os.path.join(GRASP_DIR,
                                           "{}.json".format(object_name))
     object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
                                               "{}.json".format(object_name + '_coll_free'))
-    auto_step = True
-
+    auto_step = False
+    
     # load openrave environment
     rave.raveSetDebugLevel(rave.DebugLevel.Error)
     e = rave.Environment()
@@ -141,7 +138,7 @@ if __name__ == "__main__":
         if not coll:
             object_grasps_keep.append(grasp)
             if auto_step:
-                time.sleep(2)
+                time.sleep(0.5)
             else:
                 user_input = 'x'
                 while user_input != '':

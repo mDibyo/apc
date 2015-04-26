@@ -20,6 +20,7 @@ e = rave.Environment()
 e.Load("robots/pr2-beta-sim.robot.xml")
 e.Load("../data/meshes/cubbyholes/pod_lowres.stl")
 e.Load("../data/meshes/objects/dove_beauty_bar_centered.stl")
+#e.SetViewer("qtcoin")
 
 r = e.GetRobots()[0]
 resetRobot()
@@ -41,14 +42,14 @@ if __name__ == "__main__":
         resetRobot()
         robotPos = r.GetTransform()  
         sol = None       
-        while sol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
-                                                             IkSolver.env.GetKinBody("pod_lowres")):
-            for y in np.linspace(-0.8, 0.8, 80):
+        while sol is None and robotPos[0,3] < -0.7:
+            for y in np.linspace(-0.9, 0.9, 30):
                 robotPos[1,3] = y
                 r.SetTransform(robotPos)                                       
                                                              
                 sol = ik.GetIkSol("dove_beauty_bar_centered", False)
                 if sol is not None:
+                    print "found sol", i
                     db_collection.insert_one({
                         'pose': objPose.tolist(),
                         'joint_angles': sol['joints'].tolist(),
@@ -57,6 +58,7 @@ if __name__ == "__main__":
                     })
                     break;
                     
-            robotPos[0,3] += 0.025;
+            robotPos[0,3] += 0.05
+            r.SetTransform(robotPos)
         print i
         

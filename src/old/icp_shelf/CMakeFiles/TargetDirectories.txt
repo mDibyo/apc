@@ -1,0 +1,6 @@
+/home/nm/workspace/apc/src/icp_shelf/CMakeFiles/MyPCLUtils.dir
+/home/nm/workspace/apc/src/icp_shelf/CMakeFiles/alignBox.dir
+/home/nm/workspace/apc/src/icp_shelf/CMakeFiles/corner3D.dir
+/home/nm/workspace/apc/src/icp_shelf/CMakeFiles/icpShelf.dir
+/home/nm/workspace/apc/src/icp_shelf/CMakeFiles/template_alignment.dir
+/home/nm/workspace/apc/src/icp_shelf/CMakeFiles/trimDepth.dir

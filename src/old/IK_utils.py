@@ -11,10 +11,7 @@ from geometry_msgs.msg import Point, Pose, Quaternion, PoseStamped
 from std_msgs.msg import Header
 
 from message_wrappers import GraspWrapper, JointTrajectoryWrapper
-
-
-APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
-DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
+from utils import *
 
 class Grasp():
 

@@ -1,0 +1,13 @@
+#include <iostream>
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/passthrough.h>
+#include "utils.hpp"
+
+int main(int argc, char* argv[]) {
+
+    PointCloud::Ptr cloud = utils::loadCloud(argv[1]);
+    std::cout << "Loaded cloud with " << cloud->points.size() << std::endl;
+    utils::hello(argv[1]);
+}
