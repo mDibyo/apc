@@ -12,14 +12,14 @@ rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 e.Load("robots/pr2-beta-sim.robot.xml")
 e.Load(osp.join(SHELF_MESH_DIR, "pod_lowres.stl"))
-e.Load(osp.join(OBJ_MESH_DIR, "dove_beauty_bar.stl"))
+e.Load(osp.join(OBJ_MESH_DIR, "dove_beauty_bar.stl")) #"cheezit_big_original.stl"))
 e.SetViewer("qtcoin")
 
 r = e.GetRobots()[0]
 m = r.SetActiveManipulator("leftarm_torso")
 shelf = e.GetBodies()[1]
 obj = e.GetBodies()[2]
-    
+
 if __name__ == "__main__":
     ik = IkSolver(e)
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         obj.SetTransform(rave.matrixFromPose(objPose))
         
         st = time.time()
-        sol = ik.GetIkSol("dove_beauty_bar", parallel=False)
+        sol = ik.GetRaveIkSol(obj.GetName())
         if sol is not None:
             print "found sol in " + str(time.time()-st) + "s",
             m = r.SetActiveManipulator(sol["manip"])

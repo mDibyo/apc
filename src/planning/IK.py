@@ -1,6 +1,7 @@
 from __future__ import division
 
 import os.path as osp
+import time
 
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator as interp
@@ -36,7 +37,7 @@ class IkSolver(object):
     @staticmethod            
     def solveIK(target, manipName, check=True):
         ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
-        if False: #check:
+        if check:
             opt = rave.IkFilterOptions.CheckEnvCollisions
         else:
             opt = rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions
@@ -44,44 +45,55 @@ class IkSolver(object):
         iksol = IkSolver.robot.GetManipulator(manipName).FindIKSolution(ikparam, opt)        
         if iksol is not None:
             if check:
-                return {"joints": iksol, "manip": manipName,"target":target}
+                return {"joints": iksol,
+                        "manip": manipName,
+                        "target":target,
+                        "base":IkSolver.robot.GetTransform()}
             else:
                 IkSolver.robot.SetDOFValues(iksol, IkSolver.robot.GetManipulator(manipName).GetArmIndices())
                 links = IkSolver.robot.GetLinks()
                 numCols = sum([sum([1 if IkSolver.env.CheckCollision(l,o) else 0 for l in links]) for o in IkSolver.env.GetBodies()[1:]])
                 if numCols == 0:
-                    return {"joints": iksol, "manip": manipName,"target":target}
+                    return {"joints": iksol,
+                            "manip": manipName,
+                            "target":target,
+                            "base":IkSolver.robot.GetTransform()}
                 else:
                     print "found solution:",iksol,"for",manipName,"but has",numCols,"collisions"
 
     @staticmethod
-    def GetIkSol(objName, parallel):
-        IkSolver.grasps = GraspSet(objName)
-        obj = IkSolver.env.GetKinBody(objName)
-        targets = IkSolver.grasps.GetTargets(obj)
-
+    def GetIkSol(obj, targets, parallel):
         manips = ["leftarm_torso", "rightarm_torso"]
         if obj.GetTransform()[1,3] < 0:
             manips.reverse()
-            
-        for manip in manips[:1]:
+        
+        solutions = []    
+        for manip in manips:
             for opt in [True]:
                 IkSolver.resetArms()
                 if parallel:
                     soln = runInParallel(IkSolver.solveIK, [[t,manip] for t in targets], check=True)
                     sols = soln
                 else:
-                    for t in targets:
+                    for i,t in enumerate(targets):
                         soln = IkSolver.solveIK(t,manip,opt)
                         if soln is not None:
-                            return soln
-        
+                            soln["point"] = IkSolver.grasps[i].point(t)
+                            return soln #solutions.append(soln)
+        #return solutions
     @staticmethod    
-    def GetRaveIkSol(objName, parallel=False):
-        rsol = None
+    def GetRaveIkSol(objName, parallel=False):       
         obj = IkSolver.env.GetKinBody(objName)
         pos = IkSolver.robot.GetTransform()
-        i = 0
+        IkSolver.grasps = GraspSet(objName, IkSolver.env)
+        obj = IkSolver.env.GetKinBody(objName)
+        targets = IkSolver.grasps.GetTargets(obj)
+        IkSolver.targets = targets
+        if len(targets) == 0:
+            print "no grasps, cannot reach object",
+            return None
+            
+        rsol, i = None, 0
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):
             IkSolver.resetArms()
@@ -92,10 +104,8 @@ class IkSolver(object):
                 pos[:2,3] += IkSolver.computeMove(obj.GetTransform())  
                           
             IkSolver.robot.SetTransform(pos)
-            rsol = IkSolver.GetIkSol("dove_beauty_bar_centered", parallel)        
-            
-        if rsol is not None:
-            rsol["base"] = pos
+            rsol = IkSolver.GetIkSol(obj, targets, parallel)        
+
         return rsol
         
     @staticmethod

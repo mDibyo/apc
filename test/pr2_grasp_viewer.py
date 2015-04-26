@@ -64,8 +64,8 @@ if __name__ == "__main__":
                                           "{}.json".format(object_name))
     object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
                                               "{}.json".format(object_name + '_coll_free'))
-    auto_step = True
-
+    auto_step = False
+    
     # load openrave environment
     rave.raveSetDebugLevel(rave.DebugLevel.Error)
     e = rave.Environment()

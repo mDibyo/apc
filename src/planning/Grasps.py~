@@ -18,7 +18,10 @@ class Grasp():
         self.parent = parent
             
     def prune(self, pose, objPose):
-        return np.sign((pose - objPose)[-3]) < 0 and np.sign((pose - objPose)[-1]) < 0         
+        shelf = self.parent.env.GetBodies()[1]
+        lipX = (shelf.ComputeAABB().pos() - shelf.ComputeAABB().extents())[0]
+        dx = abs(lipX - objPose[-3])
+        return self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.15/dx))
             
     def GetTargetPose(self, obj):       
         mat = obj.GetTransform().dot(self.mat).dot(Grasp.initial)
@@ -27,12 +30,19 @@ class Grasp():
         if self.parent.grasps.index(self) and self.prune(pose, objPose):
             return pose
         
+    def point(self, target):
+        mat = rave.matrixFromPose(target)
+        O = mat.dot([0, 0, 0, 1])
+        P = mat.dot([0, 0, 1, 1])
+        return (O - P)[:3]
+    
 
 class GraspSet():
 
-    def __init__(self, objName):
+    def __init__(self, objName, env):
         fname = osp.join(GRASP_DIR, objName + ".json")
         self.json = json.load(open(fname))
+        self.env = env
         self.grasps = []
         self.targets = []
         for grasp in self.json:
