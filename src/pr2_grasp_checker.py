@@ -174,7 +174,7 @@ class PR2GraspChecker(object):
                         object_grasps_keep.append(grasp)
                     else:
                         print 'BAD GRASP'
-                        IPython.embed()
+                        #IPython.embed()
 
                     # open fingers
                     self.taskprob.ReleaseFingers()
