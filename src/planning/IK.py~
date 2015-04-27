@@ -66,10 +66,10 @@ class IkSolver(object):
             manips.reverse()
         
         for manip in manips:
-            for opt in [True]:
+            for opt in [False]:
                 IkSolver.resetArms()
                 if parallel:
-                    soln = runInParallel(IkSolver.solveIK, [[t,manip] for t in targets], check=True)
+                    soln = runInParallel(IkSolver.solveIK, [[t,manip] for t in targets], check=opt)
                     sols = soln
                 else:
                     for i,t in enumerate(targets):

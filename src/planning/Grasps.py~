@@ -45,14 +45,9 @@ class Grasp():
             
     def GetTargetPose(self, obj):       
     
-        # world_to_obj * obj_to_manip = world_to_manip
-        # world_to_obj * obj_to_palm * palm_t
-        mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
-        pose = rave.poseFromMatrix(mat)
-        r = self.parent.env.GetRobots()[0]
-        
-        
         if self.parent.grasps.index(self) and self.prune(pose, obj.GetName()):
+            mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
+            pose = rave.poseFromMatrix(mat)
             return pose
         
     def point(self, target):

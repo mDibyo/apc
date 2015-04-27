@@ -44,10 +44,10 @@ class Grasp():
         return validDir
             
     def GetTargetPose(self, obj):       
-    
+        mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
+        pose = rave.poseFromMatrix(mat)
         if self.parent.grasps.index(self) and self.prune(pose, obj.GetName()):
-            mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
-            pose = rave.poseFromMatrix(mat)
+            
             return pose
         
     def point(self, target):
