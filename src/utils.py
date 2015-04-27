@@ -4,6 +4,8 @@ import threading
 import multiprocessing as mp
 import os.path as osp
 
+import numpy as np
+
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 MESH_DIRECTORY = osp.join(DATA_DIRECTORY, "meshes")
@@ -11,6 +13,12 @@ OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "clean")
 SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
 GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "coll_free")
 
+
+def invAff(mat):
+    A, b = mat[:3,:3], mat[:3,3][:, np.newaxis]
+    inv = np.hstack([ np.linalg.inv(A), -np.linalg.inv(A).dot(b) ])
+    return np.vstack([inv, [0,0,0,1]])
+    
 def runInParallel(func, args):
     pool = mp.Pool(4)
     result = pool.map_async(func, args)

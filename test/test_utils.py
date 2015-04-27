@@ -8,7 +8,7 @@ def plotPose(env, toPlot):
         mat = rave.matrixFromPose(toPlot)
     p1 = mat.dot([0,     0,    0, 1])[:3]
     p2 = mat.dot([0.5,   0,    0, 1])[:3]
-    p3 = mat.dot([0,  0.25,    0, 1])[:3]
+    p3 = mat.dot([0,   0.5,    0, 1])[:3]
     p4 = mat.dot([0,     0, 0.25, 1])[:3]
     return [env.drawarrow(p1,p2,linewidth=0.015),
             env.drawarrow(p1,p3,linewidth=0.007),
@@ -30,7 +30,7 @@ def randomObjPose(obj):
     zvals = [0, zsl, zsl+zss, zsl+2*zss]
     size = obj.ComputeAABB().extents()
     
-    yaw = (0.5*np.random.random()-0.35) + np.pi/2
+    yaw = (0.4*np.random.random()-0.2) + np.pi/2
     mat1 = rave.matrixFromAxisAngle(yaw * np.array([0,0,1]))
     #quat = np.array([theta,0,0,np.sqrt(1-theta**2)])
     quat = rave.quatFromRotationMatrix(mat1)
