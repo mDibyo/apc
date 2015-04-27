@@ -13,17 +13,24 @@ OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "clean")
 SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
 GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "coll_free")
 
-
-def invAff(mat):
-    A, b = mat[:3,:3], mat[:3,3][:, np.newaxis]
-    inv = np.hstack([ np.linalg.inv(A), -np.linalg.inv(A).dot(b) ])
-    return np.vstack([inv, [0,0,0,1]])
     
-def runInParallel(func, args):
-    pool = mp.Pool(4)
-    result = pool.map_async(func, args)
-    return result
+def runInParallel(func, argslist, returnFirst=True):
+    q = mp.Queue()
+    processes = []
+    processes = [mp.Process(target=func,args=[q]+arg) for arg in argslist]
+    [p.start() for p in processes]
     
+    results = []
+    
+    while not q.empty():
+        res = q.get()
+        if res is not None:
+            if returnFirst:
+                return res
+            else:
+                results.append(res)
+    return res
+            
 def getch():
     import sys
     import tty

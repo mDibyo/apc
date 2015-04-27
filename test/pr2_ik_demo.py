@@ -6,7 +6,7 @@ import openravepy as rave
 
 from test_utils import *
 from planning import IkSolver
-from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, invAff
+from utils import SHELF_MESH_DIR, OBJ_MESH_DIR
 
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         obj.SetTransform(rave.matrixFromPose(objPose))
         
         st = time.time()
-        sol = ik.GetRaveIkSol(obj.GetName())
+        sol = ik.GetRaveIkSol(obj.GetName(), parallel=True)
         if sol is not None:
             print "found sol in " + str(time.time()-st) + "s",
             m = r.SetActiveManipulator(sol["manip"])
