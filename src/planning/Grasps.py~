@@ -35,7 +35,6 @@ class Grasp():
         else:
             r = self.parent.env.GetRobots()[0]
             shelf = self.parent.env.GetBodies()[1]
-            taskprob = rave.interfaces.TaskManipulation(r)
             worldToGrip = r.GetManipulator("rightarm_torso").GetTransform()
             objToGrip, worldToObj = self.mat, obj.GetTransform()
             gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
@@ -86,15 +85,15 @@ class GraspSet():
         return len(self.grasps)
         
     def GetTargets(self, obj):
-        targets = []
-        bad = []
+        targets, good, bad = [], [], []
         for i,g in enumerate(self.grasps):
             t = g.GetTargetPose(obj)
             if t is not None:
                 targets.append(t)
+                good.append(g)
             else:
                 bad.append(i)
-        print "pruned",len(bad),"of",len(self.grasps),"grasps"
+        print "discarded",len(bad),"of",len(self.grasps),"grasps"
         self.grasps = [g for i,g in enumerate(self.grasps) if i not in bad]
         return targets
         

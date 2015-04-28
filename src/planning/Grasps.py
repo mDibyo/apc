@@ -85,16 +85,16 @@ class GraspSet():
         return len(self.grasps)
         
     def GetTargets(self, obj):
-        targets = []
-        bad = []
+        targets, good, bad = [], [], []
         for i,g in enumerate(self.grasps):
             t = g.GetTargetPose(obj)
             if t is not None:
                 targets.append(t)
+                good.append(g)
             else:
                 bad.append(i)
-        print "pruned",len(bad),"of",len(self.grasps),"grasps"
-        self.grasps = [g for i,g in enumerate(self.grasps) if i not in bad]
+        print "discarded",len(bad),"of",len(self.grasps),"grasps"
+        self.grasps = good
         return targets
         
         

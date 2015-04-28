@@ -23,7 +23,7 @@ obj = e.GetBodies()[2]
 
 
 db = MongoClient()['apc']
-db_collection = db['unreachable']
+db_collection = db['reachability1']
 
 if __name__ == "__main__":
     ik = IkSolver(e)
@@ -41,10 +41,12 @@ if __name__ == "__main__":
         print i
         
         db_collection.insert_one({
-            'gripper_pose': sol["target"],
-            'joint_angles': sol["joints"],
-            'manip'       : sol["manip"],
-            'base_pos'    : r.GetTransform()[:3,3].tolist(),
+            'object'      : obj.GetName(),
+            'object_pose' : objPose.tolist(),
+            'gripper_pose': sol["target"].tolist() if sol is not None else None,
+            'joint_angles': sol["joints"].tolist() if sol is not None else None,
+            'manip'       : sol["manip"] if sol is not None else None,
+            'base_pos'    : sol["base"][:3,3].tolist() if sol is not None else None,
             'runtime'     : dur
         })
 

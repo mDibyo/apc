@@ -49,7 +49,7 @@ class IkSolver(object):
             if queue is None:
                 return sol
             else:
-                return queue.put(sol)
+                queue.put(sol)
 
     @staticmethod
     def GetIkSol(obj, targets, parallel):
@@ -66,9 +66,6 @@ class IkSolver(object):
                 for i,t in enumerate(targets):
                     soln = IkSolver.solveIK(None,t,manip,i)
                     if soln is not None:
-                        soln["point"] = IkSolver.grasps[i].point(t)
-                        soln["grasp"] = IkSolver.grasps[i].mat
-                        soln["base"] = IkSolver.robot.GetTransform()
                         return soln
                         
     @staticmethod    
@@ -82,7 +79,6 @@ class IkSolver(object):
         if len(targets) == 0:
             print "no grasps, cannot reach object",
             return None
-        return None
         rsol, i = None, 0
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):
@@ -90,13 +86,26 @@ class IkSolver(object):
             if i == 0:
                 st = time.time()
                 pos[:3,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])
+            elif i == 1:
+                IkSolver.positions = naiveMoves()
+                pos[:2,3] = IkSolver.positions.pop()
             else:
-                pos[:2,3] += IkSolver.computeMove(obj.GetTransform())  
-                          
+                if len(IkSolver.positions) == 0:
+                    return None
+                pos[:2,3] = IkSolver.positions.pop()   
+                                
             IkSolver.robot.SetTransform(pos)
             rsol = IkSolver.GetIkSol(obj, targets, parallel)        
 
         return rsol
+        
+    @staticmethod
+    def naiveMoves():
+        positions = []
+        for x in np.linspace(-1.2, 0.7, 30):
+            for y in np.linspace(-0.9, 0.9, 30):
+                positions.append(x,y)
+        return positions
         
     @staticmethod
     def computeMove(obj):
