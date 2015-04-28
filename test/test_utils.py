@@ -36,19 +36,7 @@ def randomObjPose(obj):
     quat = rave.quatFromRotationMatrix(mat1)
     
     x = np.random.random()*(xhigh-xlow+size[0]) + xlow
-    y = ystep * (biny-1)
+    y = ystep * (biny-1) + (0.2 * np.random.random() - 0.1)
     z = zvals[binz] + 0.80 + size[2]
     return np.hstack([quat, [x,y,z]])
-    
-    
-    """   
-resetRobot(r) 
-worldToObj = rave.matrixFromPose(randomObjPose(obj))
-worldToGrip = r.GetLink("r_gripper_tool_frame").GetTransform()
-objToWorld = np.linalg.inv(worldToObj)
-gripToWorld = np.linalg.inv(worldToObj)
-obj.SetTransform(worldToGrip)
-shelf.SetTransform()
-"""
-
     

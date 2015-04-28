@@ -14,22 +14,16 @@ SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
 GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "coll_free")
 
     
-def runInParallel(func, argslist, returnFirst=True):
+def runInParallel(func, argslist):
     q = mp.Queue()
     processes = []
     processes = [mp.Process(target=func,args=[q]+arg) for arg in argslist]
     [p.start() for p in processes]
-    
-    results = []
-    
     while not q.empty():
         res = q.get()
         if res is not None:
-            if returnFirst:
-                return res
-            else:
-                results.append(res)
-    return res
+            [p.terminate() for p in processes]
+            return res
             
 def getch():
     import sys

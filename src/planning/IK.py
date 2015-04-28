@@ -35,63 +35,21 @@ class IkSolver(object):
             IkSolver.ikmodel.autogenerate()
             
     @staticmethod            
-    def solveIK_Parallel(queue, target, manipName, i, check=True):
+    def solveIK(queue, target, manipName, i):
         ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
-        if check:
-            opt = rave.IkFilterOptions.CheckEnvCollisions
-        else:
-            opt = rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions
-            
+        opt = rave.IkFilterOptions.CheckEnvCollisions  
         iksol = IkSolver.robot.GetManipulator(manipName).FindIKSolution(ikparam, opt)
         if iksol is not None:
-            if check:
-                queue.put({"joints" : iksol,
-                           "manip"  : manipName,
-                           "target" : target,
-                           "point"  : IkSolver.grasps[i].point(target),
-                           "grasp"  : IkSolver.grasps[i].mat,
-                           "base"   : IkSolver.robot.GetTransform()})
- 
+            sol = {"joints" : iksol,
+                   "manip"  : manipName,
+                   "target" : target,
+                   "point"  : IkSolver.grasps[i].point(target),
+                   "grasp"  : IkSolver.grasps[i].mat,
+                   "base"   : IkSolver.robot.GetTransform()}
+            if queue is None:
+                return sol
             else:
-                IkSolver.robot.SetDOFValues(iksol, IkSolver.robot.GetManipulator(manipName).GetArmIndices())
-                links = IkSolver.robot.GetLinks()
-                numCols = sum([sum([1 if IkSolver.env.CheckCollision(l,o) else 0 for l in links]) for o in
-                 IkSolver.env.GetBodies()[1:]])
-                if numCols == 0:
-                    queue.put({"joints" : iksol,
-                               "manip"  : manipName,
-                               "target" : target,
-                               "point"  : IkSolver.grasps[i].point(target),
-                               "grasp"  : IkSolver.grasps[i].mat,
-                               "base"   : IkSolver.robot.GetTransform()})
-                else:
-                    print "found solution:",iksol,"for",manipName,"but has",numCols,"collisions"
-
-    @staticmethod            
-    def solveIK(target, manipName, check=True):
-        ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
-        if check:
-            opt = rave.IkFilterOptions.CheckEnvCollisions
-        else:
-            opt = rave.IkFilterOptions.IgnoreEndEffectorEnvCollisions
-            
-        iksol = IkSolver.robot.GetManipulator(manipName).FindIKSolution(ikparam, opt)
-        if iksol is not None:
-            if check:
-                return {"joints": iksol,
-                        "manip": manipName,
-                        "target":target}
-            else:
-                IkSolver.robot.SetDOFValues(iksol, IkSolver.robot.GetManipulator(manipName).GetArmIndices())
-                links = IkSolver.robot.GetLinks()
-                numCols = sum([sum([1 if IkSolver.env.CheckCollision(l,o) else 0 for l in links]) for o in
-                 IkSolver.env.GetBodies()[1:]])
-                if numCols == 0:
-                    return {"joints": iksol,
-                            "manip": manipName,
-                            "target":target}
-                else:
-                    print "found solution:",iksol,"for",manipName,"but has",numCols,"collisions"
+                return queue.put(sol)
 
     @staticmethod
     def GetIkSol(obj, targets, parallel):
@@ -102,14 +60,11 @@ class IkSolver(object):
         for manip in manips:
             IkSolver.resetArms()
             if parallel:
-            
-            
-            
-                soln = runInParallel(IkSolver.solveIK_Parallel, [[t,manip,i] for i,t in enumerate(targets)])
+                soln = runInParallel(IkSolver.solveIK, [[t,manip,i] for i,t in enumerate(targets)])
                 return soln
             else:
                 for i,t in enumerate(targets):
-                    soln = IkSolver.solveIK(t,manip)
+                    soln = IkSolver.solveIK(None,t,manip,i)
                     if soln is not None:
                         soln["point"] = IkSolver.grasps[i].point(t)
                         soln["grasp"] = IkSolver.grasps[i].mat

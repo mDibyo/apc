@@ -11,10 +11,11 @@ class Grasp():
 
     initial = rave.matrixFromQuat([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])
 
-    T_fix_inv = np.array([[ 0.    ,  0.    ,  1.    ,  0.0375],
-                          [ 0.    ,  1.    ,  0.    , -0.008 ],
-                          [-1.    , -0.    , -0.    , -0.    ],
-                          [ 0.    ,  0.    ,  0.    ,  1.    ]])
+    T_fix = np.array([[-0.    , -0.    , -1.    , -0.    ],
+                      [ 0.    ,  1.    ,  0.    ,  0.008 ],
+                      [ 1.    ,  0.    ,  0.    , -0.0375],
+                      [ 0.    ,  0.    ,  0.    ,  1.    ]])
+    T_fix_inv = np.linalg.inv(T_fix)
 
     def __init__(self, quat, pos, width, parent):
         self.pose = np.hstack([quat, pos])
@@ -29,25 +30,28 @@ class Grasp():
         dx = abs(lipX - obj.GetTransform()[0,3])
         validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.13/dx))
         
-        r = self.parent.env.GetRobots()[0]
-        shelf = self.parent.env.GetBodies()[1]
-        worldToGrip = r.GetLink("r_gripper_tool_frame").GetTransform()
-        objToGrip, worldToObj = self.mat, obj.GetTransform()
-        gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
-        
-        obj.SetTransform(worldToGrip.dot(gripToObj))
-        shelf.SetTransform(worldToGrip.dot(gripToObj.dot(objToWorld)))
-        for link in r.GetManipulator("rightarm_torso").GetChildLinks():
-            for ob in self.parent.env.GetBodies()[1:]:
-                if self.parent.env.CheckCollision(link, ob):
-                    return False
-        return validDir
+        if not validDir:
+            return False
+        else:
+            r = self.parent.env.GetRobots()[0]
+            shelf = self.parent.env.GetBodies()[1]
+            worldToGrip = r.GetManipulator("rightarm_torso").GetTransform()
+            objToGrip, worldToObj = self.mat, obj.GetTransform()
+            gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
+            
+            obj.SetTransform(worldToGrip.dot(Grasp.T_fix).dot(gripToObj))
+            shelf.SetTransform(obj.GetTransform().dot(objToWorld))
+            for link in r.GetManipulator("rightarm_torso").GetChildLinks():
+                for ob in self.parent.env.GetBodies()[1:]:
+                    if self.parent.env.CheckCollision(link, ob):
+                        return False
+            return True
             
     def GetTargetPose(self, obj):       
-    
+        mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
+        pose = rave.poseFromMatrix(mat)
         if self.parent.grasps.index(self) and self.prune(pose, obj.GetName()):
-            mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
-            pose = rave.poseFromMatrix(mat)
+            
             return pose
         
     def point(self, target):
