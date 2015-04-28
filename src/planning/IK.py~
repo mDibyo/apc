@@ -46,10 +46,10 @@ class IkSolver(object):
                    "point"  : IkSolver.grasps[i].point(target),
                    "grasp"  : IkSolver.grasps[i].mat,
                    "base"   : IkSolver.robot.GetTransform()}
-                if queue is None:
-                    return sol
-                else:
-                    return queue.put(sol)
+            if queue is None:
+                return sol
+            else:
+                return queue.put(sol)
 
     @staticmethod
     def GetIkSol(obj, targets, parallel):
@@ -82,7 +82,7 @@ class IkSolver(object):
         if len(targets) == 0:
             print "no grasps, cannot reach object",
             return None
-            
+        return None
         rsol, i = None, 0
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):

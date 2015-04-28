@@ -82,7 +82,6 @@ class IkSolver(object):
         if len(targets) == 0:
             print "no grasps, cannot reach object",
             return None
-            
         rsol, i = None, 0
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
                                                              IkSolver.env.GetKinBody("pod_lowres")):

@@ -44,7 +44,9 @@ class Grasp():
             for link in r.GetManipulator("rightarm_torso").GetChildLinks():
                 for ob in self.parent.env.GetBodies()[1:]:
                     if self.parent.env.CheckCollision(link, ob):
+                        obj.SetTransform(worldToObj)
                         return False
+            obj.SetTransform(worldToObj)
             return True
             
     def GetTargetPose(self, obj):       

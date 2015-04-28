@@ -20,7 +20,6 @@ m = r.SetActiveManipulator("leftarm_torso")
 shelf = e.GetBodies()[1]
 obj = e.GetBodies()[2]
 
-maniprob = rave.interfaces.BaseManipulation(r)
 taskprob = rave.interfaces.TaskManipulation(r)
     
 if __name__ == "__main__":

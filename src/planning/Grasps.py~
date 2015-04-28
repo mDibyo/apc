@@ -35,6 +35,7 @@ class Grasp():
         else:
             r = self.parent.env.GetRobots()[0]
             shelf = self.parent.env.GetBodies()[1]
+            taskprob = rave.interfaces.TaskManipulation(r)
             worldToGrip = r.GetManipulator("rightarm_torso").GetTransform()
             objToGrip, worldToObj = self.mat, obj.GetTransform()
             gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
@@ -44,7 +45,9 @@ class Grasp():
             for link in r.GetManipulator("rightarm_torso").GetChildLinks():
                 for ob in self.parent.env.GetBodies()[1:]:
                     if self.parent.env.CheckCollision(link, ob):
+                        obj.SetTransform(worldToObj)
                         return False
+            obj.SetTransform(worldToObj)
             return True
             
     def GetTargetPose(self, obj):       
