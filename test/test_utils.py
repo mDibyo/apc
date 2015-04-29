@@ -21,6 +21,31 @@ def resetRobot(r):
 def resetArms(r):
     r.SetDOFValues([0.548,-1.57, 1.57, 0.548],[22,27,15,34])
     
+    
+def randomObjPoses(objlist):
+    biny, binz = np.random.randint(3), np.random.randint(4)
+    xlow, xhigh = -0.15, -0.43
+    ystep = 0.55/2
+    zss = 0.23
+    zsl = 0.27
+    zvals = [0, zsl, zsl+zss, zsl+2*zss]
+    
+    poses = {}
+    yrange = np.linspace(-0.1, 0.1, len(objlist) + 1)
+    for i,obj in enumerate(objlist):
+        size = obj.ComputeAABB().extents()
+    
+        yaw = (0.4*np.random.random()-0.2) + np.pi/2
+        mat1 = rave.matrixFromAxisAngle(yaw * np.array([0,0,1]))
+        #quat = np.array([theta,0,0,np.sqrt(1-theta**2)])
+        quat = rave.quatFromRotationMatrix(mat1)
+    
+        x = np.random.random()*(xhigh-xlow+size[0]) + xlow   
+        y = ystep * (biny-1) + yrange[i] + np.random.random()*(yrange[i+1] - yrange[i])
+        z = zvals[binz] + 0.80 + size[2]
+        poses[obj] = np.hstack([quat, [x,y,z]])
+    return poses
+        
 def randomObjPose(obj):
     biny, binz = np.random.randint(3), np.random.randint(4)
     xlow, xhigh = -0.15, -0.43
