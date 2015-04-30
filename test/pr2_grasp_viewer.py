@@ -61,10 +61,9 @@ if __name__ == "__main__":
     object_filename = os.path.join(OBJECT_MESH_DIR, object_name + '.stl')
 
     object_grasps_filename = os.path.join(GRASP_DIR,
-                                          "{}.json".format(object_name))
+                                          "{}_sorted.json".format(object_name))
     object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
                                               "{}.json".format(object_name + '_coll_free'))
-    auto_step = False
     
     # load openrave environment
     rave.raveSetDebugLevel(rave.DebugLevel.Error)
@@ -129,8 +128,8 @@ if __name__ == "__main__":
             link.SetVisible(False)
         #link.SetVisible(True)
 
-    auto_step = True
-    check_close_fingers = True
+    auto_step = False
+    check_close_fingers = False
     finger_joint = r.GetJoint('l_gripper_l_finger_joint')
 
     # loop through grasps and set end effector to appropriate grasp
