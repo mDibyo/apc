@@ -137,7 +137,7 @@ class PR2GraspChecker(object):
                     self.taskprob.ReleaseFingers() # open fingets
                     self.robot.WaitForController(0) # wait
 
-    def pruneBadGrasps(self, vis = True, closed_thresh = 0.05, auto_step = True, close_fingers = True):
+    def pruneBadGrasps(self, vis = True, closed_thresh = 0.05, auto_step = True, close_fingers = False):
         '''
         Only display all of the grasps
         '''
@@ -155,7 +155,7 @@ class PR2GraspChecker(object):
             in_collision = self.env.CheckCollision(self.robot, self.object)
             if not in_collision:
                 if auto_step:
-                    time.sleep(2)
+                    time.sleep(0.05)
                 else:
                     user_input = 'x'
                     while user_input != '':
@@ -206,10 +206,9 @@ if __name__ == "__main__":
     root_dir = OBJECT_MESH_DIR
     for root, dirs, files in os.walk(root_dir):
         for f in files:
-            if f.find('clean') == -1 and f.find('old') == -1 and f.find('centered') == -1:
-                
+            if root.find('clean') == -1 and f.find('old') == -1 and f.find('centered') == -1:
                 object_name, object_ext = os.path.splitext(f)
-                object_name = 'mommys_helper_outlet_plugs'
+                # object_name = 'mommys_helper_outlet_plugs'
                 print 'Pruning grasps for ', object_name
                 
                 # prune grasps
@@ -221,4 +220,3 @@ if __name__ == "__main__":
                                                           "{}.json".format(object_name + '_coll_free'))
                 GraspWrapper.grasps_to_file(object_grasps_keep, object_grasps_out_filename)
                 e.Remove(grasp_checker.object)
-                exit(0)
