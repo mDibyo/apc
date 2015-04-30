@@ -62,7 +62,7 @@ class PR2GraspChecker(object):
         R_fix = np.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]])
         T_fix = np.eye(4)
         T_fix[:3,:3] = R_fix
-        T_fix[1,3] = 0.008
+        T_fix[1,3] = 0
         T_fix[2,3] = -0.0375
         self.T_fix = T_fix
 
@@ -155,7 +155,7 @@ class PR2GraspChecker(object):
             in_collision = self.env.CheckCollision(self.robot, self.object)
             if not in_collision:
                 if auto_step:
-                    time.sleep(0.2)
+                    time.sleep(2)
                 else:
                     user_input = 'x'
                     while user_input != '':
@@ -189,12 +189,11 @@ class PR2GraspChecker(object):
 if __name__ == "__main__":
     # get sys input
     argc = len(sys.argv)
+    '''
     if argc < 2:
         print 'Need to supply object name'
         exit(0)
-
-    object_name = sys.argv[1]
-
+    '''
     # load openrave environment
     rave.raveSetDebugLevel(rave.DebugLevel.Error)
     e = rave.Environment()
@@ -204,12 +203,22 @@ if __name__ == "__main__":
     # set robot in front of the shelf
     r = e.GetRobots()[0]
 
-    # prune grasps
-    grasp_checker = PR2GraspChecker(e, r, object_name)
-    object_grasps_keep = grasp_checker.pruneBadGrasps()
+    root_dir = OBJECT_MESH_DIR
+    for root, dirs, files in os.walk(root_dir):
+        for f in files:
+            if f.find('clean') == -1 and f.find('old') == -1 and f.find('centered') == -1:
+                
+                object_name, object_ext = os.path.splitext(f)
+                object_name = 'mommys_helper_outlet_plugs'
+                print 'Pruning grasps for ', object_name
+                
+                # prune grasps
+                grasp_checker = PR2GraspChecker(e, r, object_name)
+                object_grasps_keep = grasp_checker.pruneBadGrasps()
 
-    # resave the json file
-    object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
-                                              "{}.json".format(object_name + '_coll_free'))
-    GraspWrapper.grasps_to_file(object_grasps_keep, object_grasps_out_filename)
-
+                # resave the json file
+                object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
+                                                          "{}.json".format(object_name + '_coll_free'))
+                GraspWrapper.grasps_to_file(object_grasps_keep, object_grasps_out_filename)
+                e.Remove(grasp_checker.object)
+                exit(0)
