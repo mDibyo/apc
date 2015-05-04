@@ -11,14 +11,15 @@ from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, OBJ_LIST, MODEL_DIR
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 
-#e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  
-e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
+e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  
+#e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
 
 e.Load(osp.join(SHELF_MESH_DIR, "pod_lowres.stl"))
 
 #e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
 e.Load(osp.join(OBJ_MESH_DIR, "cheezit_big_original.stl"))
-#e.Load(osp.join(OBJ_MESH_DIR, "crayola_64_ct.stl"))
+#e.Load(osp.join(OBJ_MESH_DIR, 'expo_dry_erase_board_eraser.stl'))
+
 
 e.SetViewer("qtcoin")
 

@@ -72,7 +72,7 @@ class IkSolver(object):
     def GetRaveIkSol(objName, parallel=False):       
         obj = IkSolver.env.GetKinBody(objName)
         pos = IkSolver.robot.GetTransform()
-        IkSolver.grasps = GraspSet(objName, IkSolver.env)
+        IkSolver.grasps = GraspSet(objName, IkSolver.env.CloneSelf(rave.CloningOptions.Bodies))
         obj = IkSolver.env.GetKinBody(objName)
         targets = IkSolver.grasps.GetTargets(obj)
         IkSolver.targets = targets

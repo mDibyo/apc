@@ -12,7 +12,7 @@ class Grasp():
     initial = rave.matrixFromQuat([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])
 
     T_fix = np.array([[-0.    , -0.    , -1.    , -0.    ],
-                      [ 0.    ,  1.    ,  0.    ,  0.    ],
+                      [ 0.    ,  1.    ,  0.    ,  0.008 ],
                       [ 1.    ,  0.    ,  0.    , -0.0375],
                       [ 0.    ,  0.    ,  0.    ,  1.    ]])
     T_fix_inv = np.linalg.inv(T_fix)
@@ -33,34 +33,34 @@ class Grasp():
     def prune(self, pose, objName):
         obj = self.parent.env.GetKinBody(objName)
         shelf = self.parent.env.GetBodies()[1]
+
         lipX = (shelf.ComputeAABB().pos() - shelf.ComputeAABB().extents())[0]
         dx = abs(lipX - obj.GetTransform()[0,3])
-        validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.13/dx))
-        
+        validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.11/dx))
         if not validDir:
             return False
-        else:
-            r = self.parent.env.GetRobots()[0]
-            shelf = self.parent.env.GetBodies()[1]
-            others = self.parent.env.GetBodies()[2:]
-            others.remove(obj)
-            originals = [o.GetTransform() for o in others]
             
-            T_obj, T_obj_world, T_orig = self.inGripperFrame(r, obj)
-            obj.SetTransform(T_obj)
-            shelf.SetTransform(T_obj.dot(T_obj_world))
-            [o.SetTransform(T_obj.dot(np.linalg.inv(T_orig).dot(originals[i]))) for i,o in enumerate(others)]
-            
-            
-            for link in r.GetManipulator("rightarm_torso").GetChildLinks():
-                for ob in self.parent.env.GetBodies()[1:]:
-                    if self.parent.env.CheckCollision(link, ob):
-                        obj.SetTransform(T_orig)
-                        [o.SetTransform(originals[i]) for i,o in enumerate(others)]
-                        return False
-            obj.SetTransform(T_orig)
-            [o.SetTransform(originals[i]) for i,o in enumerate(others)]
-            return True
+        r = self.parent.env.GetRobots()[0]
+        shelf = self.parent.env.GetBodies()[1]
+        others = self.parent.env.GetBodies()[2:]
+        others.remove(obj)
+        originals = [o.GetTransform() for o in others]
+        
+        T_obj, T_obj_world, T_orig = self.inGripperFrame(r, obj)
+        obj.SetTransform(T_obj)
+        shelf.SetTransform(T_obj.dot(T_obj_world))
+        [o.SetTransform(T_obj.dot(np.linalg.inv(T_orig).dot(originals[i]))) for i,o in enumerate(others)]
+        
+        
+        for link in r.GetManipulator("rightarm_torso").GetChildLinks():
+            for ob in self.parent.env.GetBodies()[1:]:
+                if self.parent.env.CheckCollision(link, ob):
+                    obj.SetTransform(T_orig)
+                    [o.SetTransform(originals[i]) for i,o in enumerate(others)]
+                    return False
+        obj.SetTransform(T_orig)
+        [o.SetTransform(originals[i]) for i,o in enumerate(others)]
+        return True
             
     def GetTargetPose(self, obj):       
         mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
