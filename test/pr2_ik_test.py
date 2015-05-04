@@ -30,7 +30,7 @@ obj = e.GetBodies()[-1]
 
 
 db = MongoClient()['apc']
-db_collection = db['reachability1']
+db_collection = db['reachability2']
 
 if __name__ == "__main__":
     ik = IkSolver(e)
