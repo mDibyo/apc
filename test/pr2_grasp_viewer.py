@@ -61,9 +61,9 @@ if __name__ == "__main__":
     object_filename = os.path.join(OBJECT_MESH_DIR, object_name + '.stl')
 
     object_grasps_filename = os.path.join(GRASP_DIR,
-                                          "{}_sorted.json".format(object_name))
+                                          "{}_coll_free.json".format(object_name))
     object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
-                                              "{}.json".format(object_name + '_coll_free'))
+                                              "{}.json".format(object_name + '_coll_free_2'))
     
     # load openrave environment
     rave.raveSetDebugLevel(rave.DebugLevel.Error)
@@ -135,7 +135,8 @@ if __name__ == "__main__":
     # loop through grasps and set end effector to appropriate grasp
     ind = 0
     object_grasps_keep = []
-    for grasp in object_grasps:
+    for i, grasp in enumerate(object_grasps):
+        print i,
         # get grasp pose
         gripper_position = grasp.gripper_pose.position
         gripper_orientation = grasp.gripper_pose.orientation

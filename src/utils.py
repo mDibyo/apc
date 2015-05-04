@@ -3,15 +3,41 @@ from __future__ import division
 import threading
 import multiprocessing as mp
 import os.path as osp
+import time
 
 import numpy as np
 
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 MESH_DIRECTORY = osp.join(DATA_DIRECTORY, "meshes")
-OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "clean")
 SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
-GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "coll_free")
+MODEL_DIR = osp.join(DATA_DIRECTORY, "models")
+
+if 0:
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
+    GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "coll_free")
+    GRASP_TAG = "_coll_free.json"
+else:
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "old")
+    GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "v1")
+    GRASP_TAG = "_sorted.json"
+
+
+
+OBJ_LIST = ["champion_copper_plus_spark_plug",      "kong_sitting_frog_dog_toy",
+            "cheezit_big_original",                 "kygen_squeakin_eggs_plush_puppies",
+            "crayola_64_ct",                        "mark_twain_huckleberry_finn",
+            "dove_beauty_bar",                      "mead_index_cards",
+            "dr_browns_bottle_brush",                "mommys_helper_outlet_plugs",
+            "elmers_washable_no_run_school_glue",    "munchkin_white_hot_duck_bath_toy",
+            "expo_dry_erase_board_eraser",           "one_with_nature_soap_dead_sea_mud",
+            "feline_greenies_dental_treats",         "oreo_mega_stuf",
+            "first_years_take_and_toss_straw_cups",  "paper_mate_12_count_mirado_black_warrior",
+            "genuine_joe_plastic_stir_sticks",       "rollodex_mesh_collection_jumbo_pencil_cup",
+            "highland_6539_self_stick_notes",        "safety_works_safety_glasses",
+            "kong_air_dog_squeakair_tennis_ball",    "sharpie_accent_tank_style_highlighters",
+            "kong_duck_dog_toy",                     "stanley_66_052"]
+
 
     
 def runInParallel(func, argslist):

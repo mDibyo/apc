@@ -8,7 +8,7 @@ from utils import GRASP_DIR, OBJ_MESH_DIR
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 
-objects = ["dove_beauty_bar", "cheezit_big_original", "champion_copper_plus_spark_plug"]
+objects = ["mark_twain_huckleberry_finn"]
 
 for objName in objects:
     e.Load(osp.join(OBJ_MESH_DIR, objName + ".stl"))
@@ -19,7 +19,7 @@ for objName in objects:
         pos = np.array([posdict["x"], posdict["y"], posdict["z"]])
         return np.linalg.norm(com - pos)
         
-    grasps = json.load(open(osp.join(GRASP_DIR, objName + ".json")))
+    grasps = json.load(open(osp.join(GRASP_DIR, objName + "_coll_free.json")))
     
     grasps.sort(key=comp)
         

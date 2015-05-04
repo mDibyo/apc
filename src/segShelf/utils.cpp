@@ -112,7 +112,7 @@ namespace utils {
             sprintf (name, "normal_%d", unsigned (i));
         
             viewer->addArrow (pt2, pt1, 1.0, 0, 0, false, name);
-            contour->points = regions[i].getContour ();
+            contour->points = regions[i].getContour();
             sprintf (name, "plane_%02d", int (i));
         
             pcl::visualization::PointCloudColorHandlerCustom <Point> color (contour, red[i%6], grn[i%6], blu[i%6]);

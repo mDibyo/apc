@@ -5,14 +5,14 @@ import json
 import openravepy as rave
 import numpy as np
 
-from utils import GRASP_DIR
+from utils import GRASP_DIR, GRASP_TAG
 
 class Grasp():
 
     initial = rave.matrixFromQuat([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])
 
     T_fix = np.array([[-0.    , -0.    , -1.    , -0.    ],
-                      [ 0.    ,  1.    ,  0.    ,  0.008 ],
+                      [ 0.    ,  1.    ,  0.    ,  0.    ],
                       [ 1.    ,  0.    ,  0.    , -0.0375],
                       [ 0.    ,  0.    ,  0.    ,  1.    ]])
     T_fix_inv = np.linalg.inv(T_fix)
@@ -22,6 +22,13 @@ class Grasp():
         self.mat = rave.matrixFromPose(self.pose)
         self.width = width
         self.parent = parent
+        
+    def inGripperFrame(self, r, obj):
+        worldToGrip = r.GetManipulator("rightarm_torso").GetTransform()
+        objToGrip, worldToObj = self.mat, obj.GetTransform()    
+        gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
+        T_obj = worldToGrip.dot(Grasp.T_fix).dot(gripToObj)        
+        return T_obj, objToWorld, worldToObj
             
     def prune(self, pose, objName):
         obj = self.parent.env.GetKinBody(objName)
@@ -35,25 +42,30 @@ class Grasp():
         else:
             r = self.parent.env.GetRobots()[0]
             shelf = self.parent.env.GetBodies()[1]
-            worldToGrip = r.GetManipulator("rightarm_torso").GetTransform()
-            objToGrip, worldToObj = self.mat, obj.GetTransform()
-            gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
+            others = self.parent.env.GetBodies()[2:]
+            others.remove(obj)
+            originals = [o.GetTransform() for o in others]
             
-            obj.SetTransform(worldToGrip.dot(Grasp.T_fix).dot(gripToObj))
-            shelf.SetTransform(obj.GetTransform().dot(objToWorld))
+            T_obj, T_obj_world, T_orig = self.inGripperFrame(r, obj)
+            obj.SetTransform(T_obj)
+            shelf.SetTransform(T_obj.dot(T_obj_world))
+            [o.SetTransform(T_obj.dot(np.linalg.inv(T_orig).dot(originals[i]))) for i,o in enumerate(others)]
+            
+            
             for link in r.GetManipulator("rightarm_torso").GetChildLinks():
                 for ob in self.parent.env.GetBodies()[1:]:
                     if self.parent.env.CheckCollision(link, ob):
-                        obj.SetTransform(worldToObj)
+                        obj.SetTransform(T_orig)
+                        [o.SetTransform(originals[i]) for i,o in enumerate(others)]
                         return False
-            obj.SetTransform(worldToObj)
+            obj.SetTransform(T_orig)
+            [o.SetTransform(originals[i]) for i,o in enumerate(others)]
             return True
             
     def GetTargetPose(self, obj):       
         mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
         pose = rave.poseFromMatrix(mat)
         if self.parent.grasps.index(self) and self.prune(pose, obj.GetName()):
-            
             return pose
         
     def point(self, target):
@@ -66,7 +78,7 @@ class Grasp():
 class GraspSet():
 
     def __init__(self, objName, env):
-        fname = osp.join(GRASP_DIR, objName + "_sorted.json")
+        fname = osp.join(GRASP_DIR, objName + GRASP_TAG)
         self.json = json.load(open(fname))
         self.env = env.CloneSelf(rave.CloningOptions.Bodies)
         self.grasps = []
