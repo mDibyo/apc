@@ -7,6 +7,11 @@ import time
 
 import numpy as np
 
+from functools import wraps
+import errno
+import os
+import signal
+
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 MESH_DIRECTORY = osp.join(DATA_DIRECTORY, "meshes")
@@ -37,14 +42,14 @@ OBJ_LIST = ["champion_copper_plus_spark_plug",      "kong_sitting_frog_dog_toy",
             "highland_6539_self_stick_notes",        "safety_works_safety_glasses",
             "kong_air_dog_squeakair_tennis_ball",    "sharpie_accent_tank_style_highlighters",
             "kong_duck_dog_toy",                     "stanley_66_052"]
-
-
+     
     
 def runInParallel(func, argslist):
     q = mp.Queue()
     processes = []
     processes = [mp.Process(target=func,args=[q]+arg) for arg in argslist]
     [p.start() for p in processes]
+        
     while not q.empty():
         res = q.get()
         if res is not None:
@@ -65,7 +70,9 @@ def getch():
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
-
+    
+    
+    
 
 class LoopingThread(threading.Thread):
     def __init__(self, group=None, target=None, name=None, args=(),

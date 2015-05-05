@@ -3,6 +3,7 @@ from __future__ import division
 import os.path as osp
 import time
 
+
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
@@ -13,6 +14,7 @@ from Grasps import Grasp, GraspSet
 class IkSolver(object):
 
     EPS = 1e-4
+    max_time = 10
     env = None
     robot = None
     basePositions = np.load(osp.join(DATA_DIRECTORY,"simulated","basePositions.npy"))
@@ -34,11 +36,16 @@ class IkSolver(object):
         if not IkSolver.ikmodel.load():
             IkSolver.ikmodel.autogenerate()
             
-    @staticmethod            
+
+            
+    @staticmethod        
     def solveIK(queue, target, manipName, i):
+        m = IkSolver.robot.GetManipulator(manipName)
+       
         ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
-        opt = rave.IkFilterOptions.CheckEnvCollisions  
-        iksol = IkSolver.robot.GetManipulator(manipName).FindIKSolution(ikparam, opt)
+        opt = rave.IkFilterOptions.CheckEnvCollisions 
+        
+        iksol = m.FindIKSolution(ikparam, opt)
         if iksol is not None:
             sol = {"joints" : iksol,
                    "manip"  : manipName,
@@ -65,9 +72,10 @@ class IkSolver(object):
             else:
                 for i,t in enumerate(targets):
                     soln = IkSolver.solveIK(None,t,manip,i)
+                
                     if soln is not None:
                         return soln
-                        
+   
     @staticmethod    
     def GetRaveIkSol(objName, parallel=False):       
         obj = IkSolver.env.GetKinBody(objName)
@@ -87,6 +95,7 @@ class IkSolver(object):
             if i == 0:
                 st = time.time()
                 pos[:3,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])
+                
             elif i == 1:
                 IkSolver.positions = naiveMoves()
                 pos[:2,3] = IkSolver.positions.pop()
@@ -96,8 +105,9 @@ class IkSolver(object):
                 pos[:2,3] = IkSolver.positions.pop()   
                                 
             IkSolver.robot.SetTransform(pos)
-            rsol = IkSolver.GetIkSol(obj, targets, parallel)        
-
+            
+            rsol = IkSolver.GetIkSol(obj, targets, parallel) 
+            
         return rsol
         
     @staticmethod

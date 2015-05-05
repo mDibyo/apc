@@ -1,6 +1,7 @@
 import time
 import os.path as osp
 
+
 import numpy as np
 import openravepy as rave
 
@@ -11,8 +12,8 @@ from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, OBJ_LIST, MODEL_DIR
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 
-e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  
-#e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
+#e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  
+e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
 
 e.Load(osp.join(SHELF_MESH_DIR, "pod_lowres.stl"))
 
@@ -53,6 +54,6 @@ if __name__ == "__main__":
             taskprob.CloseFingers()
 
         else:
-            print "no IK sol found"
+            print "no IK sol found in " + str(time.time()-st) + "s",
 
         
