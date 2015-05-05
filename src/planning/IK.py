@@ -72,12 +72,11 @@ class IkSolver(object):
             else:
                 for i,t in enumerate(targets):
                     soln = IkSolver.solveIK(None,t,manip,i)
-                
                     if soln is not None:
                         return soln
    
     @staticmethod    
-    def GetRaveIkSol(objName, parallel=False):       
+    def GetRaveIkSol(objName, parallel=False, q=None):       
         obj = IkSolver.env.GetKinBody(objName)
         pos = IkSolver.robot.GetTransform()
         IkSolver.grasps = GraspSet(objName, IkSolver.env.CloneSelf(rave.CloningOptions.Bodies))
@@ -106,8 +105,9 @@ class IkSolver(object):
                                 
             IkSolver.robot.SetTransform(pos)
             
-            rsol = IkSolver.GetIkSol(obj, targets, parallel) 
-            
+            rsol = IkSolver.GetIkSol(obj, targets, parallel)
+        if q is not None:
+            q.put(rsol)
         return rsol
         
     @staticmethod

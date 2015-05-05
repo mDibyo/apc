@@ -4,13 +4,9 @@ import threading
 import multiprocessing as mp
 import os.path as osp
 import time
+from waiting import wait, TimeoutExpired
 
 import numpy as np
-
-from functools import wraps
-import errno
-import os
-import signal
 
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
@@ -27,8 +23,6 @@ else:
     GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", "v1")
     GRASP_TAG = "_sorted.json"
 
-
-
 OBJ_LIST = ["champion_copper_plus_spark_plug",      "kong_sitting_frog_dog_toy",
             "cheezit_big_original",                 "kygen_squeakin_eggs_plush_puppies",
             "crayola_64_ct",                        "mark_twain_huckleberry_finn",
@@ -42,7 +36,18 @@ OBJ_LIST = ["champion_copper_plus_spark_plug",      "kong_sitting_frog_dog_toy",
             "highland_6539_self_stick_notes",        "safety_works_safety_glasses",
             "kong_air_dog_squeakair_tennis_ball",    "sharpie_accent_tank_style_highlighters",
             "kong_duck_dog_toy",                     "stanley_66_052"]
-     
+    
+def timed(func, args, max_time=5):
+    q = mp.Queue()
+    p = mp.Process(target=func, args=args+[q])
+    try:
+        p.start()
+        wait(lambda: not q.empty(), timeout_seconds=max_time)
+        p.terminate()
+        if not q.empty():
+            return q.get()
+    except TimeoutExpired:
+        return None
     
 def runInParallel(func, argslist):
     q = mp.Queue()
