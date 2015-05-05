@@ -5,6 +5,7 @@ import multiprocessing as mp
 import os.path as osp
 import time
 from waiting import wait, TimeoutExpired
+from copy import deepcopy
 
 import numpy as np
 
@@ -36,6 +37,39 @@ OBJ_LIST = ["champion_copper_plus_spark_plug",      "kong_sitting_frog_dog_toy",
             "highland_6539_self_stick_notes",        "safety_works_safety_glasses",
             "kong_air_dog_squeakair_tennis_ball",    "sharpie_accent_tank_style_highlighters",
             "kong_duck_dog_toy",                     "stanley_66_052"]
+            
+_trajopt_request_template = {
+    "basic_info": {
+        "n_steps": 10,
+        "start_fixed": False
+    },
+    "costs": [{
+        "type": "joint_vel",
+            "params": {"coeffs": [2]}
+        }, {
+            "type": "collision",
+            "params": {
+                "coeffs": [20],
+                "dist_pen": [0.02]
+            }
+        }],
+        "constraints": [{
+            "type": "joint",
+            "params": {"vals": None }
+        }],
+        "init_info": {
+            "type": "straight_line",
+            "endpoint": None
+        }
+    }
+  
+order_bin_pose = np.array([[ 0. ,  1. ,  0. , -1. ],
+                           [-1. ,  0. ,  0. , -0.5],
+                           [ 0. ,  0. ,  1. ,  0.2],
+                           [ 0. ,  0. ,  0. ,  1. ]])
+  
+def trajopt_request_template():
+    return deepcopy(_trajopt_request_template)  
     
 def timed(func, args, max_time=5):
     q = mp.Queue()

@@ -1,0 +1,7 @@
+<kinbody name="pod_lowres">
+    <body name="pod_lowres">
+        <geom name="shelf" type="trimesh">
+            <data>../meshes/cubbyholes/pod_lowres.stl</data>
+        </geom>
+   </body>
+</kinbody>

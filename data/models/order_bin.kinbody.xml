@@ -1,0 +1,7 @@
+<kinbody name="order_bin">
+    <body name="order_bin">
+        <geom name="order_bin" type="trimesh">
+            <data>../meshes/cubbyholes/order_bin.stl</data>
+        </geom>
+   </body>
+</kinbody>

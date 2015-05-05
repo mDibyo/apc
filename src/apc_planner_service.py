@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-from scipy.optimize import fmin_l_bfgs_b
 import os.path as osp
-from copy import deepcopy
 import json
 
 import openravepy as rave
@@ -19,28 +17,23 @@ import tf.transformations
 from geometry_msgs.msg import Point, Pose, Quaternion, PoseStamped
 from std_msgs.msg import Header
 
+from planning import IkSolver
 from apc.msg import MotionPlan
 from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode
 from message_wrappers import GraspWrapper, JointTrajectoryWrapper
-from utils import *
-from IK_utils import *
-
-__author__ = 'dibyo'
+from utils import MODEL_DIR, trajopt_request_template, timed, order_bin_pose
 
 class APCPlannerService(ROSNode):
-    def __init__(self, work_orders_topic, update_rate,
-                 manipulator_name='leftarm_torso'):
+    def __init__(self, work_orders_topic, update_rate, shelf_name="pod_lowres"):
         super(APCPlannerService, self).__init__('plan')
 
         self.work_orders_topic = work_orders_topic
         self.update_rate = update_rate
-        self.manipulator_name = manipulator_name
 
         self.object_poses = {}
-        self.cubbyhole_pose = None
+        self.shelf_name = shelf_name
         self.work_order = None
-        self.target_object_approaches = []
 
         self.tf_listener = tf.TransformListener()
 
@@ -50,104 +43,30 @@ class APCPlannerService(ROSNode):
         self.get_motion_plan_service = rospy.Service('get_motion_plan',
                                                      GetMotionPlan,
                                                      self.handle_get_motion_plan)
-
+        self.ik = IkSolver(self.env)
+        
     def __enter__(self):
         self.env = rave.Environment()
-        self.env.Load(osp.join(DATA_DIRECTORY, "models", "pr2-beta-static.zae"))
+        self.env.Load(osp.join(MODEL_DIR, "pr2-beta-static.zae"))
+        self.env.Load(osp.join(MODEL_DIR, self.shelf_name + ".kinbody.xml"))
+        
         self.robot = self.env.GetRobot('pr2')
-        self.manipulator = self.robot.SetActiveManipulator(self.manipulator_name)
-        self.link = self.robot.GetLink('{}_gripper_tool_frame'.
-                                       format(self.manipulator_name[0]))
-
         self.robot.SetActiveDOFs(self.manipulator.GetArmIndices(), 
-                    rave.DOFAffine.X + rave.DOFAffine.Y + rave.DOFAffine.RotationAxis, [0,0,1])
-                             
-        self.robot.SetDOFValues([-0.4, -0.52, 0, -0.4, 0, 0, 0],
-                                self.robot.GetManipulator('rightarm').GetArmIndices())
-       
-        self.ikmodel = \
-            rave.databases.inversekinematics. \
-                InverseKinematicsModel(self.robot,
-                                       iktype=rave.IkParameterization.Type.Transform6D)
-        if not self.ikmodel.load():
-            self.ikmodel.autogenerate()
-        self.T_l2ee = np.linalg.solve(self.link.GetTransform(),
-                                      self.manipulator.GetEndEffectorTransform())
+                    rave.DOFAffine.X + rave.DOFAffine.Y + rave.DOFAffine.RotationAxis, [0,0,1])                            
+        self.reset_robot(False)
 
-        self.arm_joint_names = [self.robot.GetJointFromDOFIndex(index).GetName()
-                                for index in self.manipulator.GetArmIndices()]
-        self.gripper_joint_names = [self.robot.GetJointFromDOFIndex(index).GetName()
-                                    for index in self.manipulator.GetGripperIndices()]
-        self.torso_joint_names = ['torso_lift_joint']
-        self.gripper_limits = \
-            self.robot.GetDOFLimits(self.manipulator.GetGripperIndices())
-
+        self.shelf = self.env.GetKinBody(self.shelf_name)
         self.env.SetViewer('qtcoin')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         rave.RaveDestroy()
 
-    _trajopt_request_template = {
-        "basic_info": {
-            "n_steps": 10,
-            "start_fixed": False
-        },
-        "costs": [{
-            "type": "joint_vel",
-            "params": {"coeffs": [2]}
-        }, {
-            "type": "collision",
-            "params": {
-                "coeffs": [20],
-                "dist_pen": [0.02]
-            }
-        }],
-        "constraints": [{
-            "type": "joint",
-            "params": {"vals": None }
-        }],
-        "init_info": {
-            "type": "straight_line",
-            "endpoint": None
-        }
-    }
-
-    @property
-    def trajopt_request_template(self):
-        return deepcopy(self._trajopt_request_template)
-
-    @staticmethod
-    def pose_to_transform_matrix(pose):
-        """
-        Convert a pose to a transform matrix
-        """
-        rot = [pose.orientation.x,
-               pose.orientation.y,
-               pose.orientation.z,
-               pose.orientation.w]
-        trans = [pose.position.x, pose.position.y, pose.position.z]
-        matrix = np.array(tf.transformations.quaternion_matrix(rot))
-        matrix[0:3, 3] = trans
-        return matrix
-
-    def get_robot_joints(self, gripper_pose):
-        T = np.linalg.solve(self.link.GetTransform(),
-                            self.manipulator.GetEndEffectorTransform())
-        with self.robot:
-            ikparam = rave.IkParameterization(
-                self.pose_to_transform_matrix(gripper_pose).dot(T),
-                self.ikmodel.iktype)
-            iksol = self.manipulator.FindIKSolution(ikparam,
-                                                   rave.IkFilterOptions.CheckEnvCollisions)
-            distance = 0
-            return iksol, distance
-
     def get_robot_trajectory(self, target_joints, start_joints=None, dist_pen=0.02):
         if start_joints is None:
             start_joints = self.robot.GetDOFValues(self.manipulator.GetArmIndices())
 
-        request = self.trajopt_request_template
+        request = trajopt_request_template()
         request['constraints'][0]['params']['vals'] = \
             request['init_info']['endpoint'] = list(target_joints)
         request['basic_info']['manip'] = self.manipulator.GetName()
@@ -164,78 +83,9 @@ class APCPlannerService(ROSNode):
             return np.concatenate((np.tile(start_joints, (5, 1)), traj),
                                   axis=0)
 
-    def set_kinbody_transform(self, body_name, pose):
-        body = self.env.GetKinBody(body_name)
-        body.SetTransform(self.pose_to_transform_matrix(pose))
+    
 
-    def update_cubbyhole_and_objects(self):
-        self.object_poses = {}
-        self.cubbyhole_pose = None
-
-        if self.work_order:
-            try:
-                res = self.get_marker_pose_client('cubbyhole_{}'.
-                                                  format(self.work_order.bin_type))
-                self.cubbyhole_pose = res.marker_pose
-
-                for object_name in self.work_order.bin_contents:
-                    res = self.get_marker_pose_client("object_{}".format(object_name))
-                    self.object_poses[object_name] = res.marker_pose
-            except rospy.ServiceException as e:
-                rospy.logerr("Service call failed: {}".format(e))
-
-    def update_target_object_approaches(self):
-        target_object_grasps = \
-            GraspWrapper.grasps_from_file(osp.join(
-                DATA_DIRECTORY, 'grasps',
-                '{}.json'.format(self.work_order.target_object)))
-
-        object_frame = "/object_{}".format(self.work_order.target_object)
-        try:
-            self.tf_listener.waitForTransform(object_frame,
-                                              "/base_link",
-                                              rospy.Time(0),
-                                              rospy.Duration(2/self.update_rate))
-            header = Header(0, rospy.Time(0), object_frame)
-            for grasp in target_object_grasps:
-                grasp.gripper_pose = \
-                    self.tf_listener.transformPose("/base_link",
-                                                   PoseStamped(header,
-                                                               grasp.gripper_pose)).pose
-        except tf.Exception, e:
-            rospy.logerr(e)
-
-        self.target_object_approaches = [Approach(grasp.gripper_pose,
-                                                  grasp.gripper_width)
-                                         for grasp in target_object_grasps]
-
-    def update_simulation_environment(self):
-        # Remove old objects
-        for body in self.env.GetBodies():
-            if not body.IsRobot():
-                self.env.Remove(body)
-
-        # Insert new cubbyhole
-        cubbyhole_model_name = 'cubbyhole_{}'.format(self.work_order.bin_type)
-        self.env.Load(osp.join(DATA_DIRECTORY, 'models',
-                               '{}.kinbody.xml'.format(cubbyhole_model_name)))
-        self.set_kinbody_transform(cubbyhole_model_name, self.cubbyhole_pose)
-
-        # Insert new objects
-        for object_name in self.work_order.bin_contents:
-            self.env.Load(osp.join(DATA_DIRECTORY, 'meshes', 'objects',
-                                   '{}.stl'.format(object_name)))
-            self.set_kinbody_transform(object_name,
-                                       self.object_poses[object_name])
-
-        # Set robot joint angles
-        self.robot.SetDOFValues(self.work_order.start_joints,
-                                self.manipulator.GetArmIndices())
-
-    def update_state(self):
-        self.update_cubbyhole_and_objects()
-        self.update_target_object_approaches()
-        self.update_simulation_environment()
+    
 
     def _find_joints(self, joints_attr, pose_attr):
         for approach in self.target_object_approaches:
@@ -256,52 +106,13 @@ class APCPlannerService(ROSNode):
                         dist_pen
                     ))
 
-    def _filter_approaches_by(self, filter_attr):
-        self.target_object_approaches[:] = \
-            [approach for approach in self.target_object_approaches
-             if getattr(approach, filter_attr, None) is not None]
-
     def find_motion_plan(self):
-        # Go to pregrasp
-        self._find_joints('pregrasp_joints', 'pregrasp_pose')
-        self._filter_approaches_by('pregrasp_joints')
-        self._find_trajectory('pregrasp_trajectory', 'pregrasp_joints')
-        self._filter_approaches_by('pregrasp_trajectory')
-
-        # Open gripper
-        self.robot.SetDOFValues(self.gripper_limits[1],
-                                self.manipulator.GetGripperIndices())
-
-        # Go to grasp
-        self._find_joints('grasp_joints', 'grasp_pose')
-        self._filter_approaches_by('grasp_joints')
-        self._find_trajectory('grasp_trajectory', 'grasp_joints',
-                              'pregrasp_joints')
-        self._filter_approaches_by('grasp_trajectory')
-
-        # Close gripper
-
-        # Go to postgrasp
-        self._find_joints('postgrasp_joints', 'postgrasp_pose')
-        # self._filter_approaches_by('postgrasp_joints')
-        self._find_trajectory('postgrasp_trajectory', 'postgrasp_joints',
-                              'grasp_joints', 0.02)
-        # self._filter_approaches_by('postgrasp_trajectory')
-
-        # # Go to waypoint
-        # self._find_joints('waypoint_joints', 'waypoint_pose')
-        # self._find_trajectory('waypoint_trajectory', 'waypoint_joints',
-        #                       'postgrasp_joints')
-
-        # Go to dropzone
-        self._find_joints('dropzone_joints', 'dropzone_pose')
-        # self._filter_approaches_by('dropzone_joints')
-        self._find_trajectory('dropzone_trajectory', 'dropzone_joints',
-                              'postgrasp_joints', 0.15)
-        # self._filter_approaches_by('dropzone_trajectory')
-
-        # Open gripper
-
+        iksol = timed(self.ik.GetRaveIkSol, [self.work_order.target_object, False])
+        if iksol is not None:
+            self.robot.SetActiveManipulator(iksol["manip"])
+            traj_to_grasp = find_trajectory(iksol["joints"], iksol["base"])
+            
+            
     def create_motion_plan(self):
         if not len(self.target_object_approaches):
             return None
@@ -357,13 +168,62 @@ class APCPlannerService(ROSNode):
         return MotionPlan(self.work_order.strategy, joint_trajectories)
 
     def handle_get_motion_plan(self, req):
+        """ Main method of service call. """
         self.work_order = req.work_order
         self.update_state()
-
         self.find_motion_plan()
         return GetMotionPlanResponse(self.create_motion_plan())
+         
+   def update_state(self):
+        """ Update body poses in the local rave env. """
+        self.update_objects()
+        self.update_simulation_environment()     
+           
+   def update_objects(self):
+        """ 
+        Get shelf, object, and robot state from perception.
+        Save poses as static fields. Must be called before 'update_simulation_environment()'
+        All poses should be relative to robot ("base_link")
+        """    
+        self.object_poses = {}
+        
+        if self.work_order:
+            try:
+                for object_name in self.work_order.bin_contents:
+                    res = self.get_marker_pose_client("object_{}".format(object_name))  ### TODO: this part should come from perception ###
+                    self.object_poses[object_name] = res.marker_pose
+            except rospy.ServiceException as e:
+                rospy.logerr("Service call failed: {}".format(e))
 
+    def update_simulation_environment(self):
+        """
+        Update objects with poses as from 'update_cubbyhole_and_objects()' 
+        Update robot position and joint angles. Shelf stays at eye(4).
+        Saved poses are relative to robot but here change everything to be relative to shelf
+        """       
+
+        [self.env.Remove(body) for body in self.env.GetBodies() if body is not self.robot and body is not self.shelf]
+
+        world_to_robot = self.robot.GetTransform() ### TODO: this could be either from odometry or perception ###
+        self.robot.SetTransform(world_to_robot)
+
+        for object_name in self.work_order.bin_contents:
+            self.env.Load(osp.join(OBJ_MESH_DIR, object_name + ".stl")
+            robot_to_object = self.object_poses[object_name]
+            self.env.GetKinBody(object_name).SetTransform(world_to_robot.dot(robot_to_object))
+
+        self.reset_robot() ### TODO: listen to topic and get joint angles
+                                
+                                
+                                
+                                
+    def reset_robot(self, arms_only=True):
+        self.robot.SetDOFValues([0.548,-1.57, 1.57, 0.548],[22,27,15,34])
+        if not arms_only:
+            self.robot.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0,0.2])))
+            
+            
 """
 if __name__ == '__main__':
-    with APCPlannerService("work_orders", 10, 'leftarm') as planner:
+    with APCPlannerService("work_orders", 10) as planner:
         planner.spin()"""
