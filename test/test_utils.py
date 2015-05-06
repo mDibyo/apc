@@ -15,7 +15,7 @@ def plotPose(env, toPlot):
             env.drawarrow(p1,p4,linewidth=0.007)]
         
 def resetRobot(r):
-    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0,0.2])))
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0.2,0.2])))
     resetArms(r)
     
 def resetArms(r):

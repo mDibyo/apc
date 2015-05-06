@@ -1,13 +1,15 @@
 import time
 import os.path as osp
-from pymongo import MongoClient
+
 
 import numpy as np
 import openravepy as rave
+from pymongo import MongoClient
 
 from test_utils import *
 from planning import IkSolver
-from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, OBJ_LIST, MODEL_DIR
+from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, OBJ_LIST, MODEL_DIR, \
+                  order_bin_pose, timed
 
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
@@ -15,29 +17,27 @@ e = rave.Environment()
 e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  
 #e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
 
-e.Load(osp.join(SHELF_MESH_DIR, "pod_lowres.stl"))
+e.Load(osp.join(MODEL_DIR, "pod_lowres.kinbody.xml"))
+e.Load(osp.join(MODEL_DIR, "order_bin.kinbody.xml"))
 
+#e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
 e.Load(osp.join(OBJ_MESH_DIR, "cheezit_big_original.stl"))
 
 
-e.SetViewer("qtcoin")
-
 r = e.GetRobot("pr2")
-m = r.SetActiveManipulator("rightarm_torso")
 shelf = e.GetKinBody("pod_lowres")
+order_bin = e.GetKinBody("order_bin")
+order_bin.SetTransform(order_bin_pose)
 obj = e.GetBodies()[-1]
 
-
-
 db = MongoClient()['apc']
-db_collection = db['reachability2']
+db_collection = db['reachability_NW_R']
 
 if __name__ == "__main__":
-    ik = IkSolver(e)
-    m.SetIkSolver(ik.ikmodel.iksolver)
-    m = r.SetActiveManipulator("leftarm_torso")
-    ik = IkSolver(e)
-    m.SetIkSolver(ik.ikmodel.iksolver)
+    for manip in ["rightarm", "rightarm_torso", "leftarm", "leftarm_torso"]:
+        m = r.SetActiveManipulator(manip)
+        ik = IkSolver(e)
+        m.SetIkSolver(ik.ikmodel.iksolver)
     
     i,N = 0, 1e5
     while i < N:
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         obj.SetTransform(rave.matrixFromPose(objPose))
         
         st = time.time()
-        sol = ik.GetRaveIkSol(obj.GetName(), parallel=False)
+        sol = timed(ik.GetRaveIkSol, [obj.GetName(), False])
         dur = time.time() - st
         i += 1
         print i

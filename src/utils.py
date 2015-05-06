@@ -53,25 +53,26 @@ _trajopt_request_template = {
                 "dist_pen": [0.02]
             }
         }],
-        "constraints": [{
-            "type": "joint",
-            "params": {"vals": None }
-        }],
+        "constraints": [
+            { "type": "joint",
+              "params": { "vals": None }
+            }
+        ],
         "init_info": {
             "type": "straight_line",
             "endpoint": None
         }
     }
   
-order_bin_pose = np.array([[ 0. ,  1. ,  0. , -1. ],
-                           [-1. ,  0. ,  0. , -0.5],
-                           [ 0. ,  0. ,  1. ,  0.2],
-                           [ 0. ,  0. ,  0. ,  1. ]])
+order_bin_pose = np.array([[ 0, 1, 0, -0.75],
+                           [-1, 0, 0, -0.60],
+                           [ 0, 0, 1,  0.30],
+                           [ 0, 0, 0,     1]])
   
 def trajopt_request_template():
     return deepcopy(_trajopt_request_template)  
     
-def timed(func, args, max_time=5):
+def timed(func, args, max_time=30):
     q = mp.Queue()
     p = mp.Process(target=func, args=args+[q])
     try:
@@ -79,7 +80,7 @@ def timed(func, args, max_time=5):
         wait(lambda: not q.empty(), timeout_seconds=max_time)
         p.terminate()
         if not q.empty():
-            return q.get()
+            return q.get_nowait()
     except TimeoutExpired:
         return None
     

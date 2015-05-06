@@ -7,7 +7,7 @@ import json
 import roslib
 roslib.load_manifest('apc')
 from std_msgs.msg import Header
-from geometry_msgs.msg import Pose, Point, Quaternion
+from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 import numpy as np
@@ -15,9 +15,34 @@ import numpy as np
 from apc.msg import Grasp, MotionPlan
 
 
-__author__ = 'dibyo'
+class JointTrajectoryBaseWrapper(object):
 
+    def __init__self(self, joint_names, trajectory):
+        self.joint_names = joint_names
+        if len(joint_names) != trajectory.shape[1]:
+            self.joint_traj = trajectory[:,:-2]
+            self.base_traj = trajectory[:,-2:]
+        else:
+            self.joint_traj = trajectory
+            self.base_traj = None
 
+    def to_joint_msg(self):
+        points = []
+        for waypoint in self.joint_traj:
+            point = JointTrajectoryPoint()
+            point.positions = waypoint
+            points.append(point)
+        return JointTrajectory(Header(), self.joint_names, points)
+   
+    def to_base_msg(self): 
+        points = []
+        if self.base_traj is not None:
+            for waypoint in self.base_traj:
+                point = Point()
+                point.x, point.y = waypoint.tolist()
+                points.append(point)
+        return points
+                
 class JointTrajectoryWrapper(object):
     def __init__(self, joint_names, trajectory):
         self.joint_names = joint_names
