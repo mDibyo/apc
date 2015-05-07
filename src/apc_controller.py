@@ -8,12 +8,9 @@ roslib.load_manifest('apc')
 import rospy
 from ros_utils import ROSNode
 from trajectory_msgs.msg import JointTrajectory
-
-from apc.msg import BinWorkOrder, ExecStatus
-from apc.srv import GetMotionPlan
-
-__author__ = 'dibyo'
-
+from geometry_msgs.msg import Point
+from apc.msg import BinWorkOrder, ExecStatus, RobotStateBase
+from apc.srv import *
 
 class APCController(ROSNode):
     def __init__(self, joint_trajectories_topic, exec_status_topic):
@@ -23,14 +20,17 @@ class APCController(ROSNode):
 
         self._robot_exec_status = None
 
-        self.get_motion_plan_client = rospy.ServiceProxy('get_motion_plan',
-                                                         GetMotionPlan)
+        self.get_motion_plan_client = rospy.ServiceProxy('get_motion_plan', GetMotionPlan)
+                                                         
+        self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)                                                 
 
-        self.joint_trajectories_publisher = rospy.Publisher(self.joint_trajectories_topic,
-                                                            JointTrajectory)
+        self.joint_trajectories_publisher = rospy.Publisher(self.joint_trajectories_topic, JointTrajectory)
+        
+        self.base_movement_publisher = rospy.Publisher("base_movement", Point)
+        
         self.exec_status_subscriber = rospy.Subscriber(self.exec_status_topic,
                                                        ExecStatus,
-                                                       self.record_exec_status)
+                                                       self.record_exec_status)                                     
 
     @property
     def robot_exec_status(self):
@@ -56,6 +56,10 @@ class APCController(ROSNode):
         rospy.loginfo("robot execution status idle")
 
     def execute_motion_plan(self, motion_plan):
+        self.base_movement_publisher.publish(motion_plan.base_pos)    
+        rospy.sleep(1.0)
+        self.wait_for_idle_exec_status()
+        
         for joint_trajectory in motion_plan.trajectories:
             self.joint_trajectories_publisher.publish(joint_trajectory)
             # self.wait_for_busy_exec_status()
@@ -71,18 +75,34 @@ class APCController(ROSNode):
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
 
-
+    def get_robot_state(self, manip):
+        try:
+            res = self.get_robot_state_client(manip)
+            return res.state_with_base
+        except rospy.ServiceException as e:
+            rospy.logerr("Service call failed: {}".format(e))
 
 if __name__ == '__main__':
-    start_joints = [1.2649260742043886,
-                    -0.35354764645244385,
-                    1.2638167606524484,
-                    -0.8134383377306724,
-                    1.49048266209742,
-                    -1.8862530453060153,
-                    1.7517736670157182]
 
     controller = APCController('joint_trajectories', 'exec_status')
+    
+    if 0:
+        start_joints = [1.2649260742043886,
+                        -0.35354764645244385,
+                        1.2638167606524484,
+                        -0.8134383377306724,
+                        1.49048266209742,
+                        -1.8862530453060153,
+                        1.7517736670157182,
+                        0]
+                        
+        base_pos = [-1.2, 0.2, 0.2]
+    else:
+        state = controller.get_robot_state("rightarm_torso")
+        start_joints = state.joint_angles
+        start_base = state.base_pos
+    
+    
     work_order = BinWorkOrder('all_combined', ['dove_beauty_bar'],
-                              'dove_beauty_bar', start_joints, 'simple')
+                              'dove_beauty_bar', start_joints, start_base, 'simple')
     controller.execute_work_order(work_order)

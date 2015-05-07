@@ -21,7 +21,6 @@ from planning import IkSolver
 from apc.msg import MotionPlan
 from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode
-from message_wrappers import GraspWrapper, JointTrajectoryWrapper
 from utils import MODEL_DIR, trajopt_request_template, timed, order_bin_pose
 
 class APCPlannerService(ROSNode):
@@ -50,8 +49,7 @@ class APCPlannerService(ROSNode):
         self.env.Load(osp.join(MODEL_DIR, "pr2-beta-static.zae"))
         self.env.Load(osp.join(MODEL_DIR, self.shelf_name + ".kinbody.xml"))
         
-        self.robot = self.env.GetRobot('pr2')                      
-        self.reset_robot(False)
+        self.robot = self.env.GetRobot('pr2')
 
         self.shelf = self.env.GetKinBody(self.shelf_name)
         self.env.SetViewer('qtcoin')
@@ -63,38 +61,28 @@ class APCPlannerService(ROSNode):
 
 
 
-    def find_trajectory(self, manip_name, start_joints, start_base, 
-                                          end_joints, end_base, dist_pen=0.02):
-        """ Return a trajectory from (start_joints,start_base) to (end_joints,end_base) """
+    def find_trajectory(self, manip_name, start_joints, end_joints, base_pos, dist_pen=0.02):
+        """ Return a trajectory from (start_joints) to (end_joints) with the given base_pos """
                                     
-        manip = self.robot.GetManipulator(manip_name)
-        
-        if (end_base is not None) and (start_base is None or start_base != end_base):
-            self.robot.SetActiveDOFs(manip.GetArmIndices(), 
-                    rave.DOFAffine.X + rave.DOFAffine.Y) # + rave.DOFAffine.RotationAxis, [0,0,1])      
-            end_state = end_joints.tolist() + end_base.tolist()
-        else:
-            self.robot.SetActiveDOFs(manip.GetArmIndices())
-            end_state = end_joints.tolist()
-            
+        manip = self.robot.GetManipulator(manip_name)       
+        self.robot.SetActiveDOFs(manip.GetArmIndices())
+
         request = trajopt_request_template()
         request['constraints'][0]['params']['vals'] = \
-            request['init_info']['endpoint'] = end_state
+            request['init_info']['endpoint'] = end_joints.tolist()
         request['basic_info']['start_fixed'] = True
         request['basic_info']['manip'] = "active"
         request['costs'][1]['params']['dist_pen'] = [dist_pen]
         
         with self.robot:
-            if start_joints is not None:
-                self.robot.SetDOFValues(start_joints, manip)
-            if start_base is not None:
-                T = self.robot.GetTransform()
-                T[:3,3] = start_base
+            T = self.robot.GetTransform()
+            T[:3,3] = base_pos
+            r.SetTransform(T)
+            
             problem = trajoptpy.ConstructProblem(json.dumps(request), self.env)
             result = trajoptpy.OptimizeProblem(problem)
             traj = result.GetTraj()
-            joint_names = [j.GetName() for j in self.robot.GetJoints(manip.GetArmIndices())]
-            return JointTrajectoryBaseWrapper(joint_names, traj)
+            return traj
             
  
  
@@ -107,18 +95,19 @@ class APCPlannerService(ROSNode):
         
         trajectories = []
         if None not in [pregrasp, grasp, drop]:
-            trajectories.append(self.find_trajectory(pregrasp["manip"], None,               None, 
-                                                                        pregrasp["joints"], None))
+            manip_name, base_pos = grasp["manip"], grasp["base"][:3, 3]
+                       
+            trajectories.append(self.find_trajectory(manip_name, self.work_order.start_joints, pregrasp["joints"], base_pos))
                                                                         
-            trajectories.append(self.find_trajectory(grasp["manip"], pregrasp["joints"],    None, 
-                                                                     grasp["joints"],       grasp["base"][:3,3]))
-                                                                     
-                                                                     
-            trajectories.append(self.find_trajectory(drop["manip"], grasp["joints"], grasp["base"][:3,3], 
-                                                                     drop["joints"],          
-                                                                           None))
-        return trajectories #TODO return a motion plan, need to figure out base movement first
-
+            trajectories.append(self.find_trajectory(manip_name, pregrasp["joints"], grasp["joints"], base_pos))
+                                                                                                                                        
+            trajectories.append(self.find_trajectory(manip_name, grasp["joints"], pregrasp["joints"], base_pos))
+                                                                    
+            trajectories.append(self.find_trajectory(manip_name, pregrasp["joints"], drop["joints"], base_pos))       
+        
+            joint_names = [j.GetName() for j in self.robot.GetJoints(manip.GetArmIndices())]                                                                                                    
+            motion_plan = MotionPlanWrapper(self.work_order.strategy, trajectories, joint_names, base_pos)   
+            return motion_plan.to_msg()
 
 
     def handle_get_motion_plan(self, req):
@@ -138,7 +127,7 @@ class APCPlannerService(ROSNode):
            
     def update_objects(self):
         """ 
-        Get shelf, object, and robot state from perception.
+        Get shelf, object state from perception.
         Save poses as static fields. Must be called before 'update_simulation_environment()'
         All poses should be relative to robot ("base_link")
         """    
@@ -161,23 +150,18 @@ class APCPlannerService(ROSNode):
 
         [self.env.Remove(body) for body in self.env.GetBodies() if body is not self.robot and body is not self.shelf]
 
-        world_to_robot = self.robot.GetTransform() ### TODO: this could be either from odometry or perception ###
-        self.robot.SetTransform(world_to_robot)
+        world_to_robot = rave.matrixFromPose(np.hstack([[1,0,0,0], self.work_order.base_pos]))
 
         for object_name in self.work_order.bin_contents:
             self.env.Load(osp.join(OBJ_MESH_DIR, object_name + ".stl"))
             robot_to_object = self.object_poses[object_name]
             self.env.GetKinBody(object_name).SetTransform(world_to_robot.dot(robot_to_object))
 
-        self.reset_robot() ### TODO: listen to topic and get joint angles
+        self.robot.SetDOFValues(self.work_order.start_joints, self.robot.GetManipulator("rightarm_torso").GetArmIndices())
+        self.robot.SetDOFValues([0.548, 0.548],[22, 34]) # open the grippers
+        self.robot.SetTransform(world_to_robot)
                                 
-                                
-                                
-                                
-    def reset_robot(self, arms_only=True):
-        self.robot.SetDOFValues([0.548,-1.57, 1.57, 0.548],[22,27,15,34])
-        if not arms_only:
-            self.robot.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0,0.2])))
+        
             
             
 """

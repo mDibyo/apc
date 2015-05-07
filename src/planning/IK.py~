@@ -11,12 +11,13 @@ import openravepy as rave
 from utils import DATA_DIRECTORY, runInParallel
 from Grasps import Grasp, GraspSet
 
+
 class IkSolver(object):
 
     env = None
     robot = None
-    basePositions = np.load(osp.join(DATA_DIRECTORY,"simulated","reachability1_base.npy"))
-    objPoses = np.load(osp.join(DATA_DIRECTORY,"simulated","reachability1_gripper.npy"))
+    basePositions = np.load(osp.join(DATA_DIRECTORY,"simulated","reachability_NW_R_base.npy"))
+    objPoses = np.load(osp.join(DATA_DIRECTORY,"simulated","reachability_NW_R_gripper.npy"))
     nn = interp(objPoses,basePositions)
     
     over_bin_quat = np.array([0, np.sqrt(2)/2, -np.sqrt(2)/2, 0])
@@ -35,6 +36,7 @@ class IkSolver(object):
             
     @staticmethod
     def GetPregraspJoints(objName):
+        """ IK for pregrasp: face front outside cubbyhole """
         obj = IkSolver.env.GetKinBody(objName)
         pose = np.hstack([IkSolver.face_front_quat, [-0.5], obj.GetTransform()[1:3,3]])    
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
@@ -46,6 +48,7 @@ class IkSolver(object):
                     
     @staticmethod
     def GetDropJoints():
+        """ IK for above target bin """
         order_bin = IkSolver.env.GetKinBody("order_bin")
         pose = np.hstack([IkSolver.over_bin_quat, order_bin.GetTransform()[:2,3], 0.5])    
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
@@ -56,6 +59,7 @@ class IkSolver(object):
             
     @staticmethod        
     def solveIK(queue, target, manipName, i):
+        """ Actually solves IK for target, manipulator. Append result to multiprocessing.Queue if given. """
         m = IkSolver.robot.GetManipulator(manipName)
        
         ikparam = rave.IkParameterization(target, IkSolver.ikmodel.iktype)
@@ -76,6 +80,7 @@ class IkSolver(object):
 
     @staticmethod
     def GetIkSol(obj, targets, parallel):
+        """ Iterate through targets and manipulators to find an IK solution. """
         manips = ["rightarm_torso"]
         if obj.GetTransform()[1,3] < 0:
             manips.reverse()

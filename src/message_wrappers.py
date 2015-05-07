@@ -14,35 +14,6 @@ import numpy as np
 
 from apc.msg import Grasp, MotionPlan
 
-
-class JointTrajectoryBaseWrapper(object):
-
-    def __init__self(self, joint_names, trajectory):
-        self.joint_names = joint_names
-        if len(joint_names) != trajectory.shape[1]:
-            self.joint_traj = trajectory[:,:-2]
-            self.base_traj = trajectory[:,-2:]
-        else:
-            self.joint_traj = trajectory
-            self.base_traj = None
-
-    def to_joint_msg(self):
-        points = []
-        for waypoint in self.joint_traj:
-            point = JointTrajectoryPoint()
-            point.positions = waypoint
-            points.append(point)
-        return JointTrajectory(Header(), self.joint_names, points)
-   
-    def to_base_msg(self): 
-        points = []
-        if self.base_traj is not None:
-            for waypoint in self.base_traj:
-                point = Point()
-                point.x, point.y = waypoint.tolist()
-                points.append(point)
-        return points
-                
 class JointTrajectoryWrapper(object):
     def __init__(self, joint_names, trajectory):
         self.joint_names = joint_names
@@ -63,17 +34,17 @@ class JointTrajectoryWrapper(object):
 
 
 class MotionPlanWrapper(object):
-    def __init__(self, strategy, trajectories=None, joint_names=None):
+
+    def __init__(self, strategy, trajectories, joint_names, base_pos):
         self.strategy = strategy
-        self.trajectories = [] if trajectories is None else trajectories
-        self.joint_names = [] if joint_names is None else joint_names
-
+        self.trajectories = trajectories
+        self.joint_names = joint_names
+        self.base_pos = Point(base_pos[0], base_pos[1], 0)
+        
     def to_msg(self):
-        return MotionPlan(self.strategy,
-                          [JointTrajectoryWrapper(self.joint_names,
-                                                  trajectory).to_msg()
-                           for trajectory in self.trajectories])
-
+        return MotionPlan(self.strategy, 
+                          [JointTrajectoryWrapper(self.joint_names, traj).to_msg() for traj in self.trajectories],
+                          self.base_pos)
 
 class GraspWrapper(object):
     def __init__(self, gripper_pose, gripper_width=None, flag=False):
