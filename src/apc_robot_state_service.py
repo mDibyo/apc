@@ -76,7 +76,7 @@ class APCRobotStateService(ROSNode):
             joints.extend(["r_" + name for name in self.arm_joints])
         elif "left" in manip:
             joints.extend(["l_" + name for name in self.arm_joints])
-            
+
         latest = self.joints[-1]
         
         joint_angles = []      

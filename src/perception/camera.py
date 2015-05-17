@@ -5,10 +5,10 @@ from PIL import Image
 import h5py
 import numpy as np
 from time import sleep, time
-from multiprocessing import Process
-from threading import Thread
+from scipy.misc import imresize
 
 class Carmine(object):
+
     def __init__(self, device, settings):
         self.device = device
         if settings is None:
@@ -128,6 +128,7 @@ class Carmine(object):
         depth_frame = self.depth_stream.readFrame()
         with h5py.File(depth_filename, 'a') as depth_file:
             depth_file.create_dataset("depth", data=depth_frame.data)
+            self.depth_data = depth_frame.data
             for i in range(num_extra):
                 depth_frame = self.depth_stream.readFrame()
                 depth_file.create_dataset("depth_{0}".format(i), data=depth_frame.data)
@@ -149,11 +150,17 @@ class Carmine(object):
         color_frame = self.color_stream.readFrame()
         color_frame = self.color_stream.readFrame()
 
+        self.color_data = color_frame.data
         Image.fromarray(color_frame.data).save(color_filename, quality=100)
-
+            
         #self.color_stream.setAutoExposureEnabled(True)
         #self.color_stream.setAutoWhiteBalanceEnabled(True)
         return color_filename
+
+    def save_cloud(self, cloud_filename):
+        cloud = cyni.depthMapToPointCloud(self.depth_data, self.depth_stream, imresize(self.color_data, self.depth_data.shape))
+        cyni.writePCD(cloud, cloud_filename)
+
 
     def capture_ir(self, ir_filename):
         print 'Capturing ir {0}'.format(ir_filename)
