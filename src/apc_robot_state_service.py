@@ -8,7 +8,7 @@ import rospy
 from ros_utils import ROSNode
 import tf
 
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, PointCloud2
 from apc.msg import RobotStateBase
 from apc.srv import *
 
@@ -24,7 +24,7 @@ class APCRobotStateService(ROSNode):
                  'forearm_roll_joint',
                  'wrist_flex_joint',
                  'wrist_roll_joint']
-
+    head_joints = ['head_pan_joint', 'head_tilt_joint']
 
     def __init__(self, update_rate):
         super(APCRobotStateService, self).__init__('robot_state')
@@ -37,18 +37,28 @@ class APCRobotStateService(ROSNode):
         self.joints = deque(maxlen=10)
         self.base = deque(maxlen=10)
         self.tf_all = []
+        self.clouds = []
         self.joints_subscriber = rospy.Subscriber("joint_states",
                                                   JointState,
                                                   self.log_angles)
                                                   
         self.tf_subscriber = rospy.Subscriber("tf",
                                               tf.msg.tfMessage,
-                                              self.log_base)                                        
+                                              self.log_base)        
+                                              
+        self.cloud_subscriber = rospy.Subscriber("camera/depth_registered/points",
+                                                 PointCloud2,
+                                                 self.log_cloud)
+                                                                                 
     def __enter__(self):
         return self
                                                   
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+        
+    def log_cloud(self, cloud_msg):
+        self.clouds.append(cloud_msg)
+        print len(self.clouds)
    
     def log_base(self, tf_msg):
         """ Log transform from /odom_combined to /base_footprint """
@@ -76,7 +86,9 @@ class APCRobotStateService(ROSNode):
             joints.extend(["r_" + name for name in self.arm_joints])
         elif "left" in manip:
             joints.extend(["l_" + name for name in self.arm_joints])
-
+        elif "head" in manip:
+            joints.extend(self.head_joints)
+            
         latest = self.joints[-1]
         
         joint_angles = []      

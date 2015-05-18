@@ -22,6 +22,12 @@ CARMINE_EXPOSURE=80
 
 class APCCaptureSceneService(ROSNode):
 
+    T_rot = np.array([[ 0.,  0.,  1.,  0.],
+                      [-1.,  0.,  0.,  0.],
+                      [ 0., -1.,  0.,  0.],
+                      [ 0.,  0.,  0.,  1.]])
+
+
     def __init__(self, update_rate, output_path):
         super(APCCaptureSceneService, self).__init__('capture')
         
@@ -84,12 +90,15 @@ class APCCaptureSceneService(ROSNode):
         cloud_filename = path_base + "rgbd.pcd"
         
         self.shutter(highres_filename, rgbd_filename, depth_filename, cloud_filename)
-        self.listener.waitForTransform("base_footprint", "head_tilt_link", rospy.Time(0), rospy.Duration(1))
-        p,q = self.listener.lookupTransform("base_footprint", "head_tilt_link", rospy.Time(0))
-        mat = rave.matrixFromPose(q + p)
-        print mat.dot([1,0,0,1]) - mat.dot([0,0,0,1])
-        np.savetxt(path_base + "transform.txt", mat)
         
+        self.listener.waitForTransform("camera_depth_frame", "base_footprint", rospy.Time(0), rospy.Duration(1))
+        p,q = self.listener.lookupTransform("camera_depth_frame", "base_footprint", rospy.Time(0))
+        mat = self.T_rot.dot(rave.matrixFromPose(q + p))
+        axis = rave.axisAngleFromRotationMatrix(mat)
+        angle = np.linalg.norm(axis); axis /= angle
+        print axis, angle
+        np.savetxt(path_base + "transform.txt", mat)
+
         return path_base
         
         
