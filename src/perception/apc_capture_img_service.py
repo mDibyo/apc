@@ -3,6 +3,7 @@ import shutil
 import time
 import os
 import h5py
+import subprocess
 
 from camera import Carmine
 import cyni
@@ -12,8 +13,7 @@ import roslib
 roslib.load_manifest('apc')
 import rospy
 from ros_utils import ROSNode
-import tf
-import openravepy as rave
+from utils import MODEL_DIR
 
 from apc.msg import RobotStateBase
 from apc.srv import *
@@ -22,18 +22,15 @@ CARMINE_EXPOSURE=80
 
 class APCCaptureSceneService(ROSNode):
 
-    T_rot = np.array([[ 0.,  0.,  1.,  0.],
-                      [-1.,  0.,  0.,  0.],
-                      [ 0., -1.,  0.,  0.],
-                      [ 0.,  0.,  0.,  1.]])
-
-
     def __init__(self, update_rate, output_path):
         super(APCCaptureSceneService, self).__init__('capture')
         
         self.capture_scene_service = rospy.Service('capture_scene',
                                                    CaptureScene,
                                                    self.handle_capture_scene)
+                                                   
+        self.camera_pose_client = rospy.ServiceProxy('get_camera_pose',
+                                                     GetCameraPose)
         self.output_dir = output_path
 
         if os.path.exists(self.output_dir):
@@ -42,7 +39,6 @@ class APCCaptureSceneService(ROSNode):
             
         self.initialize_cameras()
         self.next_scene = 0
-        self.listener = tf.TransformListener()
         print "ready to capture images"
                                                   
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -91,14 +87,9 @@ class APCCaptureSceneService(ROSNode):
         
         self.shutter(highres_filename, rgbd_filename, depth_filename, cloud_filename)
         
-        self.listener.waitForTransform("camera_depth_frame", "base_footprint", rospy.Time(0), rospy.Duration(1))
-        p,q = self.listener.lookupTransform("camera_depth_frame", "base_footprint", rospy.Time(0))
-        mat = self.T_rot.dot(rave.matrixFromPose(q + p))
-        axis = rave.axisAngleFromRotationMatrix(mat)
-        angle = np.linalg.norm(axis); axis /= angle
-        print axis, angle
-        np.savetxt(path_base + "transform.txt", mat)
-
+        response = self.camera_pose_client("")
+        mat = np.loadtxt(response.transform_mat_path)
+        np.save_txt(path_base + "transform.txt")
         return path_base
         
         

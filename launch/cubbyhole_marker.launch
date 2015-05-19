@@ -1,6 +1,6 @@
 <launch>
     <arg name="update_rate" default="10" />
-
+    <arg name="position" default="'[0, 0, 0]'" />
     <arg name="type" />
 
     <group ns="apc">
@@ -9,6 +9,7 @@
             <arg name="type" value="1" />
             <arg name="delete_bool" value="true" />
             <arg name="mesh_file" value="$(find apc)/data/meshes/cubbyholes/cubbyhole_$(arg type).dae" />
+            <arg name="position" value="$(arg position)" />
             <arg name="update_rate" value="$(arg update_rate)" />
         </include>
     </group>

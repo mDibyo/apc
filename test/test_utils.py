@@ -1,6 +1,8 @@
 import numpy as np
 import openravepy as rave
 
+handles = []
+
 def plotPose(env, toPlot):
     if toPlot.shape == (4,4):
         mat = toPlot
@@ -10,9 +12,14 @@ def plotPose(env, toPlot):
     p2 = mat.dot([0.5,   0,    0, 1])[:3]
     p3 = mat.dot([0,   0.5,    0, 1])[:3]
     p4 = mat.dot([0,     0, 0.25, 1])[:3]
-    return [env.drawarrow(p1,p2,linewidth=0.015),
+    handles.append( [env.drawarrow(p1,p2,linewidth=0.015),
             env.drawarrow(p1,p3,linewidth=0.007),
-            env.drawarrow(p1,p4,linewidth=0.007)]
+            env.drawarrow(p1,p4,linewidth=0.007)] )
+    return handles
+            
+def clear(handles):
+    [[p.Close() for p in h] for h in handles]
+    handles = []
         
 def resetRobot(r):
     r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0.2,0.2])))
