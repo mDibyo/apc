@@ -131,6 +131,7 @@ class IkSolver(object):
             shelf = IkSolver.env.GetKinBody("cubbyhole_all_combined")
         else:
             shelf = IkSolver.env.GetKinBody("pod_lowres")
+        
             
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"), shelf):
             IkSolver.resetArms()
@@ -147,9 +148,10 @@ class IkSolver(object):
                 pos[:2,3] = IkSolver.positions.pop()   
                                 
             IkSolver.robot.SetTransform(pos)
-            i += 1
+            #i += 1
             rsol = IkSolver.GetIkSol(obj, targets, parallel)
-            
+        
+           
         if q is not None:
             q.put(rsol)
         return rsol

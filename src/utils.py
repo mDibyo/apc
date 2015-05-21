@@ -19,6 +19,11 @@ JSON_DIR = osp.join(APC_DIRECTORY, "json")
 NEW_WRISTS = True
 NEW_SHELF = True
 
+if NEW_SHELF:
+    SHELF_Y = [-11*.0254, 0, 11*.0254]
+    SHELF_Z = [28*0.0254, 37*0.0254] 
+    SHELF_X = [-17*0.0254]
+
 grasps_fn = "tmp_grasps"
 GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", grasps_fn)
 

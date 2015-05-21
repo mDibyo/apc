@@ -20,8 +20,10 @@ else:
     
 if NEW_SHELF:
     e.Load(osp.join(MODEL_DIR, "cubbyhole_all_combined.kinbody.xml"))
+    shelf = e.GetKinBody('cubbyhole_all_combined')
 else:
     e.Load(osp.join(MODEL_DIR, "pod_lowres.kinbody.xml"))
+    shelf = e.GetKinBody('pod_lowres')
     
 
 #e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
@@ -35,8 +37,6 @@ r = e.GetRobot("pr2")
 #shelf = e.GetKinBody("cubbyhole_all_combined")
 #T = shelf.GetTransform()
 #T[2,3] = shelf.ComputeAABB().extents()[2]
-
-shelf = e.GetKinBody("pod_lowres")
 
 #order_bin = e.GetKinBody("order_bin")
 #order_bin.SetTransform(order_bin_pose)
