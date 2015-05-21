@@ -25,13 +25,37 @@ if NEW_SHELF:
     SHELF_Y = [11*.0254, 0, -11*.0254]
     SHELF_Z = [37*0.0254, 28*0.0254, ] 
     SHELF_X = [-17*0.0254]
-    bin_pose = {}; letters = ["G","H","I","J","K","L"]; i = 0
+    bin_pose = {}
+    BINS = [
+        "bin_G",
+        "bin_H",
+        "bin_I",
+        "bin_J",
+        "bin_K",
+        "bin_L"
+    ]
+    i = 0
+
     for x in SHELF_X:
         for z in SHELF_Z:
             for y in SHELF_Y:  
-                bin_pose["bin_" + letters[i]] = np.array([1,0,0,0,x,y,z])
+                bin_pose[BINS[i]] = np.array([1, 0, 0, 0, x, y, z])
                 i += 1
-                
+else:
+    BINS = [
+        "bin_A",
+        "bin_B",
+        "bin_C",
+        "bin_D",
+        "bin_E",
+        "bin_F"
+        "bin_G",
+        "bin_H",
+        "bin_I",
+        "bin_J",
+        "bin_K",
+        "bin_L"
+    ]
 
 grasps_fn = "tmp_grasps"
 GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", grasps_fn)

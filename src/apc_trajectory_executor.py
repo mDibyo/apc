@@ -141,7 +141,8 @@ class APCTrajectoryExecutor(ROSNode):
                 pos = self.get_robot_state("").base_pos
                                                  
                 vel = Twist()
-                v = (target - pos); v /= 20*np.linalg.norm(v)
+                v = (target - pos)
+                v /= 20*np.linalg.norm(v)
                 vel.linear.x, vel.linear.y = v[0], v[1]
                 
                 dist_moved = np.linalg.norm(pos - start)
