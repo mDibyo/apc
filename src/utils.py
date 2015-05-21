@@ -21,8 +21,15 @@ NEW_SHELF = True
 
 if NEW_SHELF:
     SHELF_Y = [-11*.0254, 0, 11*.0254]
-    SHELF_Z = [28*0.0254, 37*0.0254] 
+    SHELF_Z = [37*0.0254, 28*0.0254, ] 
     SHELF_X = [-17*0.0254]
+    bin_pos = {}; letters = ["G","H","I","J","K","L"]; i = 0
+    for x in SHELF_X:
+        for y in SHELF_Y:
+            for z in SHELF_Z:
+                bin_pos["bin_" + letters[i]] = [1,0,0,0,x,y,z]
+                i += 1
+                
 
 grasps_fn = "tmp_grasps"
 GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", grasps_fn)
@@ -93,8 +100,8 @@ _trajopt_request_template = {
         }
     }
   
-order_bin_pose = np.array([[ 0, 1, 0, -0.75],
-                           [-1, 0, 0, -0.60],
+order_bin_pose = np.array([[ 1, 0, 0, -0.75],
+                           [ 0, 1, 0, -0.60],
                            [ 0, 0, 1,  0.10],
                            [ 0, 0, 0,     1]])
   

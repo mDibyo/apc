@@ -25,6 +25,9 @@ else:
     e.Load(osp.join(MODEL_DIR, "pod_lowres.kinbody.xml"))
     shelf = e.GetKinBody('pod_lowres')
     
+e.Load(osp.join(MODEL_DIR, "order_bin.kinbody.xml"))
+order_bin = e.GetKinBody("order_bin")
+order_bin.SetTransform(order_bin_pose)   
 
 #e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
 #e.Load(osp.join(OBJ_MESH_DIR, "cheezit_big_original.stl"))
@@ -34,12 +37,8 @@ e.Load(osp.join(OBJ_MESH_DIR, 'expo_dry_erase_board_eraser.stl'))
 e.SetViewer("qtcoin")
 
 r = e.GetRobot("pr2")
-#shelf = e.GetKinBody("cubbyhole_all_combined")
-#T = shelf.GetTransform()
-#T[2,3] = shelf.ComputeAABB().extents()[2]
 
-#order_bin = e.GetKinBody("order_bin")
-#order_bin.SetTransform(order_bin_pose)
+
 obj = e.GetBodies()[-1]
 
 taskprob = rave.interfaces.TaskManipulation(r)

@@ -40,6 +40,10 @@ class IkSolver(object):
             IkSolver.ikmodel.autogenerate()
             
     @staticmethod
+    def GetBinholderJoints(bin_N):
+        pass
+            
+    @staticmethod
     def GetPregraspJoints(graspPose):
         """ IK for pregrasp: face front outside cubbyhole """
         pose = graspPose; pose[-3] -= 0.1
