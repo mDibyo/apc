@@ -1,5 +1,5 @@
 <launch>
-    <arg name="marker_poses_topic" default="visualization_marker" />
+    <arg name="marker_poses_topic" default="/apc/visualization_marker" />
 
     <node name="marker_pose_server"
           pkg="apc"

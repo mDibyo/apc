@@ -37,6 +37,7 @@ class RvizMarkerPoseService(ROSNode):
                 del self.markers[marker.text]
 
     def handle_get_marker_pose(self, req):
+        rospy.logwarn(self.markers)
         return GetMarkerPoseResponse(self.markers.get(req.marker_name, None))
 
 

@@ -61,7 +61,7 @@ if __name__ == "__main__":
     object_filename = os.path.join(OBJECT_MESH_DIR, object_name + '.stl')
 
     object_grasps_filename = os.path.join(GRASP_DIR,
-                                          "{}_coll_free.json".format(object_name))
+                                          "{}.json".format(object_name))
     object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
                                               "{}.json".format(object_name + '_coll_free_2'))
     

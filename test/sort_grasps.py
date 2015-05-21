@@ -3,14 +3,12 @@ import os.path as osp
 import openravepy as rave
 import numpy as np
 
-from utils import GRASP_DIR, OBJ_MESH_DIR
+from utils import GRASP_DIR, OBJ_MESH_DIR, OBJ_LIST
 
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 
-objects = ["mark_twain_huckleberry_finn"]
-
-for objName in objects:
+for objName in OBJ_LIST:
     e.Load(osp.join(OBJ_MESH_DIR, objName + ".stl"))
     obj = e.GetKinBody(objName)
     com = obj.ComputeAABB().pos()
@@ -19,7 +17,7 @@ for objName in objects:
         pos = np.array([posdict["x"], posdict["y"], posdict["z"]])
         return np.linalg.norm(com - pos)
         
-    grasps = json.load(open(osp.join(GRASP_DIR, objName + "_coll_free.json")))
+    grasps = json.load(open(osp.join(GRASP_DIR, objName + ".json")))
     
     grasps.sort(key=comp)
         

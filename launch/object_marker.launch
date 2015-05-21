@@ -8,7 +8,7 @@
             <arg name="name" value="object_$(arg name)" />
             <arg name="type" value="1" />
             <arg name="delete_bool" value="true" />
-            <arg name="mesh_file" value="$(find apc)/data/meshes/objects/$(arg name).stl" />
+            <arg name="mesh_file" value="$(find apc)/data/meshes/objects/good/$(arg name).stl" />
             <arg name="update_rate" value="$(arg update_rate)" />
         </include>
     </group>

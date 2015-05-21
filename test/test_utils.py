@@ -22,7 +22,7 @@ def clear(handles):
     handles = []
         
 def resetRobot(r):
-    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0.2,0.2])))
+    r.SetTransform(rave.matrixFromPose(np.array([1,0,0,0,-1.2,0.2,0])))
     resetArms(r)
     
 def resetArms(r):
@@ -30,7 +30,7 @@ def resetArms(r):
     
     
 def randomObjPoses(objlist):
-    biny, binz = np.random.randint(3), np.random.randint(4)
+    biny, binz = np.random.randint(3), np.random.randint(2)
     xlow, xhigh = -0.15, -0.43
     ystep = 0.55/2
     zss = 0.23
@@ -55,7 +55,7 @@ def randomObjPoses(objlist):
         
 def randomObjPose(obj):
     biny, binz = np.random.randint(3), np.random.randint(4)
-    xlow, xhigh = -0.15, -0.43
+    xlow, xhigh = -0.35, -0.43
     ystep = 0.55/2
     zss = 0.23
     zsl = 0.27
@@ -68,7 +68,7 @@ def randomObjPose(obj):
     quat = rave.quatFromRotationMatrix(mat1)
     
     x = np.random.random()*(xhigh-xlow+size[0]) + xlow
-    y = ystep * (biny-1) + (0.2 * np.random.random() - 0.1)
+    y = ystep * (biny-1)# + (0.2 * np.random.random() - 0.1)
     z = zvals[binz] + 0.80 + size[2]
     return np.hstack([quat, [x,y,z]])
     

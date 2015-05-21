@@ -8,12 +8,15 @@ roslib.load_manifest('apc')
 import rospy
 from ros_utils import ROSNode
 from trajectory_msgs.msg import JointTrajectory
+from std_msgs.msg import Float32
 from geometry_msgs.msg import Point
 from apc.msg import BinWorkOrder, ExecStatus, RobotStateBase
 from apc.srv import *
+import openravepy as rave
+import numpy as np
 
 class APCController(ROSNode):
-    def __init__(self, joint_trajectories_topic, exec_status_topic):
+    def __init__(self, joint_trajectories_topic, exec_status_topic, shelf_pose_file):
         super(APCController, self).__init__('apc_controller')
         self.joint_trajectories_topic = joint_trajectories_topic
         self.exec_status_topic = exec_status_topic
@@ -28,9 +31,14 @@ class APCController(ROSNode):
         
         self.base_movement_publisher = rospy.Publisher("base_movement", Point)
         
+        self.torso_height_publisher = rospy.Publisher("torso_height", Float32)
+        
         self.exec_status_subscriber = rospy.Subscriber(self.exec_status_topic,
                                                        ExecStatus,
                                                        self.record_exec_status)                                     
+        self.robot_start_pose = rave.poseFromMatrix(np.linalg.inv(np.loadtxt(shelf_pose_file)))
+        
+        self.robot_initial_odom = self.get_robot_state("").base_pos
 
     @property
     def robot_exec_status(self):
@@ -56,25 +64,34 @@ class APCController(ROSNode):
         rospy.loginfo("robot execution status idle")
 
     def execute_motion_plan(self, motion_plan):
-        self.base_movement_publisher.publish(motion_plan.base_pos)    
+        #bt = np.array([motion_plan.base_target.x, motion_plan.base_target.y, motion_plan.base_target.z])
+        #base_move = bt - self.robot_start_pose[-3:]
+        #self.base_movement_publisher.publish(Point(base_move[0], base_move[1], base_move[2]))    
+        #rospy.sleep(1.0)
+        #self.wait_for_idle_exec_status()
+        
+        self.torso_height_publisher.publish(Float32(motion_plan.torso_height.data))
         rospy.sleep(1.0)
         self.wait_for_idle_exec_status()
-        
+
         for joint_trajectory in motion_plan.trajectories:
+            print joint_trajectory
             self.joint_trajectories_publisher.publish(joint_trajectory)
-            # self.wait_for_busy_exec_status()
+            #self.wait_for_busy_exec_status()
             rospy.sleep(1.0)
             self.wait_for_idle_exec_status()
-
+        print "done"
+        
     def execute_work_order(self, work_order):
         try:
             rospy.logwarn("Here")
             res = self.get_motion_plan_client(work_order)
+            print res
             rospy.logwarn("Here too")
             self.execute_motion_plan(res.motion_plan)
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
-
+            
     def get_robot_state(self, manip):
         try:
             res = self.get_robot_state_client(manip)
@@ -84,25 +101,18 @@ class APCController(ROSNode):
 
 if __name__ == '__main__':
 
-    controller = APCController('joint_trajectories', 'exec_status')
-    
-    if 0:
-        start_joints = [1.2649260742043886,
-                        -0.35354764645244385,
-                        1.2638167606524484,
-                        -0.8134383377306724,
-                        1.49048266209742,
-                        -1.8862530453060153,
-                        1.7517736670157182,
-                        0]
-                        
-        base_pos = [-1.2, 0.2, 0.2]
+    controller = APCController('joint_trajectories', 'exec_status', 'perception/shelf_finder/shelf_pose.txt')
+    state = controller.get_robot_state("rightarm_torso")
+    if 0: ### EDIT FOR FAKE ###
+        start_pose = [1, 0, 0, 0, -0.8, 0.2, 0]
     else:
-        state = controller.get_robot_state("rightarm_torso")
-        start_joints = state.joint_angles
-        start_base = state.base_pos
+        start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] + state.base_pos])
+
+    start_joints = state.joint_values
     
     
-    work_order = BinWorkOrder('all_combined', ['dove_beauty_bar'],
-                              'dove_beauty_bar', start_joints, start_base, 'simple')
+    work_order = BinWorkOrder('all_combined', ['expo_dry_erase_board_eraser'],
+                              'expo_dry_erase_board_eraser', start_joints, start_pose, 'simple')
     controller.execute_work_order(work_order)
+    
+    

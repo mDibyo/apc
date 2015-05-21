@@ -80,7 +80,7 @@ class APCRobotStateService(ROSNode):
         rave.RaveDestroy
         
     def log_cloud(self, cloud_msg):
-        self.clouds.append(cloud_msg)
+        self.cloud = cloud_msg
    
     def log_base(self, tf_msg):
         """ Log transform from /odom_combined to /base_footprint """
@@ -108,7 +108,7 @@ class APCRobotStateService(ROSNode):
         
         T = self.robot.GetLink("sensor_mount_link").GetTransform()
         mat = T.dot(self.T_tr.dot(self._T_rot))
-        np.savetxt("transform.txt", mat)
+        np.savetxt("perception/shelf_finder/transform.txt", mat)
         return os.path.abspath("transform.txt")
                     
     def handle_get_latest_state(self, req):

@@ -5,17 +5,20 @@ import json
 import openravepy as rave
 import numpy as np
 
-from utils import GRASP_DIR, GRASP_TAG
+from utils import GRASP_DIR, GRASP_TAG, NEW_WRISTS
 
 class Grasp():
 
     initial = rave.matrixFromQuat([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])
 
     T_fix = np.array([[-0.    , -0.    , -1.    , -0.    ],
-                      [ 0.    ,  1.    ,  0.    ,  0.008 ],
+                      [ 0.    ,  1.    ,  0.    ,  0     ],
                       [ 1.    ,  0.    ,  0.    , -0.0375],
                       [ 0.    ,  0.    ,  0.    ,  1.    ]])
     T_fix_inv = np.linalg.inv(T_fix)
+    
+    new_wrist_fix = rave.matrixFromAxisAngle(np.array([1,0,0]) * np.pi/2)
+
 
     def __init__(self, quat, pos, width, parent):
         self.pose = np.hstack([quat, pos])
@@ -25,6 +28,9 @@ class Grasp():
         
     def inGripperFrame(self, r, obj):
         worldToGrip = r.GetManipulator("rightarm_torso").GetTransform()
+        if NEW_WRISTS:
+            worldToGrip = worldToGrip.dot(self.new_wrist_fix) ### EDIT FOR NEW WRISTS ###
+            
         objToGrip, worldToObj = self.mat, obj.GetTransform()    
         gripToObj, objToWorld = np.linalg.inv(objToGrip), np.linalg.inv(worldToObj)
         T_obj = worldToGrip.dot(Grasp.T_fix).dot(gripToObj)        
@@ -33,13 +39,15 @@ class Grasp():
     def prune(self, pose, objName):
         obj = self.parent.env.GetKinBody(objName)
         shelf = self.parent.env.GetBodies()[1]
-
+        
+        """
         lipX = (shelf.ComputeAABB().pos() - shelf.ComputeAABB().extents())[0]
         dx = abs(lipX - obj.GetTransform()[0,3])
-        validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.11/dx))
+        validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.07/dx))
         if not validDir:
             return False
-            
+        """
+        
         r = self.parent.env.GetRobots()[0]
         shelf = self.parent.env.GetBodies()[1]
         others = self.parent.env.GetBodies()[2:]
@@ -64,12 +72,16 @@ class Grasp():
             
     def GetTargetPose(self, obj):       
         mat = obj.GetTransform().dot(self.mat).dot(Grasp.T_fix_inv)
+        if NEW_WRISTS:
+            mat = mat.dot(np.linalg.inv(Grasp.new_wrist_fix)) ### EDIT FOR NEW WRISTS ###
         pose = rave.poseFromMatrix(mat)
         if self.parent.grasps.index(self) and self.prune(pose, obj.GetName()):
             return pose
         
     def point(self, target):
         mat = rave.matrixFromPose(target)
+        if NEW_WRISTS:
+            mat = mat.dot(self.new_wrist_fix) ### EDIT FOR NEW WRISTS ###
         O = mat.dot([0, 0, 0, 1])
         P = mat.dot([0, 0, 1, 1])
         return (O - P)[:3]
@@ -89,6 +101,10 @@ class GraspSet():
             pos = np.array([pdict['x'], pdict['y'], pdict['z']])
             width = grasp["gripper_width"]
             self.grasps.append(Grasp(quat, pos, width, self))
+            
+            mat = rave.matrixFromPose(np.hstack([quat, pos]))
+            newPose = rave.poseFromMatrix(mat.dot(rave.matrixFromQuat([0,0,0,1])))
+            self.grasps.append(Grasp(newPose[:4], newPose[4:], width, self))
             
     def __getitem__(self, i):
         return self.grasps[i]

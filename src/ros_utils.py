@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+import roslib
+roslib.load_manifest('apc')
 import rospy
-
+from geometry_msgs.msg import Pose
 
 __author__ = 'dibyo'
 
+def fromPoseMsg(pose_msg):
+    p,o = pose_msg.position, pose_msg.orientation
+    return [o.w, o.x, o.y, o.z, p.x, p.y, p.z]
 
 class ROSNode(object):
     def __init__(self, name, **kwargs):

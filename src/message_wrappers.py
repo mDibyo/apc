@@ -6,7 +6,7 @@ import json
 
 import roslib
 roslib.load_manifest('apc')
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Float32
 from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
@@ -35,16 +35,24 @@ class JointTrajectoryWrapper(object):
 
 class MotionPlanWrapper(object):
 
-    def __init__(self, strategy, trajectories, joint_names, base_pos):
+    def __init__(self, strategy, trajectories, joint_names, base_pos, torso_height):
         self.strategy = strategy
         self.trajectories = trajectories
         self.joint_names = joint_names
         self.base_pos = Point(base_pos[0], base_pos[1], 0)
+        self.torso_height = torso_height
         
     def to_msg(self):
-        return MotionPlan(self.strategy, 
-                          [JointTrajectoryWrapper(self.joint_names, traj).to_msg() for traj in self.trajectories],
-                          self.base_pos)
+        plan = []
+        for traj in self.trajectories:
+            if len(traj) > 1:
+                t = JointTrajectoryWrapper(self.joint_names, traj).to_msg()
+            else:
+                t = JointTrajectoryWrapper(['r_gripper_l_finger_joint'], traj).to_msg()
+            plan.append(t)
+           
+                          
+        return MotionPlan(self.strategy, plan, self.base_pos, Float32(self.torso_height))
 
 class GraspWrapper(object):
     def __init__(self, gripper_pose, gripper_width=None, flag=False):

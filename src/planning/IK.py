@@ -8,7 +8,7 @@ import numpy as np
 from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
 
-from utils import DATA_DIRECTORY, runInParallel
+from utils import DATA_DIRECTORY, runInParallel, NEW_WRISTS, NEW_SHELF
 from Grasps import Grasp, GraspSet
 
 
@@ -21,7 +21,12 @@ class IkSolver(object):
     nn = interp(objPoses,basePositions)
     
     over_bin_quat = np.array([0, np.sqrt(2)/2, -np.sqrt(2)/2, 0])
-    face_front_quat = np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])
+    
+    if NEW_WRISTS:
+        face_front_quat = np.array([np.sqrt(2)/2, 0, 0, np.sqrt(2)/2])
+    else:
+        face_front_quat = np.array([np.sqrt(2)/2, 0, np.sqrt(2)/2, 0])
+    over_bin_quat = np.array([0, np.sqrt(2)/2, -np.sqrt(2)/2, 0])
     
     def __init__(self, env):
         IkSolver.env = env
@@ -35,27 +40,35 @@ class IkSolver(object):
             IkSolver.ikmodel.autogenerate()
             
     @staticmethod
-    def GetPregraspJoints(objName):
+    def GetPregraspJoints(graspPose):
         """ IK for pregrasp: face front outside cubbyhole """
-        obj = IkSolver.env.GetKinBody(objName)
-        pose = np.hstack([IkSolver.face_front_quat, [-0.5], obj.GetTransform()[1:3,3]])    
+        pose = graspPose; pose[-3] -= 0.1
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
         iksol = IkSolver.robot.GetManipulator("rightarm_torso").FindIKSolution(ikparam, opt)
         return {"joints": iksol,
                 "manip" : "rightarm_torso"}
                 
-                    
     @staticmethod
-    def GetDropJoints():
-        """ IK for above target bin """
-        order_bin = IkSolver.env.GetKinBody("order_bin")
-        pose = np.hstack([IkSolver.over_bin_quat, order_bin.GetTransform()[:2,3], 0.5])    
+    def GetPostgraspJoints(graspPose):
+        """ IK for postgrap: avoid lip"""
+        pose = graspPose; pose[-1] += 0.01
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
-        iksol = IkSolver.robot.GetManipulator("rightarm").FindIKSolution(ikparam, opt)
+        iksol = IkSolver.robot.GetManipulator("rightarm_torso").FindIKSolution(ikparam, opt)
         return {"joints": iksol,
-                "manip" : "rightarm"}
+                "manip" : "rightarm_torso"}          
+                    
+    @staticmethod
+    def GetDropJoints(graspPose):
+        """ IK for above target bin """
+        order_bin = IkSolver.env.GetKinBody("order_bin")
+        pose = np.hstack([graspPose[:4], order_bin.GetTransform()[:2,3], 0.7])    
+        ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
+        opt = rave.IkFilterOptions.CheckEnvCollisions
+        iksol = IkSolver.robot.GetManipulator("rightarm_torso").FindIKSolution(ikparam, opt)
+        return {"joints": iksol,
+                "manip" : "rightarm_torso"}
             
     @staticmethod        
     def solveIK(queue, target, manipName, i):
@@ -72,7 +85,8 @@ class IkSolver(object):
                    "target" : target,
                    "point"  : IkSolver.grasps[i].point(target),
                    "grasp"  : IkSolver.grasps[i].mat,
-                   "base"   : IkSolver.robot.GetTransform()}
+                   "base"   : IkSolver.robot.GetTransform(),
+                   "width"  : IkSolver.grasps[i].width}
             if queue is None:
                 return sol
             else:
@@ -99,25 +113,31 @@ class IkSolver(object):
     @staticmethod    
     def GetRaveIkSol(objName, parallel=False, q=None):
         """ This is the only method that should get called from outside. """       
+        IkSolver.resetArms()
         obj = IkSolver.env.GetKinBody(objName)
         pos = IkSolver.robot.GetTransform()
         IkSolver.grasps = GraspSet(objName, IkSolver.env.CloneSelf(rave.CloningOptions.Bodies))
-        obj = IkSolver.env.GetKinBody(objName)
+
         targets = IkSolver.grasps.GetTargets(obj)
         IkSolver.targets = targets
+        
         if len(targets) == 0:
             if q is not None:
                 q.put(None)
             return None
             
         rsol, i = None, 0
-        while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"),
-                                                             IkSolver.env.GetKinBody("pod_lowres")):
+        if NEW_SHELF:
+            shelf = IkSolver.env.GetKinBody("cubbyhole_all_combined")
+        else:
+            shelf = IkSolver.env.GetKinBody("pod_lowres")
+            
+        while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"), shelf):
             IkSolver.resetArms()
             if i == 0:
                 pass
             elif i == 1:
-                pos[:3,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])                
+                pos[:2,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2]   
             elif i == 2:
                 IkSolver.positions = IkSolver.naiveMoves()
                 pos[:2,3] = IkSolver.positions.pop()
