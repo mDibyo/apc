@@ -64,23 +64,22 @@ class APCController(ROSNode):
         rospy.loginfo("robot execution status idle")
 
     def execute_motion_plan(self, motion_plan):
-        #bt = np.array([motion_plan.base_target.x, motion_plan.base_target.y, motion_plan.base_target.z])
-        #base_move = bt - self.robot_start_pose[-3:]
-        #self.base_movement_publisher.publish(Point(base_move[0], base_move[1], base_move[2]))    
-        #rospy.sleep(1.0)
-        #self.wait_for_idle_exec_status()
-        
-        self.torso_height_publisher.publish(Float32(motion_plan.torso_height.data))
-        rospy.sleep(1.0)
-        self.wait_for_idle_exec_status()
-
-        for joint_trajectory in motion_plan.trajectories:
-            print joint_trajectory
-            self.joint_trajectories_publisher.publish(joint_trajectory)
-            #self.wait_for_busy_exec_status()
+        if motion_plan.strategy != "failed":
+            self.base_movement_publisher.publish(motion_plan.base_target)    
             rospy.sleep(1.0)
             self.wait_for_idle_exec_status()
-        print "done"
+            
+            self.torso_height_publisher.publish(Float32(motion_plan.torso_height.data))
+            rospy.sleep(1.0)
+            self.wait_for_idle_exec_status()
+
+            for joint_trajectory in motion_plan.trajectories:
+                print joint_trajectory
+                self.joint_trajectories_publisher.publish(joint_trajectory)
+                #self.wait_for_busy_exec_status()
+                rospy.sleep(1.0)
+                self.wait_for_idle_exec_status()
+            rospy.logwarn("done")
         
     def execute_work_order(self, work_order):
         try:
@@ -108,7 +107,7 @@ if __name__ == '__main__':
     start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] + rightjoints.base_pos])
     
     work_order = BinWorkOrder('bin_G', 'all_combined', ['expo_dry_erase_board_eraser'],
-                              'expo_dry_erase_board_eraser', leftjoints.joint_values, rightjoints.joint_values, start_pose, 'simple')
+                              'expo_dry_erase_board_eraser', rightjoints.joint_values, leftjoints.joint_values, start_pose, 'simple')
     controller.execute_work_order(work_order)
     
     

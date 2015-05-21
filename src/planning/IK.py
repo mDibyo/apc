@@ -41,16 +41,14 @@ class IkSolver(object):
             
     @staticmethod
     def GetBinholderJoints(bin_N):
-        bin_mat = rave.matrixFromPose(bin_pose[bin_N])
-        rot = rave.matrixFromAxisAngle(np.pi/2 * np.array([1,0,0]))
-        trans = rave.matrixFromPose(np.array([1,0,0,0,-0.225,0.3048,-0.15]))
-        pose = rave.poseFromMatrix(trans.dot(bin_mat.dot(rot)))
+        pose = bin_pose[bin_N]
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
-        iksol = IkSolver.robot.GetManipulator("leftarm").FindIKSolution(ikparam, opt)
-        return {"joints": iksol,
-                "target": pose,
-                "manip" : "leftarm"}
+        iksol = IkSolver.robot.GetManipulator("leftarm_box").FindIKSolution(ikparam, opt)
+        if iksol is not None:
+            return {"joints": iksol,
+                    "target": pose,
+                    "manip" : "leftarm"}
                 
     @staticmethod
     def GetPregraspJoints(graspPose):
@@ -59,8 +57,9 @@ class IkSolver(object):
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
         iksol = IkSolver.robot.GetManipulator("rightarm_torso").FindIKSolution(ikparam, opt)
-        return {"joints": iksol,
-                "manip" : "rightarm_torso"}
+        if iksol is not None:
+            return {"joints": iksol,
+                    "manip" : "rightarm_torso"}
                 
     @staticmethod
     def GetPostgraspJoints(graspPose):
@@ -69,19 +68,21 @@ class IkSolver(object):
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
         iksol = IkSolver.robot.GetManipulator("rightarm_torso").FindIKSolution(ikparam, opt)
-        return {"joints": iksol,
-                "manip" : "rightarm_torso"}          
+        if iksol is not None:
+            return {"joints": iksol,
+                    "manip" : "rightarm_torso"}          
                     
     @staticmethod
-    def GetDropJoints(graspPose):
+    def GetDropJoints(graspPose, binN):
         """ IK for above target bin """
-        order_bin = IkSolver.env.GetKinBody("order_bin")
-        pose = np.hstack([graspPose[:4], order_bin.GetTransform()[:2,3], 0.7])    
+        bin_loc = bin_pose[binN][-3:]
+        pose = np.hstack([graspPose[:4], bin_loc[:2], [bin_loc[-1] + 0.1]])
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
         iksol = IkSolver.robot.GetManipulator("rightarm_torso").FindIKSolution(ikparam, opt)
-        return {"joints": iksol,
-                "manip" : "rightarm_torso"}
+        if iksol is not None:
+            return {"joints": iksol,
+                    "manip" : "rightarm_torso"}
             
     @staticmethod        
     def solveIK(queue, target, manipName, i):

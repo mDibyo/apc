@@ -23,9 +23,20 @@ from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode, fromPoseMsg
 from utils import MODEL_DIR, OBJ_MESH_DIR, trajopt_request_template, timed, order_bin_pose
 from test_utils import plotPose
-from message_wrappers import MotionPlanWrapper
+from message_wrappers import MotionPlanWrapper, JointTrajectoryWrapper
 
 class APCPlannerService(ROSNode):
+
+    arm_joint_names =     ["_shoulder_pan_joint",
+                           "_shoulder_lift_joint",
+                           "_upper_arm_roll_joint",
+                           "_elbow_flex_joint",
+                           "_forearm_roll_joint",
+                           "_wrist_flex_joint",
+                           "_wrist_roll_joint"]
+                           
+    gripper_joint_name = "_gripper_l_finger_joint"                     
+                           
     def __init__(self, work_orders_topic, update_rate, shelf_name="pod_lowres"):
         super(APCPlannerService, self).__init__('plan')
 
@@ -45,7 +56,6 @@ class APCPlannerService(ROSNode):
                                                      GetMotionPlan,
                                                      self.handle_get_motion_plan)
         
-        
     def __enter__(self):
         self.env = rave.Environment()
         self.env.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))#"pr2-beta-static.zae")) #
@@ -58,16 +68,14 @@ class APCPlannerService(ROSNode):
         
         T = self.shelf.GetTransform()
         self.shelf.SetTransform(T)
-        
-        self.order_bin = self.env.GetKinBody("order_bin")
-        self.order_bin.SetTransform(order_bin_pose)
-        
+
         self.env.SetViewer('qtcoin')
-        for manip in ["rightarm", "rightarm_torso", "leftarm", "leftarm_torso"]:
+        for manip in ["rightarm", "rightarm_torso", "leftarm", "leftarm_torso", "leftarm_box"]:
             m = self.robot.SetActiveManipulator(manip)
             ik = IkSolver(self.env)
             m.SetIkSolver(ik.ikmodel.iksolver)
         self.ik = IkSolver(self.env)
+        print "ready for planning"
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -76,18 +84,12 @@ class APCPlannerService(ROSNode):
 
 
 
-    def find_trajectory(self, manip, start_joints, end_joints, base_pos, torso_height, dist_pen=0.02):
+    def find_trajectory(self, manip, start_joints, end_joints, dist_pen=0.02):
         """ Return a trajectory from (start_joints) to (end_joints) with the given base_pos, torso_height """
                                     
         manip = self.robot.SetActiveManipulator(manip)      
         self.robot.SetActiveDOFs(manip.GetArmIndices())
         self.robot.SetDOFValues(start_joints, manip.GetArmIndices())
-        
-        T = self.robot.GetTransform()
-        T[:2,3] = base_pos[:2]
-        self.robot.SetTransform(T)
-        self.robot.SetDOFValues([torso_height], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
-       
         
         request = trajopt_request_template()
         request['constraints'][0]['params']['vals'] = \
@@ -109,53 +111,63 @@ class APCPlannerService(ROSNode):
         """ Compute IK for pregrasp, grasp, drop, then find trajectories for each. Supports base movement. """
  
         grasp = timed(self.ik.GetRaveIkSol, [self.work_order.target_object, False])
-        self.grasp = grasp
-        print "Grasp",grasp
+        self.plan = {}
+        self.plan["grasp"] = grasp
         #plotPose(self.env, grasp["target"])
-        if self.grasp is not None:   
+        
+        if grasp is not None:   
+            self.robot.SetTransform(self.plan["grasp"]["base"])
+            self.robot.SetDOFValues([self.plan["grasp"]["joints"][0]], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
+            
+            self.plan["pregrasp"] = self.ik.GetPregraspJoints(self.plan["grasp"]["target"])
+            self.plan["drop"] = self.ik.GetDropJoints(self.plan["grasp"]["target"], self.work_order.bin_name)
+            self.plan["postgrasp"] = self.ik.GetPostgraspJoints(self.plan["grasp"]["target"])
+            self.plan["binholder"] = self.ik.GetBinholderJoints(self.work_order.bin_name)
+ 
+            for k,v in self.plan.items():
+                if v is None:
+                    rospy.logwarn("no pose found for " + k)
+                    return MotionPlanWrapper("failed", [], [], [])  
+            
+            trajectories = []
+            
+            trajectories.append(self.find_trajectory("leftarm", self.work_order.left_joints[1:], self.plan["binholder"]["joints"]))
+            trajectories.append([[0.54]])     
+            
+            trajectories.append(self.find_trajectory("rightarm", self.work_order.right_joints[1:], self.plan["pregrasp"]["joints"][1:]))                                                           
+            trajectories.append(self.find_trajectory("rightarm", self.plan["pregrasp"]["joints"][1:], self.plan["grasp"]["joints"][1:]))       
+            trajectories.append([[0]])                 
+                                                                                                                                                                                              
+            trajectories.append(self.find_trajectory("rightarm", self.plan["grasp"]["joints"][1:], self.plan["postgrasp"]["joints"][1:]))   
+            trajectories.append(self.find_trajectory("rightarm", self.plan["postgrasp"]["joints"][1:], self.plan["drop"]["joints"][1:]))    
+            trajectories.append([[0.54]])     
+            
+            
             self.robot.SetTransform(grasp["base"])
             self.robot.SetDOFValues([grasp["joints"][0]], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
             
-            pregrasp = self.ik.GetPregraspJoints(grasp["target"])
-            drop = self.ik.GetDropJoints(grasp["target"])
-            postgrasp = self.ik.GetPostgraspJoints(grasp["target"])
-            binholder = self.ik.GetBinholderJoints(self.work_order.bin_name)
-            print "found all poses"
+            traj_wrap = []
+            for i,traj in enumerate(trajectories):
+                m = "leftarm" if i == 0 else "rightarm"                     
+                for t in traj:
+                    if len(t) > 1:
+                        self.robot.SetDOFValues(t, self.robot.GetManipulator(m).GetArmIndices())
+                        names = [self.gripper_joint_name]            
+                    else:
+                        self.robot.SetDOFValues(t, [34])
+                        names = self.arm_joint_names
+                        
+                    joint_names = ["r"+j if "r" in m else "l"+j for j in names]  
+                    traj_wrap.append(JointTrajectoryWrapper(joint_names, t))
+                    rospy.sleep(0.5)
+                                                                                                             
+            motion_plan = MotionPlanWrapper(self.work_order.strategy, traj_wrap, grasp["base"][:3,3], grasp["joints"][0])   
+            return motion_plan.to_msg()
+        else:
+            rospy.logwarn("no iksol found")
+            return MotionPlanWrapper("failed", [], [], [])   
             
-            trajectories = []
-            if drop is not None and pregrasp is not None and postgrasp is not None and binholder is not None:
-                manip_name, base_pos, torso_height = "rightarm", grasp["base"][:3, 3], grasp["joints"][0]
-                manip = self.robot.GetManipulator(manip_name)
-                
-                trajectories.append(self.find_trajectory("leftarm", self.work_order.left_joints[1:], binholder["joints"], base_pos, torso_height))
-                trajectories.append([[0.54]])     
-                
-                trajectories.append(self.find_trajectory(manip_name, self.work_order.right_joints[1:], pregrasp["joints"][1:], base_pos, torso_height))                                                           
-                trajectories.append(self.find_trajectory(manip_name, pregrasp["joints"][1:], grasp["joints"][1:], base_pos, torso_height))       
-                trajectories.append([[0]])                 
-                                                                                                                                                                                                  
-                trajectories.append(self.find_trajectory(manip_name, grasp["joints"][1:], postgrasp["joints"][1:], base_pos, torso_height))   
-                trajectories.append(self.find_trajectory(manip_name, postgrasp["joints"][1:], drop["joints"][1:], base_pos, torso_height))    
-                trajectories.append([[0.54]])     
-                
-                
-                self.robot.SetTransform(grasp["base"])
-                self.robot.SetDOFValues([grasp["joints"][0]], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
-                for traj in trajectories:
-                    for t in traj:
-                        if len(t) > 1:
-                            self.robot.SetDOFValues(t, self.robot.GetManipulator("rightarm").GetArmIndices())
-                        else:
-                            self.robot.SetDOFValues(t, [34])
-                        rospy.sleep(0.2)
-                
-                            
-                joint_names = [j.GetName() for j in self.robot.GetJoints(manip.GetArmIndices()) if "torso" not in j.GetName()]                                                                                                    
-                motion_plan = MotionPlanWrapper(self.work_order.strategy, trajectories, joint_names, base_pos, torso_height)   
-                return motion_plan.to_msg()
-            else:
-                print "couldn't find pose"
-
+            
     def handle_get_motion_plan(self, req):
         """ Main method of service call. """
         self.work_order = req.work_order
@@ -194,7 +206,7 @@ class APCPlannerService(ROSNode):
         Saved poses are relative to robot but here change everything to be relative to shelf
         """       
 
-        [self.env.Remove(body) for body in self.env.GetBodies() if body != self.robot and body != self.shelf and body != self.order_bin]
+        [self.env.Remove(body) for body in self.env.GetBodies() if body != self.robot and body != self.shelf]
 
         world_to_robot = rave.matrixFromPose(self.work_order.robot_pose)
 

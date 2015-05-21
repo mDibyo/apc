@@ -35,20 +35,16 @@ class JointTrajectoryWrapper(object):
 
 class MotionPlanWrapper(object):
 
-    def __init__(self, strategy, trajectories, joint_names, base_pos, torso_height):
+    def __init__(self, strategy, trajectories, base_pos, torso_height):
         self.strategy = strategy
         self.trajectories = trajectories
-        self.joint_names = joint_names
         self.base_pos = Point(base_pos[0], base_pos[1], 0)
         self.torso_height = torso_height
         
     def to_msg(self):
         plan = []
         for traj in self.trajectories:
-            if len(traj) > 1:
-                t = JointTrajectoryWrapper(self.joint_names, traj).to_msg()
-            else:
-                t = JointTrajectoryWrapper(['r_gripper_l_finger_joint'], traj).to_msg()
+            t = traj.to_msg()
             plan.append(t)
            
                           

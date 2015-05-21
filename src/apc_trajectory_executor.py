@@ -44,7 +44,7 @@ class APCTrajectoryExecutor(ROSNode):
             self.publisher.publish(ExecStatus(header, self.status))
 
 
-    def __init__(self, joint_trajectories_topic, base_movement_topic, torso_height_topic, exec_status_topic):
+    def __init__(self, joint_trajectories_topic, base_movement_topic, torso_height_topic, exec_status_topic, shelf_pose_file):
         super(APCTrajectoryExecutor, self).__init__('execute')
 
         self.joint_trajectories_topic = joint_trajectories_topic
@@ -58,8 +58,10 @@ class APCTrajectoryExecutor(ROSNode):
         #self.rarm = Arm('right')
         # self.rarm_gripper_name = 'r_gripper_l_finger_joint'
         
-        self.manip = Arm("right", default_speed=0.15)
-        self.manip_gripper_name = "r_gripper_l_finger_joint"
+        self.right = Arm("right", default_speed=0.15)
+        self.left = Arm("left", default_speed=0.15)
+        self.r_gripper_name = "r_gripper_l_finger_joint"
+        self.l_gripper_name = "l_gripper_l_finger_joint"
         
         self.get_robot_state_client = rospy.ServiceProxy("/get_latest_robot_state", GetLatestRobotState)      
 
@@ -80,6 +82,18 @@ class APCTrajectoryExecutor(ROSNode):
                                                           rate=50)
         self.exec_status_publisher_thread.start()
         
+        self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)     
+        
+        self.robot_start_pose = rave.poseFromMatrix(np.linalg.inv(np.loadtxt(shelf_pose_file)))
+        self.robot_initial_odom = self.get_robot_state("").base_pos
+    
+    def get_robot_state(self, manip):
+        try:
+            res = self.get_robot_state_client(manip)
+            return res.state_with_base
+        except rospy.ServiceException as e:
+            rospy.logerr("Service call failed: {}".format(e))
+        
     def publish_exec_status(self):
         header = Header()
         header.stamp = rospy.Time.now()
@@ -93,51 +107,56 @@ class APCTrajectoryExecutor(ROSNode):
             rospy.logerr("Service call failed: {}".format(e)) 
             
     def move_torso(self, target_height):
-        arm = self.manip
-        self.exec_status = ExecStatus.BUSY
-        arm.move_torso_simple(target_height.data)
-        self.exec_status = ExecStatus.IDLE
-   
+        while self.exec_status != ExecStatus.IDLE:
+            rospy.sleep(0.5)   
+            rospy.logwarn("not idle so waiting")
+        try:
+            arm = self.manip
+            self.exec_status = ExecStatus.BUSY
+            arm.move_torso_simple(target_height.data)
+            self.exec_status = ExecStatus.IDLE
+        except rospy.ROSException:
+            self.exec_status = ExecStatus.ERROR
             
     def move_base_linear(self, base_target):
-        if self.exec_status == ExecStatus.IDLE:     
-            try:
-                
-                self.exec_status = ExecStatus.BUSY 
-                
-                
-                cmd_vel_publisher = rospy.Publisher("base_controller/command", Twist)
-                tf_listener = tf.TransformListener()
-                
-                tf_listener.waitForTransform("/base_footprint", "/odom_combined",
-                                                     rospy.Time(0), rospy.Duration(1))
-                
-                target = np.array([base_target.x, base_target.y, 0])                                     
-                start = np.array(self.get_robot_state("").base_pos)
-
-                pos, total_dist, dist_moved = start, np.linalg.norm(target - start), 0
-                rate = rospy.Rate(10.)
-                                                    
-                while np.linalg.norm(target - pos) > 1e-5 and dist_moved < total_dist:
-                    pos = self.get_robot_state("").base_pos
-                                                     
-                    vel = Twist()
-                    v = (target - pos); v /= 20*np.linalg.norm(v)
-                    vel.linear.x, vel.linear.y, vel.linear.z = v[0], v[1], v[2]
-                    
-                    dist_moved = np.linalg.norm(pos - start)
-                    cmd_vel_publisher.publish(vel)                     
-                    rate.sleep()
-                                                     
-                self.exec_status = ExecStatus.IDLE
-            except rospy.ROSException:
-                self.exec_status = ExecStatus.ERROR
-        else:
-            print "busy"
+        while self.exec_status != ExecStatus.IDLE:
+            rospy.sleep(0.5)   
+            rospy.logwarn("not idle so waiting")         
+        try:
+            self.exec_status = ExecStatus.BUSY 
+   
+            cmd_vel_publisher = rospy.Publisher("base_controller/command", Twist)
+            tf_listener = tf.TransformListener()
             
+            tf_listener.waitForTransform("/base_footprint", "/odom_combined",
+                                             rospy.Time(0), rospy.Duration(1))
+                
+            target = np.array([base_target.x, base_target.y, 0]) + self.robot_initial_odom                                  
+            start = np.array(self.get_robot_state("").base_pos)
+
+            pos, total_dist, dist_moved = start, np.linalg.norm(target - start), 0
+            rate = rospy.Rate(10.)
+                                                
+            while np.linalg.norm(target - pos) > 1e-5 and dist_moved < total_dist:
+                pos = self.get_robot_state("").base_pos
+                                                 
+                vel = Twist()
+                v = (target - pos); v /= 20*np.linalg.norm(v)
+                vel.linear.x, vel.linear.y = v[0], v[1]
+                
+                dist_moved = np.linalg.norm(pos - start)
+                cmd_vel_publisher.publish(vel)                     
+                rate.sleep()
+                                                 
+            self.exec_status = ExecStatus.IDLE
+        except rospy.ROSException:
+            self.exec_status = ExecStatus.ERROR
+        
     def execute_joint_trajectory(self, trajectory):
         # TODO: Add handling for speed
-        print trajectory.joint_names
+        while self.exec_status != ExecStatus.IDLE:
+            rospy.sleep(0.5)   
+            rospy.logwarn("not idle so waiting")
         try:
             arm = self.manip
             """
@@ -167,13 +186,11 @@ class APCTrajectoryExecutor(ROSNode):
                     self.exec_status = ExecStatus.BUSY
                     arm.open_gripper()
                     self.exec_status = ExecStatus.IDLE         
-                          
-            
         except rospy.ROSException:
             self.exec_status = ExecStatus.ERROR
 
 if __name__ == '__main__':
-    executor = APCTrajectoryExecutor('joint_trajectories', 'base_movement', 'torso_height', 'exec_status')
+    executor = APCTrajectoryExecutor('joint_trajectories', 'base_movement', 'torso_height', 'exec_status', 'perception/shelf_finder/shelf_pose.txt')
     print "ready for execution"
     executor.spin()
 
