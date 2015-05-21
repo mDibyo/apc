@@ -107,7 +107,7 @@ if __name__ == '__main__':
     start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] + rightjoints.base_pos])
     
     work_order = BinWorkOrder('bin_G', 'all_combined', ['expo_dry_erase_board_eraser'],
-                              'expo_dry_erase_board_eraser', rightjoints.joint_values, leftjoints.joint_values, start_pose, 'simple')
+                              'expo_dry_erase_board_eraser', rightjoints.joint_values, [0,1.57,0.2,1.57,-.8,2,-1.57,-1.57], start_pose, 'simple')
     controller.execute_work_order(work_order)
     
     

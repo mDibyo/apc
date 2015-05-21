@@ -41,7 +41,9 @@ class IkSolver(object):
             
     @staticmethod
     def GetBinholderJoints(bin_N):
-        pose = bin_pose[bin_N]
+        bin_mat = rave.matrixFromPose(bin_pose[bin_N])
+        trans = rave.matrixFromPose(np.array([1,0,0,0,-0.225,0,-0.15]))
+        pose = rave.poseFromMatrix(trans.dot(bin_mat))
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
         iksol = IkSolver.robot.GetManipulator("leftarm_box").FindIKSolution(ikparam, opt)
