@@ -76,10 +76,10 @@ class APCPlannerService(ROSNode):
 
 
 
-    def find_trajectory(self, start_joints, end_joints, base_pos, torso_height, dist_pen=0.02):
+    def find_trajectory(self, manip, start_joints, end_joints, base_pos, torso_height, dist_pen=0.02):
         """ Return a trajectory from (start_joints) to (end_joints) with the given base_pos, torso_height """
                                     
-        manip = self.robot.SetActiveManipulator("rightarm")      
+        manip = self.robot.SetActiveManipulator(manip)      
         self.robot.SetActiveDOFs(manip.GetArmIndices())
         self.robot.SetDOFValues(start_joints, manip.GetArmIndices())
         
@@ -110,30 +110,32 @@ class APCPlannerService(ROSNode):
  
         grasp = timed(self.ik.GetRaveIkSol, [self.work_order.target_object, False])
         self.grasp = grasp
-        print grasp
+        print "Grasp",grasp
         #plotPose(self.env, grasp["target"])
         if self.grasp is not None:   
             self.robot.SetTransform(grasp["base"])
             self.robot.SetDOFValues([grasp["joints"][0]], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
+            
             pregrasp = self.ik.GetPregraspJoints(grasp["target"])
             drop = self.ik.GetDropJoints(grasp["target"])
             postgrasp = self.ik.GetPostgraspJoints(grasp["target"])
-            print drop
-            print pregrasp
-            print postgrasp
+            binholder = self.ik.GetBinholderJoints(self.work_order.bin_name)
+            print "found all poses"
+            
             trajectories = []
-            if drop is not None and pregrasp is not None and postgrasp is not None:
-                manip_name, base_pos, torso_height = grasp["manip"], grasp["base"][:3, 3], grasp["joints"][0]
+            if drop is not None and pregrasp is not None and postgrasp is not None and binholder is not None:
+                manip_name, base_pos, torso_height = "rightarm", grasp["base"][:3, 3], grasp["joints"][0]
                 manip = self.robot.GetManipulator(manip_name)
                 
+                trajectories.append(self.find_trajectory("leftarm", self.work_order.left_joints[1:], binholder["joints"], base_pos, torso_height))
                 trajectories.append([[0.54]])     
                 
-                trajectories.append(self.find_trajectory(self.work_order.start_joints[1:], pregrasp["joints"][1:], base_pos, torso_height))                                                           
-                trajectories.append(self.find_trajectory(pregrasp["joints"][1:], grasp["joints"][1:], base_pos, torso_height))       
+                trajectories.append(self.find_trajectory(manip_name, self.work_order.right_joints[1:], pregrasp["joints"][1:], base_pos, torso_height))                                                           
+                trajectories.append(self.find_trajectory(manip_name, pregrasp["joints"][1:], grasp["joints"][1:], base_pos, torso_height))       
                 trajectories.append([[0]])                 
                                                                                                                                                                                                   
-                trajectories.append(self.find_trajectory(grasp["joints"][1:], postgrasp["joints"][1:], base_pos, torso_height))   
-                trajectories.append(self.find_trajectory(postgrasp["joints"][1:], drop["joints"][1:], base_pos, torso_height))    
+                trajectories.append(self.find_trajectory(manip_name, grasp["joints"][1:], postgrasp["joints"][1:], base_pos, torso_height))   
+                trajectories.append(self.find_trajectory(manip_name, postgrasp["joints"][1:], drop["joints"][1:], base_pos, torso_height))    
                 trajectories.append([[0.54]])     
                 
                 
@@ -200,7 +202,8 @@ class APCPlannerService(ROSNode):
             self.env.Load(osp.join(OBJ_MESH_DIR, object_name + ".stl"))
             robot_to_object = rave.matrixFromPose(fromPoseMsg(self.object_poses[object_name]))
             self.env.GetKinBody(object_name).SetTransform(world_to_robot.dot(robot_to_object))
-            #self.env.GetKinBody(object_name).SetTransform(np.array([ 0.68656678,  0.        ,  0.        ,  0.72706675, -0.37868348, 0.29660187,  1.3021053  ])) #0.83
+            self.env.GetKinBody(object_name).SetTransform( \
+                rave.matrixFromPose(np.array([ 1.      ,  0.      ,  0.      ,  0.      , -0.4318  ,  0.2794  , 1.007835])))
 
         #self.robot.SetDOFValues(self.work_order.start_joints, self.robot.GetManipulator("rightarm_torso").GetArmIndices())
         self.robot.SetDOFValues([0.548, 0.548],[22, 34]) # open the grippers

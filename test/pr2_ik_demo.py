@@ -8,7 +8,7 @@ import openravepy as rave
 from test_utils import *
 from planning import IkSolver
 from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, OBJ_LIST, MODEL_DIR, \
-                  order_bin_pose, timed, NEW_WRISTS, NEW_SHELF
+                  order_bin_pose, timed, NEW_WRISTS, NEW_SHELF, bin_pose
 
 rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()

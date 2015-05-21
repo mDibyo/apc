@@ -102,17 +102,13 @@ class APCController(ROSNode):
 if __name__ == '__main__':
 
     controller = APCController('joint_trajectories', 'exec_status', 'perception/shelf_finder/shelf_pose.txt')
-    state = controller.get_robot_state("rightarm_torso")
-    if 0: ### EDIT FOR FAKE ###
-        start_pose = [1, 0, 0, 0, -0.8, 0.2, 0]
-    else:
-        start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] + state.base_pos])
-
-    start_joints = state.joint_values
+    rightjoints = controller.get_robot_state("rightarm_torso")
+    leftjoints = controller.get_robot_state("leftarm_torso")
     
+    start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] + rightjoints.base_pos])
     
-    work_order = BinWorkOrder('all_combined', ['expo_dry_erase_board_eraser'],
-                              'expo_dry_erase_board_eraser', start_joints, start_pose, 'simple')
+    work_order = BinWorkOrder('bin_G', 'all_combined', ['expo_dry_erase_board_eraser'],
+                              'expo_dry_erase_board_eraser', leftjoints.joint_values, rightjoints.joint_values, start_pose, 'simple')
     controller.execute_work_order(work_order)
     
     

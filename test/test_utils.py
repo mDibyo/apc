@@ -1,6 +1,6 @@
 import numpy as np
 import openravepy as rave
-from utils import NEW_SHELF, SHELF_X,SHELF_Y,SHELF_Z
+from utils import NEW_WRISTS, NEW_SHELF, SHELF_X, SHELF_Y, SHELF_Z
 
 handles = []
 
@@ -62,7 +62,7 @@ def randomObjPose(obj):
     if NEW_SHELF:
         x = SHELF_X[np.random.randint(len(SHELF_X))]
         y = SHELF_Y[np.random.randint(len(SHELF_Y))]
-        z = SHELF_Z[np.random.randint(len(SHELF_Z))] + obj.ComputeAABB().pos()[2]
+        z = SHELF_Z[np.random.randint(len(SHELF_Z))] + obj.ComputeAABB().extents()[2]
         return np.array([1,0,0,0,x,y,z])
     else:
         biny, binz = np.random.randint(3), np.random.randint(4)

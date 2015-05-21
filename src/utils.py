@@ -22,14 +22,14 @@ NEW_WRISTS = True
 NEW_SHELF = True
 
 if NEW_SHELF:
-    SHELF_Y = [-11*.0254, 0, 11*.0254]
+    SHELF_Y = [11*.0254, 0, -11*.0254]
     SHELF_Z = [37*0.0254, 28*0.0254, ] 
     SHELF_X = [-17*0.0254]
-    bin_pos = {}; letters = ["G","H","I","J","K","L"]; i = 0
+    bin_pose = {}; letters = ["G","H","I","J","K","L"]; i = 0
     for x in SHELF_X:
-        for y in SHELF_Y:
-            for z in SHELF_Z:
-                bin_pos["bin_" + letters[i]] = [1,0,0,0,x,y,z]
+        for z in SHELF_Z:
+            for y in SHELF_Y:  
+                bin_pose["bin_" + letters[i]] = np.array([1,0,0,0,x,y,z])
                 i += 1
                 
 

@@ -8,7 +8,7 @@ import numpy as np
 from scipy.interpolate import NearestNDInterpolator as interp
 import openravepy as rave
 
-from utils import DATA_DIRECTORY, runInParallel, NEW_WRISTS, NEW_SHELF
+from utils import DATA_DIRECTORY, runInParallel, NEW_WRISTS, NEW_SHELF, bin_pose
 from Grasps import Grasp, GraspSet
 
 
@@ -41,8 +41,17 @@ class IkSolver(object):
             
     @staticmethod
     def GetBinholderJoints(bin_N):
-        pass
-            
+        bin_mat = rave.matrixFromPose(bin_pose[bin_N])
+        rot = rave.matrixFromAxisAngle(np.pi/2 * np.array([1,0,0]))
+        trans = rave.matrixFromPose(np.array([1,0,0,0,-0.225,0.3048,-0.15]))
+        pose = rave.poseFromMatrix(trans.dot(bin_mat.dot(rot)))
+        ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
+        opt = rave.IkFilterOptions.CheckEnvCollisions
+        iksol = IkSolver.robot.GetManipulator("leftarm").FindIKSolution(ikparam, opt)
+        return {"joints": iksol,
+                "target": pose,
+                "manip" : "leftarm"}
+                
     @staticmethod
     def GetPregraspJoints(graspPose):
         """ IK for pregrasp: face front outside cubbyhole """
