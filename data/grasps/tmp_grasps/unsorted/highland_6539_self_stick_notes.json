@@ -1,0 +1,6272 @@
+[
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68462967252241336,
+                "x": 0.12709212712196938,
+                "y": -0.13099787216914846,
+                "z": -0.70566944117810693
+            },
+            "position": {
+                "x": -0.00079076869235898987,
+                "y": 0.044744687306848469,
+                "z": 0.033445513807647619
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69669332723004429,
+                "x": 0.23591843366574006,
+                "y": -0.022285394412528057,
+                "z": -0.6770998904487523
+            },
+            "position": {
+                "x": -0.0050034363630313897,
+                "y": 0.04303599787499815,
+                "z": 0.044261583308248809
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69160208002868218,
+                "x": 0.3389356454042684,
+                "y": 0.086975823715512546,
+                "z": -0.63185789325084851
+            },
+            "position": {
+                "x": -0.0089148145586895253,
+                "y": 0.037825486531646364,
+                "z": 0.054018900566143682
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66948129432130499,
+                "x": 0.43360713669002765,
+                "y": 0.19409540840746761,
+                "z": -0.57105745770498806
+            },
+            "position": {
+                "x": -0.012142030329368022,
+                "y": 0.029623194430847599,
+                "z": 0.061762351384902631
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.63087565726670747,
+                "x": 0.51760178121089651,
+                "y": 0.29643571997870199,
+                "z": -0.49619569231938698
+            },
+            "position": {
+                "x": -0.014369181310098428,
+                "y": 0.019232019072157533,
+                "z": 0.066733952846591255
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.5767357677739372,
+                "x": 0.58885135205652828,
+                "y": 0.39147680031031051,
+                "z": -0.40911594220979369
+            },
+            "position": {
+                "x": -0.015378258445413523,
+                "y": 0.0076691210992606606,
+                "z": 0.06844704996095527
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.50839472960229803,
+                "x": 0.64560144832893462,
+                "y": 0.47687842258126734,
+                "z": -0.31196239982502766
+            },
+            "position": {
+                "x": -0.01507048623465485,
+                "y": -0.0039336424708084541,
+                "z": 0.066733952846591268
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.42753532592247789,
+                "x": 0.68645469431511796,
+                "y": 0.55053771541952712,
+                "z": -0.20712730781272343
+            },
+            "position": {
+                "x": -0.013475991566186554,
+                "y": -0.014440512298604085,
+                "z": 0.061762351384902631
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.3361485836100489,
+                "x": 0.71040514751474793,
+                "y": 0.6106409425742344,
+                "z": -0.097192054065946401
+            },
+            "position": {
+                "x": -0.010750854687655917,
+                "y": -0.022823002759714925,
+                "z": 0.054018900566143682
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.23648474755595242,
+                "x": 0.71686306828305291,
+                "y": 0.65570816312166569,
+                "z": 0.015136390613868404
+            },
+            "position": {
+                "x": -0.007161830983878621,
+                "y": -0.028260577283562145,
+                "z": 0.044261583308248809
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.13099787216914852,
+                "x": 0.70566944117810693,
+                "y": 0.68462967252241336,
+                "z": 0.12709212712196938
+            },
+            "position": {
+                "x": -0.0030602391011789313,
+                "y": -0.030220968189942136,
+                "z": 0.033445513807647625
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.022285394412528099,
+                "x": 0.6770998904487523,
+                "y": 0.69669332723004429,
+                "z": 0.23591843366574003
+            },
+            "position": {
+                "x": 0.0011524285694934689,
+                "y": -0.028512278758091831,
+                "z": 0.022629444307046435
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6106409425742344,
+                "x": -0.097192054065946457,
+                "y": -0.33614858361004901,
+                "z": -0.71040514751474781
+            },
+            "position": {
+                "x": 0.0068998468941179995,
+                "y": 0.037346721876621254,
+                "z": 0.012872127049151555
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.65570816312166569,
+                "x": 0.015136390613868341,
+                "y": -0.23648474755595253,
+                "z": -0.71686306828305291
+            },
+            "position": {
+                "x": 0.0033108231903407033,
+                "y": 0.042784296400468477,
+                "z": 0.022629444307046422
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.66502463054187189,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.94065237705257188,
+                "x": 0.015962586174437951,
+                "y": -0.0057518317466199575,
+                "z": -0.33894721981383541
+            },
+            "position": {
+                "x": -0.032123324166927023,
+                "y": 0.029103799077972038,
+                "z": -0.010755821379158152
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.92997117009021035,
+                "x": 0.068789087258688361,
+                "y": 0.14146943423983907,
+                "z": -0.33227711845840563
+            },
+            "position": {
+                "x": -0.03096057045038764,
+                "y": 0.027630293973030358,
+                "z": 0.00082564374492115171
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.8963909865228652,
+                "x": 0.11992177271673818,
+                "y": 0.28520725324517926,
+                "z": -0.31742525168199803
+            },
+            "position": {
+                "x": -0.02708454919284679,
+                "y": 0.023959643051359558,
+                "z": 0.01127343436984321
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.15283146854624213,
+                "x": 0.33727131571611924,
+                "y": 0.92817160064564252,
+                "z": -0.037256966758213383
+            },
+            "position": {
+                "x": 0.023974598365259,
+                "y": -0.017866821582529245,
+                "z": 0.00082564374492115518
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.0057518317466200147,
+                "x": 0.33894721981383541,
+                "y": 0.94065237705257188,
+                "z": 0.01596258617443793
+            },
+            "position": {
+                "x": 0.025638930624877498,
+                "y": -0.018734699240502126,
+                "z": -0.010755821379158146
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.14146943423983901,
+                "x": -0.33227711845840563,
+                "y": -0.92997117009021035,
+                "z": -0.068789087258688347
+            },
+            "position": {
+                "x": 0.024476176908338122,
+                "y": -0.017261194135560445,
+                "z": -0.02233728650323745
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.2852072532451792,
+                "x": -0.31742525168199809,
+                "y": -0.8963909865228652,
+                "z": -0.11992177271673815
+            },
+            "position": {
+                "x": 0.020600155650797269,
+                "y": -0.013590543213889654,
+                "z": -0.032785077128159507
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.4219223231270175,
+                "x": -0.2947573217351675,
+                "y": -0.84073868191620393,
+                "z": -0.16810158613295634
+            },
+            "position": {
+                "x": 0.014390278818771109,
+                "y": -0.0080820553626316776,
+                "z": -0.041076490713519286
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.54824826513355962,
+                "x": -0.26483148828375142,
+                "y": -0.76438460070905223,
+                "z": -0.21214218060140247
+            },
+            "position": {
+                "x": 0.006454412423334395,
+                "y": -0.001274939752559311,
+                "z": -0.046399905927906382
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66107451532083961,
+                "x": -0.22838462466547066,
+                "y": -0.66920883378539786,
+                "z": -0.25095913052391
+            },
+            "position": {
+                "x": -0.0024306256402950787,
+                "y": 0.0061644757124502837,
+                "z": -0.04823422979972182
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.75762291696039064,
+                "x": -0.18631417362281275,
+                "y": -0.55755492439716148,
+                "z": -0.28359663376731609
+            },
+            "position": {
+                "x": -0.011395105940748938,
+                "y": 0.013507969213226549,
+                "z": -0.046399905927906382
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.83551612797807229,
+                "x": -0.13965604928426995,
+                "y": -0.43217216235156192,
+                "z": -0.3092510466841048
+            },
+            "position": {
+                "x": -0.01956152268701182,
+                "y": 0.020036708440785707,
+                "z": -0.041076490713519292
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.8928361590058832,
+                "x": -0.089559129520493941,
+                "y": -0.29614788737169179,
+                "z": -0.32729067248614979
+            },
+            "position": {
+                "x": -0.026130490109188324,
+                "y": 0.025111614911133291,
+                "z": -0.03278507712815952
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.92817160064564252,
+                "x": -0.037256966758213397,
+                "y": -0.15283146854624219,
+                "z": -0.33727131571611924
+            },
+            "position": {
+                "x": -0.030458991907308514,
+                "y": 0.028235921419999158,
+                "z": -0.022337286503237463
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.68333333333333335,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69209169156495465,
+                "x": -0.035922134642631554,
+                "y": 0.037367880139502499,
+                "z": -0.71994606203753653
+            },
+            "position": {
+                "x": -0.0026201911514260427,
+                "y": 0.051050055072770481,
+                "z": 0.022095061585949344
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67772527004216132,
+                "x": 0.077144503516846985,
+                "y": 0.14517481305529537,
+                "z": -0.71670179124778166
+            },
+            "position": {
+                "x": -0.0014938041603803735,
+                "y": 0.049168789138073064,
+                "z": 0.033620929828699249
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64667100312971315,
+                "x": 0.1883115879718123,
+                "y": 0.24940706026608553,
+                "z": -0.6958099437606321
+            },
+            "position": {
+                "x": -0.0006224409886309186,
+                "y": 0.043803769034005131,
+                "z": 0.04401856578240268
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.59969354994219792,
+                "x": 0.29484181616058225,
+                "y": 0.34749807791854764,
+                "z": -0.657784946197288
+            },
+            "position": {
+                "x": -9.1396734572723494e-05,
+                "y": 0.035480160308645925,
+                "z": 0.05227017639532161
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.53794965128632033,
+                "x": 0.39411206031159191,
+                "y": 0.43703253961265492,
+                "z": -0.60356310019549053
+            },
+            "position": {
+                "x": 4.7346290204110936e-05,
+                "y": 0.025012735778025715,
+                "z": 0.057568036528311786
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.46295964686323948,
+                "x": 0.48367795755479187,
+                "y": 0.5158058097536562,
+                "z": -0.53447952755579375
+            },
+            "position": {
+                "x": -0.00021979304824506487,
+                "y": 0.013426119886036746,
+                "z": 0.05939355471919408
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.37657003945940781,
+                "x": 0.56133409824788383,
+                "y": 0.58187822899718511,
+                "z": -0.45223529511181992
+            },
+            "position": {
+                "x": -0.00086666529020363106,
+                "y": 0.0018544913248867683,
+                "z": 0.057568036528311793
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.28090802791977637,
+                "x": 0.62516833048104881,
+                "y": 0.6336228750996783,
+                "z": -0.35885552881929766
+            },
+            "position": {
+                "x": -0.0018299500736047546,
+                "y": -0.0085694382775818589,
+                "z": 0.05227017639532161
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.17832912845246537,
+                "x": 0.67360884360303575,
+                "y": 0.66976562314345789,
+                "z": -0.25663954843402564
+            },
+            "position": {
+                "x": -0.0030153543722493958,
+                "y": -0.016825302064091358,
+                "z": 0.04401856578240268
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.071359174002208939,
+                "x": 0.70546287141593522,
+                "y": 0.68941651872078247,
+                "z": -0.14810425062847879
+            },
+            "position": {
+                "x": -0.0043068425541888181,
+                "y": -0.022104958565232813,
+                "z": 0.033620929828699249
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.03736788013950245,
+                "x": -0.71994606203753642,
+                "y": -0.69209169156495443,
+                "z": 0.035922134642631588
+            },
+            "position": {
+                "x": -0.0055779947578475132,
+                "y": -0.023891598217144608,
+                "z": 0.022095061585949347
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.14517481305529531,
+                "x": -0.71670179124778166,
+                "y": -0.67772527004216132,
+                "z": -0.077144503516846957
+            },
+            "position": {
+                "x": -0.0067043817488931824,
+                "y": -0.022010332282447191,
+                "z": 0.010569193343199446
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6336228750996783,
+                "x": -0.35885552881929766,
+                "y": -0.28090802791977637,
+                "z": -0.6251683304810487
+            },
+            "position": {
+                "x": -0.0063682358356688014,
+                "y": 0.035727895133207732,
+                "z": -0.0080800532234229297
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.669765623143458,
+                "x": -0.2566395484340257,
+                "y": -0.1783291284524654,
+                "z": -0.67360884360303575
+            },
+            "position": {
+                "x": -0.0051828315370241601,
+                "y": 0.043983758919717231,
+                "z": 0.00017155738949600416
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68941651872078247,
+                "x": -0.14810425062847885,
+                "y": -0.071359174002208994,
+                "z": -0.70546287141593533
+            },
+            "position": {
+                "x": -0.0038913433550847383,
+                "y": 0.049263415420858686,
+                "z": 0.010569193343199433
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.82098765432098764,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.70024880944713552,
+                "x": -0.00068950479131700125,
+                "y": -0.00070294475410643241,
+                "z": 0.71389819674774702
+            },
+            "position": {
+                "x": -0.0041438152063709372,
+                "y": -0.038834129438319757,
+                "z": 0.013538797274444896
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69173754939312349,
+                "x": -0.11235929834458756,
+                "y": 0.10884875756320775,
+                "z": 0.70500106298647103
+            },
+            "position": {
+                "x": -0.004202058602563747,
+                "y": -0.036999531231931039,
+                "z": 0.025126912092990478
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66619341512774699,
+                "x": -0.22126243307348234,
+                "y": 0.21572024222100067,
+                "z": 0.67874446329008442
+            },
+            "position": {
+                "x": -0.0043254547138844475,
+                "y": -0.031674438887200423,
+                "z": 0.035580701493953315
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.62424538801274099,
+                "x": -0.32471735237219351,
+                "y": 0.31727997858087487,
+                "z": 0.63577492228377075
+            },
+            "position": {
+                "x": -0.0045019246692057065,
+                "y": -0.023380109544930163,
+                "z": 0.043876875734933554
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.56692636769319693,
+                "x": -0.42017665278039434,
+                "y": 0.41102722887620957,
+                "z": 0.57715049267483598
+            },
+            "position": {
+                "x": -0.0047141943597622023,
+                "y": -0.012928449951132334,
+                "z": 0.049203347478379234
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.49564773868030421,
+                "x": -0.50528980951078073,
+                "y": 0.49465362467544788,
+                "z": 0.50431470248357901
+            },
+            "position": {
+                "x": -0.0049414853492723643,
+                "y": -0.0013425413678422185,
+                "z": 0.051038724558331049
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.41216461738056726,
+                "x": -0.5779610541702781,
+                "y": 0.56610000657391668,
+                "z": 0.41906101059263762
+            },
+            "position": {
+                "x": -0.0051615488120534958,
+                "y": 0.010243506749035982,
+                "z": 0.04920334747837924
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.31853263530498055,
+                "x": -0.63640097953333641,
+                "y": 0.62360712753232883,
+                "z": 0.32348864583714837
+            },
+            "position": {
+                "x": -0.0053528434030962755,
+                "y": 0.020695571285078276,
+                "z": 0.043876875734933554
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.2170573225989775,
+                "x": -0.67917060068652413,
+                "y": 0.66575897137749585,
+                "z": 0.21995091702388489
+            },
+            "position": {
+                "x": -0.0054966438750016482,
+                "y": 0.028990531339681089,
+                "z": 0.035580701493953315
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11023733823863467,
+                "x": -0.70521678761281559,
+                "y": 0.6915176198200006,
+                "z": 0.11099726665825101
+            },
+            "position": {
+                "x": -0.0055788740356627143,
+                "y": 0.034316418428314795,
+                "z": 0.025126912092990485
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.00070294475410647534,
+                "x": -0.71389819674774702,
+                "y": 0.70024880944713552,
+                "z": -0.00068950479131695756
+            },
+            "position": {
+                "x": -0.00559148462402275,
+                "y": 0.036151897615106628,
+                "z": 0.013538797274444901
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.10884875756320772,
+                "x": 0.70500106298647092,
+                "y": -0.69173754939312349,
+                "z": 0.11235929834458748
+            },
+            "position": {
+                "x": -0.0055332412278299402,
+                "y": 0.034317299408717916,
+                "z": 0.001950682455899317
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.21572024222100061,
+                "x": 0.67874446329008442,
+                "y": -0.6661934151277471,
+                "z": 0.22126243307348234
+            },
+            "position": {
+                "x": -0.0054098451165092397,
+                "y": 0.028992207063987304,
+                "z": -0.0085031069450635204
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66575897137749585,
+                "x": 0.21995091702388492,
+                "y": -0.21705732259897759,
+                "z": 0.67917060068652413
+            },
+            "position": {
+                "x": -0.0042386559553920389,
+                "y": -0.031672763162894212,
+                "z": -0.0085031069450635342
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6915176198200006,
+                "x": 0.11099726665825106,
+                "y": -0.1102373382386347,
+                "z": 0.70521678761281559
+            },
+            "position": {
+                "x": -0.0041564257947309729,
+                "y": -0.036998650251527924,
+                "z": 0.0019506824558993049
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.91275167785234901,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.75222579020332414,
+                "x": -0.033193430193177456,
+                "y": 0.029010339172348652,
+                "z": -0.65742905089910697
+            },
+            "position": {
+                "x": -0.0014246960017166308,
+                "y": 0.049798537897165832,
+                "z": -0.036421489880026262
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.73842642558972549,
+                "x": 0.070059797893148493,
+                "y": 0.14632721283716113,
+                "z": -0.65452760483669525
+            },
+            "position": {
+                "x": -0.000167434854344806,
+                "y": 0.048116346753290282,
+                "z": -0.024878393446111462
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.70644455168130549,
+                "x": 0.17158792124020661,
+                "y": 0.26004102488974573,
+                "z": -0.63550951689062407
+            },
+            "position": {
+                "x": 0.0014582382937285178,
+                "y": 0.042961110162235513,
+                "z": -0.014465215716630224
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.65706766835544406,
+                "x": 0.26889098049866922,
+                "y": 0.36735176388286267,
+                "z": -0.60084307550354132
+            },
+            "position": {
+                "x": 0.0032931912280390733,
+                "y": 0.03483745860017938,
+                "z": -0.0062012710806196129
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.089020865322682843,
+                "x": 0.64414241184645538,
+                "y": 0.74750285936784944,
+                "z": -0.13562932586546853
+            },
+            "position": {
+                "x": 0.0093829001522461562,
+                "y": -0.022570649207363066,
+                "z": -0.024878393446111459
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.029010339172348607,
+                "x": -0.65742905089910697,
+                "y": -0.75222579020332414,
+                "z": 0.033193430193177498
+            },
+            "position": {
+                "x": 0.0086171204865340863,
+                "y": -0.024526168100344154,
+                "z": -0.036421489880026255
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.14632721283716107,
+                "x": -0.65452760483669525,
+                "y": -0.73842642558972549,
+                "z": -0.070059797893148465
+            },
+            "position": {
+                "x": 0.0073598593391622624,
+                "y": -0.022843976956468611,
+                "z": -0.047964586313941057
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.26004102488974573,
+                "x": -0.63550951689062418,
+                "y": -0.7064445516813056,
+                "z": -0.17158792124020658
+            },
+            "position": {
+                "x": 0.0057341861910889394,
+                "y": -0.017688740365413846,
+                "z": -0.058377764043422292
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.36735176388286267,
+                "x": -0.60084307550354144,
+                "y": -0.65706766835544406,
+                "z": -0.26889098049866922
+            },
+            "position": {
+                "x": 0.0038992332567783844,
+                "y": -0.0095650888033577131,
+                "z": -0.066641708679432907
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.46561708327857709,
+                "x": -0.5513818835137192,
+                "y": -0.59151159835210398,
+                "z": -0.35957305141925361
+            },
+            "position": {
+                "x": 0.0020346185143097738,
+                "y": 0.00073177811399711794,
+                "z": -0.071947487742712216
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.55241736478946912,
+                "x": -0.48834383962023253,
+                "y": -0.51139054968289033,
+                "z": -0.4414012404593563
+            },
+            "position": {
+                "x": 0.00032286344621076718,
+                "y": 0.012193931310289573,
+                "z": -0.07377573461100996
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.62561529741112232,
+                "x": -0.41328114967501189,
+                "y": -0.41867736847255466,
+                "z": -0.51236066603262032
+            },
+            "position": {
+                "x": -0.0010684734349542526,
+                "y": 0.023699375369149275,
+                "z": -0.071947487742712216
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6834085051123806,
+                "x": -0.32804210622329383,
+                "y": -0.3156549609399027,
+                "z": -0.57070407158060044
+            },
+            "position": {
+                "x": -0.0020031983812427807,
+                "y": 0.034121877262952578,
+                "z": -0.066641708679432921
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.72437392731497952,
+                "x": -0.23472557740702618,
+                "y": -0.20486008067015637,
+                "z": -0.61499484882804345
+            },
+            "position": {
+                "x": -0.0023898140023004477,
+                "y": 0.0424412098884933,
+                "z": -0.058377764043422306
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.74750285936784944,
+                "x": -0.13562932586546855,
+                "y": -0.089020865322682899,
+                "z": -0.64414241184645538
+            },
+            "position": {
+                "x": -0.0021904756674286999,
+                "y": 0.047843019004184736,
+                "z": -0.047964586313941071
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.20571428571428571,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.70357766047890669,
+                "x": 0.064631805491364422,
+                "y": 0.06473545530505162,
+                "z": 0.70470598565671505
+            },
+            "position": {
+                "x": -0.0042976316185281407,
+                "y": -0.0231465023372644,
+                "z": 0.038929433082506237
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68478859563843908,
+                "x": -0.046404223161423362,
+                "y": 0.17400224935919209,
+                "z": 0.70614052749736755
+            },
+            "position": {
+                "x": -0.0021893799713508023,
+                "y": -0.021307741052435703,
+                "z": 0.050323632477350513
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64913776289030267,
+                "x": -0.15629762583318982,
+                "y": 0.278984530553752,
+                "z": 0.69018754600498555
+            },
+            "position": {
+                "x": -0.00029338075192363033,
+                "y": -0.015978213968452976,
+                "z": 0.060602488247372133
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.59750300405508694,
+                "x": -0.26234246223486274,
+                "y": 0.37709728670950565,
+                "z": 0.65723985652882122
+            },
+            "position": {
+                "x": 0.0012047724259525031,
+                "y": -0.007679612329295097,
+                "z": 0.068759834372802045
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.53115573826125462,
+                "x": -0.36192755655159836,
+                "y": 0.46592465615232886,
+                "z": 0.60810874053089015
+            },
+            "position": {
+                "x": 0.0021584298909801099,
+                "y": 0.0027757389168396544,
+                "z": 0.073997172979310716
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.45172965538660076,
+                "x": -0.45260079325733943,
+                "y": 0.54327941424540205,
+                "z": 0.54400396914388682
+            },
+            "position": {
+                "x": 0.0024742410059600218,
+                "y": 0.014364397143263997,
+                "z": 0.075801836873409301
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.36118048919155565,
+                "x": -0.53212949633717066,
+                "y": 0.60725683011875031,
+                "z": 0.46650401459089813
+            },
+            "position": {
+                "x": 0.0021212919785725832,
+                "y": 0.025951983739845863,
+                "z": 0.073997172979310716
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.26173786066329463,
+                "x": -0.59855540518063366,
+                "y": 0.65628156746470179,
+                "z": 0.37751718296062126
+            },
+            "position": {
+                "x": 0.0011341319187589483,
+                "y": 0.036404224995048654,
+                "z": 0.068759834372802045
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.15585037734734605,
+                "x": -0.65024289345705022,
+                "y": 0.68914647454602429,
+                "z": 0.27923462537815591
+            },
+            "position": {
+                "x": -0.00039060906887775255,
+                "y": 0.044697982709766076,
+                "z": 0.06060248824737214
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.046125340503357863,
+                "x": -0.68591924366411605,
+                "y": 0.70504230827800229,
+                "z": 0.1740763845922903
+            },
+            "position": {
+                "x": -0.0023036787129725039,
+                "y": 0.050021406092873713,
+                "z": 0.05032363247735052
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.064735455305051579,
+                "x": 0.70470598565671505,
+                "y": -0.7035776604789068,
+                "z": -0.064631805491364464
+            },
+            "position": {
+                "x": -0.0044178124276213308,
+                "y": 0.051853401373161301,
+                "z": 0.038929433082506244
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.17400224935919206,
+                "x": 0.70614052749736755,
+                "y": -0.68478859563843919,
+                "z": 0.046404223161423327
+            },
+            "position": {
+                "x": -0.0065260640747986688,
+                "y": 0.050014640088332604,
+                "z": 0.027535233687661961
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.27898453055375194,
+                "x": 0.69018754600498544,
+                "y": -0.64913776289030267,
+                "z": 0.15629762583318982
+            },
+            "position": {
+                "x": -0.0084220632942258421,
+                "y": 0.04468511300434988,
+                "z": 0.017256377917640345
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.37709728670950549,
+                "x": 0.65723985652882122,
+                "y": -0.59750300405508683,
+                "z": 0.26234246223486263
+            },
+            "position": {
+                "x": -0.0099202164721019746,
+                "y": 0.036386511365191998,
+                "z": 0.0090990317922104297
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.70504230827800229,
+                "x": 0.17407638459229036,
+                "y": -0.046125340503357898,
+                "z": 0.68591924366411605
+            },
+            "position": {
+                "x": -0.0064117653331769685,
+                "y": -0.021314507056976812,
+                "z": 0.027535233687661947
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.71717171717171713,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69966997864441138,
+                "x": 0.0075775186890706401,
+                "y": -0.0077368745801712777,
+                "z": -0.71438410044315559
+            },
+            "position": {
+                "x": 0.003321970955346463,
+                "y": 0.040982599213689908,
+                "z": -0.023273465536069751
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6922661940075665,
+                "x": 0.11923852144590838,
+                "y": 0.10181087799846615,
+                "z": -0.70440346163179335
+            },
+            "position": {
+                "x": 0.0030328601636034221,
+                "y": 0.039152838482983954,
+                "z": -0.011688046314550636
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66781651817447873,
+                "x": 0.22796347607478334,
+                "y": 0.20885170886984936,
+                "z": -0.67707807181399782
+            },
+            "position": {
+                "x": 0.0026956646629693569,
+                "y": 0.033832221036211543,
+                "z": -0.0012366886467959914
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.22356811884030986,
+                "x": 0.68176123591423099,
+                "y": 0.66303486671723777,
+                "z": -0.21355017902160547
+            },
+            "position": {
+                "x": 0.0014330517989959216,
+                "y": -0.026830915261174756,
+                "z": -0.001236688646795988
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11709411962943034,
+                "x": 0.70677423179670751,
+                "y": 0.68984556633550165,
+                "z": -0.10427006772623477
+            },
+            "position": {
+                "x": 0.0015485697220067266,
+                "y": -0.03216095526383983,
+                "z": -0.011688046314550631
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.0077368745801713211,
+                "x": 0.71438410044315548,
+                "y": 0.69966997864441138,
+                "z": 0.007577518689070595
+            },
+            "position": {
+                "x": 0.0017612956262096019,
+                "y": -0.034001160978214456,
+                "z": -0.023273465536069748
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.10181087799846614,
+                "x": -0.70440346163179335,
+                "y": -0.69226619400756662,
+                "z": -0.11923852144590835
+            },
+            "position": {
+                "x": 0.0020504064179526428,
+                "y": -0.032171400247508489,
+                "z": -0.034858884757588859
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.20885170886984938,
+                "x": -0.67707807181399793,
+                "y": -0.66781651817447885,
+                "z": -0.22796347607478332
+            },
+            "position": {
+                "x": 0.002387601918586708,
+                "y": -0.026850782800736096,
+                "z": -0.045310242425343511
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.3107499175297746,
+                "x": -0.63308077277485286,
+                "y": -0.62692298330798069,
+                "z": -0.33107521335529594
+            },
+            "position": {
+                "x": 0.0027398750831305356,
+                "y": -0.018560127744508909,
+                "z": -0.053604486831923148
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.40499643190026841,
+                "x": -0.57349492403536584,
+                "y": -0.57059252395434645,
+                "z": -0.4260347801073634
+            },
+            "position": {
+                "x": 0.0030727429598071147,
+                "y": -0.0081109821601208672,
+                "z": -0.058929719545412873
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.4892705900112812,
+                "x": -0.49978772694559731,
+                "y": -0.50021218297293912,
+                "z": -0.51050395664481651
+            },
+            "position": {
+                "x": 0.0033536221216204712,
+                "y": 0.0034738187791499104,
+                "z": -0.060764669684738308
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.56149728240022401,
+                "x": -0.4137740973180597,
+                "y": -0.41751495793768062,
+                "z": -0.58240283150417838
+            },
+            "position": {
+                "x": 0.0035550181592121192,
+                "y": 0.015060274041313248,
+                "z": -0.05892971954541288
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.61989804819383232,
+                "x": -0.31757197617705363,
+                "y": -0.32453712898529419,
+                "z": -0.63996101576772668
+            },
+            "position": {
+                "x": 0.0036572170252138843,
+                "y": 0.025514220657727897,
+                "z": -0.053604486831923148
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66303486671723788,
+                "x": -0.21355017902160556,
+                "y": -0.22356811884030994,
+                "z": -0.68176123591423099
+            },
+            "position": {
+                "x": 0.0036502147825601431,
+                "y": 0.03381235349665021,
+                "z": -0.045310242425343525
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68984556633550154,
+                "x": -0.10427006772623483,
+                "y": -0.11709411962943039,
+                "z": -0.70677423179670751
+            },
+            "position": {
+                "x": 0.0035346968595493383,
+                "y": 0.039142393499315295,
+                "z": -0.034858884757588873
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.29891304347826086,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.65363232372288715,
+                "x": 0.0097627199307284453,
+                "y": -0.011301624910608401,
+                "z": -0.75666488484569772
+            },
+            "position": {
+                "x": 0.0012141114406346099,
+                "y": 0.051091428038220227,
+                "z": 0.0081908507697845204
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64735298882417858,
+                "x": 0.12801099112364087,
+                "y": 0.091088139740605339,
+                "z": -0.74582185863015693
+            },
+            "position": {
+                "x": 0.00060494789021758085,
+                "y": 0.049325835391235022,
+                "z": 0.019773818882217346
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.62513367489922433,
+                "x": 0.24310720687096707,
+                "y": 0.19123501208720148,
+                "z": -0.71661422301430466
+            },
+            "position": {
+                "x": -0.00047809107509928913,
+                "y": 0.044101286401737286,
+                "z": 0.030222965372520953
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.5875214951985317,
+                "x": 0.35221731635856773,
+                "y": 0.28667304376359287,
+                "z": -0.66976116692158805
+            },
+            "position": {
+                "x": -0.0019289900554146002,
+                "y": 0.035929196326392319,
+                "z": 0.038515454978739871
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.53544258641399967,
+                "x": 0.45265466657516584,
+                "y": 0.37505223368923923,
+                "z": -0.60641636808938815
+            },
+            "position": {
+                "x": -0.0036057249495274721,
+                "y": 0.025609506280074495,
+                "z": 0.043839561041044951
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.47017930411989206,
+                "x": 0.54194615662597401,
+                "y": 0.45419639289445601,
+                "z": -0.52813958569428765
+            },
+            "position": {
+                "x": -0.0053441652635031816,
+                "y": 0.014152379426025857,
+                "z": 0.045674122962829571
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11341310604858038,
+                "x": 0.74887631036955926,
+                "y": 0.64381706153022589,
+                "z": -0.10872594182748838
+            },
+            "position": {
+                "x": -0.0097619687249016866,
+                "y": -0.021246023990353496,
+                "z": 0.01977381888221735
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.011301624910608443,
+                "x": 0.75666488484569772,
+                "y": 0.65363232372288715,
+                "z": 0.0097627199307283984
+            },
+            "position": {
+                "x": -0.0096863097619913421,
+                "y": -0.023112216195775068,
+                "z": 0.0081908507697845256
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.091088139740605326,
+                "x": -0.74582185863015704,
+                "y": -0.64735298882417869,
+                "z": -0.12801099112364078
+            },
+            "position": {
+                "x": -0.0090771462115743148,
+                "y": -0.02134662354878987,
+                "z": -0.0033921173426483004
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.57725983451645968,
+                "x": -0.33482002205436212,
+                "y": -0.30681268682215668,
+                "z": -0.67862553112192525
+            },
+            "position": {
+                "x": -0.00013610143926241422,
+                "y": 0.035665823263152666,
+                "z": -0.022133753439170838
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6181488865763658,
+                "x": -0.22453741005719938,
+                "y": -0.21273198011911706,
+                "z": -0.72264791575414067
+            },
+            "position": {
+                "x": 0.00082451875251195444,
+                "y": 0.043909934670562631,
+                "z": -0.013841263832951919
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64381706153022589,
+                "x": -0.10872594182748843,
+                "y": -0.1134131060485804,
+                "z": -0.74887631036955926
+            },
+            "position": {
+                "x": 0.0012897704035449526,
+                "y": 0.049225235832798656,
+                "z": -0.0033921173426483126
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87610619469026552,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69843144045844896,
+                "x": -0.0052068478098187491,
+                "y": -0.0053351247791955173,
+                "z": 0.71563814051419317
+            },
+            "position": {
+                "x": -0.0027033598288772193,
+                "y": -0.039695044267419002,
+                "z": -0.016704130134225836
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6906671878366335,
+                "x": -0.11709321254673467,
+                "y": 0.10398930821536369,
+                "z": 0.70601291701937852
+            },
+            "position": {
+                "x": -0.002920739565904708,
+                "y": -0.03786441106458583,
+                "z": -0.0051172808624654065
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66589641685730072,
+                "x": -0.22609635378065751,
+                "y": 0.21075317932093329,
+                "z": 0.67900331238501221
+            },
+            "position": {
+                "x": -0.0032061606457263513,
+                "y": -0.032543298581181643,
+                "z": 0.0053353668722491907
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.22090118969393657,
+                "x": -0.68222132130572799,
+                "y": 0.66259912840953605,
+                "z": 0.21619234070288704
+            },
+            "position": {
+                "x": -0.0046825857214285891,
+                "y": 0.028115010541933366,
+                "z": 0.0053353668722491941
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11452818929542695,
+                "x": -0.70764197792272832,
+                "y": 0.68899799305512077,
+                "z": 0.10680772680071211
+            },
+            "position": {
+                "x": -0.0046563813371298555,
+                "y": 0.033443707998544125,
+                "z": -0.005117280862465403
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.0053351247791955589,
+                "x": -0.71563814051419317,
+                "y": 0.69843144045844885,
+                "z": -0.0052068478098187048
+            },
+            "position": {
+                "x": -0.0045283215861304585,
+                "y": 0.035282749208946806,
+                "z": -0.016704130134225833
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.10398930821536365,
+                "x": 0.70601291701937852,
+                "y": -0.6906671878366335,
+                "z": 0.11709321254673463
+            },
+            "position": {
+                "x": -0.0043109418491029698,
+                "y": 0.033452116006113634,
+                "z": -0.028290979405986259
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.21075317932093324,
+                "x": 0.6790033123850121,
+                "y": -0.66589641685730061,
+                "z": 0.22609635378065748
+            },
+            "position": {
+                "x": -0.0040255207692813265,
+                "y": 0.02813100352270945,
+                "z": -0.038743627140700856
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.31232760770192047,
+                "x": 0.63527439271693065,
+                "y": -0.6247290661114373,
+                "z": 0.32953225241372297
+            },
+            "position": {
+                "x": -0.0036999973506040697,
+                "y": 0.019840279322980534,
+                "z": -0.047038895350216603
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.40621149382538468,
+                "x": 0.57590290914532605,
+                "y": -0.56817881240101065,
+                "z": 0.42485397333751862
+            },
+            "position": {
+                "x": -0.0033662360933463514,
+                "y": 0.0093914972564685135,
+                "z": -0.052364785385653985
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.49009310483221208,
+                "x": 0.50235078463838823,
+                "y": -0.49763811065190322,
+                "z": 0.50971437942824649
+            },
+            "position": {
+                "x": -0.0030569078748199758,
+                "y": -0.0021925430872109641,
+                "z": -0.054199962022686524
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.56190699707230807,
+                "x": 0.41642911660698406,
+                "y": -0.41484390705234492,
+                "z": 0.58202392585241169
+            },
+            "position": {
+                "x": -0.0028022918962707327,
+                "y": -0.013777915128463585,
+                "z": -0.052364785385653985
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.61988487418207761,
+                "x": 0.32025358167571422,
+                "y": -0.32183486967316505,
+                "z": 0.64000211159542542
+            },
+            "position": {
+                "x": -0.0026273117436928593,
+                "y": -0.024230561931858085,
+                "z": -0.047038895350216617
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66259912840953605,
+                "x": 0.21619234070288704,
+                "y": -0.22090118969393668,
+                "z": 0.68222132130572799
+            },
+            "position": {
+                "x": -0.0025490956935790886,
+                "y": -0.032527305600405565,
+                "z": -0.03874362714070087
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68899799305512066,
+                "x": 0.10680772680071213,
+                "y": -0.11452818929542699,
+                "z": 0.70764197792272832
+            },
+            "position": {
+                "x": -0.0025753000778778222,
+                "y": -0.037856003057016321,
+                "z": -0.028290979405986273
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.87179487179487181,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68531938852730157,
+                "x": 0.022682033806366023,
+                "y": -0.024077787967969048,
+                "z": -0.72749097669836571
+            },
+            "position": {
+                "x": -0.0011620347061858812,
+                "y": 0.039783943670423552,
+                "z": -0.013560775678550369
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68064856551232622,
+                "x": 0.13620744209293634,
+                "y": 0.083426221482681626,
+                "z": -0.71498610374862148
+            },
+            "position": {
+                "x": -0.0020363695611704188,
+                "y": 0.037997532855577526,
+                "z": -0.0019979982059082149
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.65921791587135925,
+                "x": 0.24637897110859525,
+                "y": 0.18887600048467357,
+                "z": -0.68487590002175225
+            },
+            "position": {
+                "x": -0.0030440636357819519,
+                "y": 0.032721762490344697,
+                "z": 0.0084329340451038889
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.23467467477449361,
+                "x": 0.69889416784806058,
+                "y": 0.64433702453324115,
+                "z": -0.20323517899985258
+            },
+            "position": {
+                "x": -0.0066631438474498619,
+                "y": -0.027846484595905475,
+                "z": 0.0084329340451038924
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.1309889223692515,
+                "x": 0.72208260739766805,
+                "y": 0.67311537375208352,
+                "z": -0.091401881429871462
+            },
+            "position": {
+                "x": -0.0062908535117342582,
+                "y": -0.033204711933431288,
+                "z": -0.0019979982059082097
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.024077787967969087,
+                "x": 0.72749097669836549,
+                "y": 0.68531938852730157,
+                "z": 0.022682033806365971
+            },
+            "position": {
+                "x": -0.0056354638638317451,
+                "y": -0.035082527006185235,
+                "z": -0.013560775678550364
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.083426221482681584,
+                "x": -0.71498610374862159,
+                "y": -0.68064856551232633,
+                "z": -0.13620744209293631
+            },
+            "position": {
+                "x": -0.0047611290088472079,
+                "y": -0.033296116191339216,
+                "z": -0.02512355315119252
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.18887600048467346,
+                "x": -0.68487590002175225,
+                "y": -0.65921791587135925,
+                "z": -0.24637897110859516
+            },
+            "position": {
+                "x": -0.0037534349342356744,
+                "y": -0.028020345826106383,
+                "z": -0.035554485402204627
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.28967502551122559,
+                "x": -0.63790177866355036,
+                "y": -0.62155513332280976,
+                "z": -0.35048383217063522
+            },
+            "position": {
+                "x": -0.0027110217570375859,
+                "y": -0.019771645072289307,
+                "z": -0.043832520106279138
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.38334129003339962,
+                "x": -0.57522039844002548,
+                "y": -0.56858760056863167,
+                "z": -0.44595861809548371
+            },
+            "position": {
+                "x": -0.0017359281419567654,
+                "y": -0.0093574542317491974,
+                "z": -0.049147345550122012
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.46756841975815044,
+                "x": -0.49837518295985522,
+                "y": -0.50161955405439607,
+                "z": -0.53045242279102289
+            },
+            "position": {
+                "x": -0.00092360304591402936,
+                "y": 0.0022028131361076808,
+                "z": -0.050978709588723595
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.54028246321783691,
+                "x": -0.40925831646280941,
+                "y": -0.42229996933948699,
+                "z": -0.60188472836678797
+            },
+            "position": {
+                "x": -0.00035356250911178742,
+                "y": 0.013777557516196585,
+                "z": -0.049147345550122012
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.59969295933840749,
+                "x": -0.3100641519639688,
+                "y": -0.33258195784619493,
+                "z": -0.65849663438927308
+            },
+            "position": {
+                "x": -8.1606070998205705e-05,
+                "y": 0.024233762282608224,
+                "z": -0.043832520106279145
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64433702453324104,
+                "x": -0.20323517899985255,
+                "y": -0.23467467477449364,
+                "z": -0.69889416784806047
+            },
+            "position": {
+                "x": -0.00013435472256776403,
+                "y": 0.032547901260143793,
+                "z": -0.035554485402204634
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67311537375208352,
+                "x": -0.091401881429871504,
+                "y": -0.13098892236925153,
+                "z": -0.72208260739766805
+            },
+            "position": {
+                "x": -0.00050664505828336816,
+                "y": 0.037906128597669606,
+                "z": -0.025123553151192531
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93717277486910999,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68707583154896124,
+                "x": -0.026001790956046777,
+                "y": 0.027459739007753649,
+                "z": -0.72560090359784379
+            },
+            "position": {
+                "x": -0.0020794385386291954,
+                "y": 0.041423684071290996,
+                "z": 0.008789728762841946
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6743211383437957,
+                "x": 0.087827323425157311,
+                "y": 0.13460400420417729,
+                "z": -0.72073512866718403
+            },
+            "position": {
+                "x": -0.0013049394080552703,
+                "y": 0.039543297300548688,
+                "z": 0.020344720957085873
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6449624207690543,
+                "x": 0.19949383762145897,
+                "y": 0.23843387209201602,
+                "z": -0.69812246288598423
+            },
+            "position": {
+                "x": -0.00080631534024898539,
+                "y": 0.03418167048789586,
+                "z": 0.030768630006992592
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.59972258788742494,
+                "x": 0.30624815145343209,
+                "y": 0.33639270673229593,
+                "z": -0.65831970513291294
+            },
+            "position": {
+                "x": -0.00063237513308538268,
+                "y": 0.025863637022405603,
+                "z": 0.039041091067112274
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.53971559452685036,
+                "x": 0.40546161941727843,
+                "y": 0.42606843650944026,
+                "z": -0.60230693140162972
+            },
+            "position": {
+                "x": -0.00080014526595432144,
+                "y": 0.015403423974827083,
+                "z": 0.044352338011255044
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.46641901201566122,
+                "x": 0.49469127666110602,
+                "y": 0.50525294733965187,
+                "z": -0.53146336207713751
+            },
+            "position": {
+                "x": -0.001293203229327339,
+                "y": 0.0038249498788470778,
+                "z": 0.046182468982894749
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.38163764547269363,
+                "x": 0.57173999288731747,
+                "y": 0.57199645376796626,
+                "z": -0.44753340095253175
+            },
+            "position": {
+                "x": -0.0020632850744126516,
+                "y": -0.0077384035490472543,
+                "z": 0.044352338011255044
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.28745909351545923,
+                "x": 0.63471057299239486,
+                "y": 0.62465550915711998,
+                "z": -0.35258368221827163
+            },
+            "position": {
+                "x": -0.0030350098247375985,
+                "y": -0.018154734708712855,
+                "z": 0.039041091067112274
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.18620234465383942,
+                "x": 0.68205247230677768,
+                "y": 0.66193347279804737,
+                "z": -0.24895218306964445
+            },
+            "position": {
+                "x": -0.0041132582913359274,
+                "y": -0.026404420531394978,
+                "z": 0.030768630006992596
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.080360676096689745,
+                "x": 0.71259997615058979,
+                "y": 0.68291243750744002,
+                "z": -0.13919065494891636
+            },
+            "position": {
+                "x": -0.0051924840016981787,
+                "y": -0.031679924289828534,
+                "z": 0.020344720957085876
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.027459739007753607,
+                "x": -0.72560090359784402,
+                "y": -0.68707583154896124,
+                "z": 0.026001790956046818
+            },
+            "position": {
+                "x": -0.0061670448238864183,
+                "y": -0.033464842919542014,
+                "z": 0.0087897287628419512
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.13460400420417723,
+                "x": -0.72073512866718414,
+                "y": -0.67432113834379559,
+                "z": -0.087827323425157283
+            },
+            "position": {
+                "x": -0.0069415439544603438,
+                "y": -0.031584456148799706,
+                "z": -0.0027652634314019788
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.23843387209201591,
+                "x": -0.69812246288598434,
+                "y": -0.64496242076905441,
+                "z": -0.199493837621459
+            },
+            "position": {
+                "x": -0.0074401680222666283,
+                "y": -0.026222829336146877,
+                "z": -0.013189172481308697
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66193347279804737,
+                "x": -0.24895218306964442,
+                "y": -0.18620234465383945,
+                "z": -0.68205247230677757
+            },
+            "position": {
+                "x": -0.0041332250711796862,
+                "y": 0.034363261683143964,
+                "z": -0.013189172481308711
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68291243750744024,
+                "x": -0.13919065494891641,
+                "y": -0.080360676096689815,
+                "z": -0.7125999761505899
+            },
+            "position": {
+                "x": -0.0030539993608174353,
+                "y": 0.039638765441577517,
+                "z": -0.0027652634314019892
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.96335078534031415,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.71191883740773165,
+                "x": -0.0055055445826191216,
+                "y": -0.0054305333161046672,
+                "z": 0.70221917321501204
+            },
+            "position": {
+                "x": -0.0056295419051892925,
+                "y": -0.032447813081731419,
+                "z": 0.015552366585759505
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.70400345773185002,
+                "x": -0.11528904289576322,
+                "y": 0.10600496804241157,
+                "z": 0.69271243300528773
+            },
+            "position": {
+                "x": -0.0057835686426713851,
+                "y": -0.030610146679068695,
+                "z": 0.02713911789389354
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67875317647308875,
+                "x": -0.22223374235041701,
+                "y": 0.21483027527740484,
+                "z": 0.66614881371421419
+            },
+            "position": {
+                "x": -0.005872164560258201,
+                "y": -0.025281947968479344,
+                "z": 0.03759167725434405
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.63678973935691741,
+                "x": -0.32370630951689827,
+                "y": 0.31836574815426166,
+                "z": 0.62318239980833579
+            },
+            "position": {
+                "x": -0.0058866572722522902,
+                "y": -0.016984778163499189,
+                "z": 0.04588687532964672
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.57914642547379924,
+                "x": -0.41720815302342557,
+                "y": 0.41406199971621965,
+                "z": 0.56487116699536744
+            },
+            "position": {
+                "x": -0.0058256281310270063,
+                "y": -0.0065308220544210115,
+                "z": 0.05121272033614746
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.50724260451872727,
+                "x": -0.50043694716804077,
+                "y": 0.49956267065217314,
+                "z": 0.49265093135105109
+            },
+            "position": {
+                "x": -0.0056950510941405127,
+                "y": 0.0050566142978034929,
+                "z": 0.053047881457265869
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.42284878719871577,
+                "x": -0.57134332281837197,
+                "y": 0.57276245068322063,
+                "z": 0.40829999476217005
+            },
+            "position": {
+                "x": -0.00550770795174697,
+                "y": 0.016643271888602235,
+                "z": 0.051212720336147474
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.32804302938320479,
+                "x": -0.62818132968113904,
+                "y": 0.63185891828885621,
+                "z": 0.31389535723225115
+            },
+            "position": {
+                "x": -0.0052819371559202858,
+                "y": 0.027094967943997426,
+                "z": 0.04588687532964672
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.22515976347188338,
+                "x": -0.66955142739285056,
+                "y": 0.67539692230669734,
+                "z": 0.21176157424831024
+            },
+            "position": {
+                "x": -0.0050398387251936062,
+                "y": 0.035388617632838584,
+                "z": 0.03759167725434405
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11673231692147167,
+                "x": -0.69443494684836216,
+                "y": 0.7023044125834742,
+                "z": 0.10441351851000405
+            },
+            "position": {
+                "x": -0.0048051109407654122,
+                "y": 0.040712380738326712,
+                "z": 0.027139117893893547
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.0054305333161047105,
+                "x": -0.70221917321501204,
+                "y": 0.71191883740773165,
+                "z": -0.0055055445826190782
+            },
+            "position": {
+                "x": -0.0046007305936201755,
+                "y": 0.042545130234857953,
+                "z": 0.01555236658575951
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.10600496804241151,
+                "x": 0.69271243300528773,
+                "y": -0.70400345773185014,
+                "z": 0.11528904289576318
+            },
+            "position": {
+                "x": -0.0044467038561380829,
+                "y": 0.040707463832195236,
+                "z": 0.0039656152776254717
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.21483027527740478,
+                "x": 0.66614881371421419,
+                "y": -0.67875317647308875,
+                "z": 0.22223374235041696
+            },
+            "position": {
+                "x": -0.004358107938551267,
+                "y": 0.035379265121605885,
+                "z": -0.006486944082825033
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67539692230669734,
+                "x": 0.21176157424831027,
+                "y": -0.22515976347188343,
+                "z": 0.66955142739285056
+            },
+            "position": {
+                "x": -0.0051904337736158618,
+                "y": -0.025291300479712051,
+                "z": -0.0064869440828250469
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.7023044125834742,
+                "x": 0.10441351851000409,
+                "y": -0.11673231692147169,
+                "z": 0.69443494684836216
+            },
+            "position": {
+                "x": -0.0054251615580440558,
+                "y": -0.030615063585200178,
+                "z": 0.0039656152776254595
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.8601398601398601,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.71583191505654675,
+                "x": -0.028836313629982274,
+                "y": -0.02808218962475071,
+                "z": 0.69711155995908558
+            },
+            "position": {
+                "x": -0.0047627407387548452,
+                "y": -0.038633769702916425,
+                "z": -0.0094781463002628092
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.71141185863834633,
+                "x": -0.13753356471363851,
+                "y": 0.08424433141984683,
+                "z": 0.68401796656923852
+            },
+            "position": {
+                "x": -0.0056458995215161465,
+                "y": -0.036774338197737726,
+                "z": 0.0020724421246556806
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68947448121987542,
+                "x": -0.24284428298631297,
+                "y": 0.19449647743398141,
+                "z": 0.65408158071697764
+            },
+            "position": {
+                "x": -0.0063453564213995679,
+                "y": -0.031427448037928206,
+                "z": 0.012492378476861398
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.24791197630289202,
+                "x": -0.67190340265055837,
+                "y": 0.67211873355325968,
+                "z": 0.18799435501886219
+            },
+            "position": {
+                "x": -0.0047378157555434345,
+                "y": 0.029227527930141856,
+                "z": 0.012492378476861405
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.13971723396134292,
+                "x": -0.69303995316211564,
+                "y": 0.702625814016134,
+                "z": 0.080570983197482265
+            },
+            "position": {
+                "x": -0.0037561221298148305,
+                "y": 0.034529862506634187,
+                "z": 0.0020724421246556858
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.028082189624750752,
+                "x": -0.69711155995908558,
+                "y": 0.71583191505654675,
+                "z": -0.028836313629982235
+            },
+            "position": {
+                "x": -0.0027757111991613881,
+                "y": 0.03633990376723429,
+                "z": -0.009478146300262804
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.084244331419846788,
+                "x": 0.68401796656923852,
+                "y": -0.71141185863834633,
+                "z": 0.13753356471363845
+            },
+            "position": {
+                "x": -0.0018925524164000861,
+                "y": 0.034480472262055591,
+                "z": -0.021028734725181297
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.19449647743398138,
+                "x": 0.65408158071697764,
+                "y": -0.68947448121987542,
+                "z": 0.24284428298631294
+            },
+            "position": {
+                "x": -0.001193095516516664,
+                "y": 0.029133582102246078,
+                "z": -0.031448671077387011
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.2999594746768906,
+                "x": 0.608039535575154,
+                "y": -0.65055995383915799,
+                "z": 0.34217536905789642
+            },
+            "position": {
+                "x": -0.00074580821427449673,
+                "y": 0.020822624150622235,
+                "z": -0.039717979386760527
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.39803647414483334,
+                "x": 0.54702553909994645,
+                "y": -0.59562648131021922,
+                "z": 0.43308096192833218
+            },
+            "position": {
+                "x": -0.00059447410725093144,
+                "y": 0.010361132877337986,
+                "z": -0.045027202140321486
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.48631249461200904,
+                "x": 0.47254195837841956,
+                "y": -0.52602670804046459,
+                "z": 0.5133226642027845
+            },
+            "position": {
+                "x": -0.00075390683224815878,
+                "y": -0.0012268480622819034,
+                "z": -0.046856635623421267
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.56261388748320085,
+                "x": 0.3864228263647691,
+                "y": -0.44347441143619964,
+                "z": 0.58092465886431444
+            },
+            "position": {
+                "x": -0.0012085000033103368,
+                "y": -0.012807006355656722,
+                "z": -0.045027202140321493
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.62506185923611524,
+                "x": 0.29078868190218415,
+                "y": -0.3500023030151862,
+                "z": 0.63422236044619773
+            },
+            "position": {
+                "x": -0.0019137548735170332,
+                "y": -0.023245795425323804,
+                "z": -0.039717979386760534
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67211873355325968,
+                "x": 0.18799435501886222,
+                "y": -0.24791197630289208,
+                "z": 0.67190340265055837
+            },
+            "position": {
+                "x": -0.0028006361823727979,
+                "y": -0.031521393865823984,
+                "z": -0.031448671077387025
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.702625814016134,
+                "x": 0.080570983197482293,
+                "y": -0.13971723396134295,
+                "z": 0.69303995316211564
+            },
+            "position": {
+                "x": -0.0037823298081014014,
+                "y": -0.036823728442316322,
+                "z": -0.021028734725181308
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.94968553459119498,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.052322473853740795,
+                "x": 0.0011642730813356871,
+                "y": -0.022215879557007573,
+                "z": -0.99838242066531069
+            },
+            "position": {
+                "x": 0.040338850702914895,
+                "y": 0.0013687727592902859,
+                "z": 0.010144591027442532
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.055153626610332407,
+                "x": 0.15733135883005261,
+                "y": -0.013757327007630844,
+                "z": -0.98590854390963778
+            },
+            "position": {
+                "x": 0.038459644538094931,
+                "y": 0.0016895617995053144,
+                "z": 0.021721258358832044
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.056626714035385294,
+                "x": 0.30962442437152993,
+                "y": -0.0049600234093755873,
+                "z": -0.94915832676004674
+            },
+            "position": {
+                "x": 0.033113735294825142,
+                "y": 0.0015952546156579074,
+                "z": 0.032164720832440971
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.056705463827597787,
+                "x": 0.45429350900042975,
+                "y": 0.0039594124265924192,
+                "z": -0.88903668152973836
+            },
+            "position": {
+                "x": 0.024824417816976644,
+                "y": 0.0010950826519798363,
+                "z": 0.040452699577470816
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.055387936905730052,
+                "x": 0.58777637972402352,
+                "y": 0.012781354388081262,
+                "z": -0.80702400265658381
+            },
+            "position": {
+                "x": 0.014403108254352197,
+                "y": 0.00023800622517889921,
+                "z": 0.045773909488614609
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.052706575155219593,
+                "x": 0.70678624526084677,
+                "y": 0.021288576985652299,
+                "z": -0.70513971447891599
+            },
+            "position": {
+                "x": 0.002869916996474734,
+                "y": -0.00089207805248702659,
+                "z": 0.047607473464720079
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.048727402601293469,
+                "x": 0.80839268775028417,
+                "y": 0.029271604165100256,
+                "z": -0.58589254630623577
+            },
+            "position": {
+                "x": -0.008646206839866135,
+                "y": -0.0021845496581598483,
+                "z": 0.045773909488614609
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.043548399678345881,
+                "x": 0.89009381936579612,
+                "y": 0.036533867303118896,
+                "z": -0.45221875917761578
+            },
+            "position": {
+                "x": -0.019017984816016527,
+                "y": -0.0035128924658971183,
+                "z": 0.040452699577470816
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.0372970906264651,
+                "x": 0.94987788709649879,
+                "y": 0.04289654537918066,
+                "z": -0.30740984537002741
+            },
+            "position": {
+                "x": -0.02723015503924444,
+                "y": -0.0047470790265689584,
+                "z": 0.032164720832440978
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.030127403421413661,
+                "x": 0.9862728087829169,
+                "y": 0.048202968142535052,
+                "z": -0.15503148093464461
+            },
+            "position": {
+                "x": -0.032478853070545911,
+                "y": -0.0057662985605334022,
+                "z": 0.021721258358832048
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.022215879557007576,
+                "x": 0.99838242066531069,
+                "y": 0.052322473853740795,
+                "z": 0.0011642730813356261
+            },
+            "position": {
+                "x": -0.034250299776787611,
+                "y": -0.0064707827584859507,
+                "z": 0.010144591027442538
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.013757327007630847,
+                "x": 0.98590854390963778,
+                "y": 0.055153626610332407,
+                "z": 0.15733135883005256
+            },
+            "position": {
+                "x": -0.032371093611967654,
+                "y": -0.0067915717987009792,
+                "z": -0.0014320763039469744
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.0049600234093755925,
+                "x": 0.94915832676004674,
+                "y": 0.056626714035385294,
+                "z": 0.30962442437152993
+            },
+            "position": {
+                "x": -0.027025184368697868,
+                "y": -0.0066972646148535722,
+                "z": -0.011875538777555907
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.04289654537918066,
+                "x": -0.30740984537002741,
+                "y": -0.0372970906264651,
+                "z": -0.94987788709649879
+            },
+            "position": {
+                "x": 0.033318705965371717,
+                "y": -0.00035493097262670687,
+                "z": -0.01187553877755592
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.048202968142535052,
+                "x": -0.15503148093464467,
+                "y": -0.030127403421413661,
+                "z": -0.9862728087829169
+            },
+            "position": {
+                "x": 0.038567403996673195,
+                "y": 0.000664288561337737,
+                "z": -0.0014320763039469882
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.38423645320197042,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69352858263056083,
+                "x": -0.054253818967602542,
+                "y": -0.056027000434613214,
+                "z": 0.71619522717215578
+            },
+            "position": {
+                "x": -0.0026890425593705971,
+                "y": -0.030400228563778921,
+                "z": -0.048537935792740371
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6937546487744739,
+                "x": -0.16562348165410315,
+                "y": 0.053154557726135143,
+                "z": 0.69889050832123778
+            },
+            "position": {
+                "x": -0.0045491384523678553,
+                "y": -0.02862373031548935,
+                "z": -0.037090768232048363
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.26759696196942362,
+                "x": -0.69790748981229778,
+                "y": 0.64227158246958871,
+                "z": 0.16971804842338636
+            },
+            "position": {
+                "x": -0.0082958645538638628,
+                "y": 0.037292645431921075,
+                "z": -0.026764129189303102
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.16382898790170755,
+                "x": -0.71586484261441075,
+                "y": 0.67622554109287902,
+                "z": 0.058451752799982513
+            },
+            "position": {
+                "x": -0.0068423204371302632,
+                "y": 0.04266863682899745,
+                "z": -0.037090768232048356
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.056027000434613262,
+                "x": -0.71619522717215578,
+                "y": 0.69352858263056083,
+                "z": -0.0542538189676025
+            },
+            "position": {
+                "x": -0.0051002367896520028,
+                "y": 0.044561002365174331,
+                "z": -0.048537935792740364
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.053154557726135088,
+                "x": 0.69889050832123789,
+                "y": -0.69375464877447401,
+                "z": 0.16562348165410315
+            },
+            "position": {
+                "x": -0.0032401408966547442,
+                "y": 0.042784504116884767,
+                "z": -0.059985103353432379
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.16102727426580296,
+                "x": 0.66437678567083569,
+                "y": -0.67689817302588484,
+                "z": 0.2729149445494583
+            },
+            "position": {
+                "x": -0.0014441119041952136,
+                "y": 0.037513038110262437,
+                "z": -0.070311742396177629
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.26493496489416296,
+                "x": 0.61350390161708035,
+                "y": -0.64337421776115922,
+                "z": 0.37348633575723372
+            },
+            "position": {
+                "x": 0.00011204235627483745,
+                "y": 0.029262612166498898,
+                "z": -0.078507009541547268
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.36231907741809083,
+                "x": 0.5475245154027979,
+                "y": -0.5940082540185434,
+                "z": 0.46486125384858301
+            },
+            "position": {
+                "x": 0.0012759946633763251,
+                "y": 0.01884083546106741,
+                "z": -0.083768694941568772
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.45078169178790772,
+                "x": 0.46806325848961222,
+                "y": -0.53001583566162103,
+                "z": 0.54478974508413025
+            },
+            "position": {
+                "x": 0.001933809255557568,
+                "y": 0.0072678641106836495,
+                "z": -0.085581748168970156
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.52814456484724404,
+                "x": 0.37707673073951842,
+                "y": -0.45297266840900019,
+                "z": 0.61130370474220252
+            },
+            "position": {
+                "x": 0.0020210946572720998,
+                "y": -0.0043234588152440689,
+                "z": -0.083768694941568772
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.59250276590872331,
+                "x": 0.27680532243269684,
+                "y": -0.36477581073005283,
+                "z": 0.66276533838884177
+            },
+            "position": {
+                "x": 0.0015293067652469503,
+                "y": -0.01479849386723023,
+                "z": -0.078507009541547282
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64227158246958871,
+                "x": 0.16971804842338636,
+                "y": -0.26759696196942373,
+                "z": 0.69790748981229778
+            },
+            "position": {
+                "x": 0.00050658520484126498,
+                "y": -0.023131871630525672,
+                "z": -0.070311742396177643
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67622554109287902,
+                "x": 0.05845175279998252,
+                "y": -0.16382898790170763,
+                "z": 0.71586484261441086
+            },
+            "position": {
+                "x": -0.00094695891189233543,
+                "y": -0.02850786302760204,
+                "z": -0.059985103353432385
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.73399014778325122,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68132607030275738,
+                "x": -0.039928448577244056,
+                "y": -0.042759742021169812,
+                "z": 0.72963834149686768
+            },
+            "position": {
+                "x": -0.0021754203905392658,
+                "y": -0.03395443697745229,
+                "z": 0.01220886573476667
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67962691314987644,
+                "x": -0.15357744674270021,
+                "y": 0.064349580684609164,
+                "z": 0.71440909725456192
+            },
+            "position": {
+                "x": -0.0036513662514632613,
+                "y": -0.03221594080830617,
+                "z": 0.023717678132462887
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66119308584283731,
+                "x": -0.26344485847502741,
+                "y": 0.16987440314991895,
+                "z": 0.68158873004998988
+            },
+            "position": {
+                "x": -0.0052339200262880702,
+                "y": -0.026985456738927993,
+                "z": 0.034099927786061544
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.62647849038830428,
+                "x": -0.3668253834683412,
+                "y": 0.27121635402885658,
+                "z": 0.63198538624828149
+            },
+            "position": {
+                "x": -0.006768170325233332,
+                "y": -0.01877498099295391,
+                "z": 0.04233932776208154
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.57633791533750522,
+                "x": -0.46117345009701449,
+                "y": 0.36588005815613045,
+                "z": 0.56682046479789483
+            },
+            "position": {
+                "x": -0.0081039340392878786,
+                "y": -0.0083882121421481534,
+                "z": 0.047629348183594766
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.51200598805521869,
+                "x": -0.54416589583736852,
+                "y": 0.45153458096530552,
+                "z": 0.48769854233491339
+            },
+            "position": {
+                "x": -0.0091104573093070042,
+                "y": 0.0031581205094984343,
+                "z": 0.049452164994003969
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.43506677409656053,
+                "x": -0.61375917123913981,
+                "y": 0.52607082383375647,
+                "z": 0.39656786318098136
+            },
+            "position": {
+                "x": -0.0096892146247612478,
+                "y": 0.014733781474012655,
+                "z": 0.047629348183594773
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.34741477225580425,
+                "x": -0.66823965889509718,
+                "y": 0.58765345709045447,
+                "z": 0.29567236710225281
+            },
+            "position": {
+                "x": -0.0097835531871746182,
+                "y": 0.025205664403815456,
+                "z": 0.04233932776208154
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.25120826571858551,
+                "x": -0.70626586838877903,
+                "y": 0.63476611192357724,
+                "z": 0.18749643606513963
+            },
+            "position": {
+                "x": -0.0093842384807626827,
+                "y": 0.033548708435839111,
+                "z": 0.034099927786061551
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.14881617796693997,
+                "x": -0.72690146824069701,
+                "y": 0.66624871841319655,
+                "z": 0.07470372050710733
+            },
+            "position": {
+                "x": -0.008530358211178193,
+                "y": 0.038946238290823276,
+                "z": 0.02371767813246289
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.042759742021169854,
+                "x": -0.72963834149686746,
+                "y": 0.68132607030275727,
+                "z": -0.039928448577244001
+            },
+            "position": {
+                "x": -0.0073054961285417518,
+                "y": 0.040869906139760284,
+                "z": 0.012208865734766676
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.064349580684609123,
+                "x": 0.71440909725456203,
+                "y": -0.67962691314987655,
+                "z": 0.15357744674270016
+            },
+            "position": {
+                "x": -0.0058295502676177571,
+                "y": 0.039131409970614164,
+                "z": 0.00070005333707045918
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.16987440314991886,
+                "x": 0.68158873004998988,
+                "y": -0.66119308584283731,
+                "z": 0.26344485847502735
+            },
+            "position": {
+                "x": -0.0042469964927929465,
+                "y": 0.033900925901236001,
+                "z": -0.0096821963165282
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.63476611192357724,
+                "x": 0.18749643606513969,
+                "y": -0.25120826571858557,
+                "z": 0.70626586838877914
+            },
+            "position": {
+                "x": -9.6678038318333964e-05,
+                "y": -0.026633239273531107,
+                "z": -0.0096821963165282139
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66624871841319655,
+                "x": 0.074703720507107357,
+                "y": -0.14881617796694002,
+                "z": 0.72690146824069712
+            },
+            "position": {
+                "x": -0.00095055830790282281,
+                "y": -0.032030769128515282,
+                "z": 0.0007000533370704453
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.9107142857142857,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.75505877415958844,
+                "x": -0.00089489972205321095,
+                "y": 0.0007770870667079382,
+                "z": -0.65565604005057243
+            },
+            "position": {
+                "x": -0.0098381264016063515,
+                "y": 0.034474387069170546,
+                "z": 0.028046536072527242
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.74564118450191263,
+                "x": 0.10168331985423366,
+                "y": 0.1188847352450024,
+                "z": -0.64772381935801293
+            },
+            "position": {
+                "x": -0.0095535554226889099,
+                "y": 0.032660993572965022,
+                "z": 0.039634640805647235
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.71786343424058563,
+                "x": 0.20175775862811862,
+                "y": 0.23406504668574954,
+                "z": -0.62384248856074898
+            },
+            "position": {
+                "x": -0.00878209265951411,
+                "y": 0.027390616878045129,
+                "z": 0.050088421108416215
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67240950377610897,
+                "x": 0.29686425178896791,
+                "y": 0.34348189985974037,
+                "z": -0.58460008528060159
+            },
+            "position": {
+                "x": -0.0075992542624386331,
+                "y": 0.019179158176183299,
+                "z": 0.058384588129028921
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6103986197294643,
+                "x": 0.38466096183480708,
+                "y": 0.44444108870811488,
+                "z": -0.5309628877243977
+            },
+            "position": {
+                "x": -0.0061208246950879399,
+                "y": 0.0088304122577147013,
+                "z": 0.06371105523671329
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.53335769586820536,
+                "x": 0.46298604238373248,
+                "y": 0.53445666293708838,
+                "z": -0.46425162170762407
+            },
+            "position": {
+                "x": -0.004491522944338815,
+                "y": -0.0026426135229083185,
+                "z": 0.065546430719290616
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.44318373542196354,
+                "x": 0.52991087000659076,
+                "y": 0.6113121403645807,
+                "z": -0.38610894000161211
+            },
+            "position": {
+                "x": -0.002870836417567392,
+                "y": -0.014116859465007355,
+                "z": 0.06371105523671329
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.34209712056714203,
+                "x": 0.5837875333365381,
+                "y": 0.67311508406762055,
+                "z": -0.29845897477065547
+            },
+            "position": {
+                "x": -0.0014174092040010748,
+                "y": -0.024469146429997361,
+                "z": 0.058384588129028921
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.23258693924870705,
+                "x": 0.62328941011599726,
+                "y": 0.71834370046002916,
+                "z": -0.20345995905229755
+            },
+            "position": {
+                "x": -0.00027351288592658996,
+                "y": -0.03268612044112057,
+                "z": 0.050088421108416215
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11734969557417306,
+                "x": 0.64744383303944497,
+                "y": 0.745884310901053,
+                "z": -0.1034510838971813
+            },
+            "position": {
+                "x": 0.00044887999504863822,
+                "y": -0.037963446831143874,
+                "z": 0.039634640805647242
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.00077708706670789201,
+                "x": -0.65565604005057243,
+                "y": -0.75505877415958844,
+                "z": 0.00089489972205325117
+            },
+            "position": {
+                "x": 0.00067905659052759377,
+                "y": -0.039784544123716743,
+                "z": 0.028046536072527245
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.11888473524500237,
+                "x": -0.64772381935801304,
+                "y": -0.74564118450191263,
+                "z": -0.10168331985423364
+            },
+            "position": {
+                "x": 0.00039448561161015312,
+                "y": -0.037971150627511226,
+                "z": 0.016458431339407248
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.23406504668574951,
+                "x": -0.62384248856074909,
+                "y": -0.71786343424058563,
+                "z": -0.20175775862811859
+            },
+            "position": {
+                "x": -0.00037697715156464768,
+                "y": -0.032700773932591333,
+                "z": 0.0060046510366382755
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.71834370046002916,
+                "x": -0.20345995905229758,
+                "y": -0.23258693924870708,
+                "z": -0.62328941011599726
+            },
+            "position": {
+                "x": -0.0088855569251521695,
+                "y": 0.027375963386574373,
+                "z": 0.0060046510366382651
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.745884310901053,
+                "x": -0.10345108389718133,
+                "y": -0.1173496955741731,
+                "z": -0.64744383303944497
+            },
+            "position": {
+                "x": -0.0096079498061273968,
+                "y": 0.032653289776597677,
+                "z": 0.016458431339407237
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.86274509803921573,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.72249600175096995,
+                "x": 0.05888672352189947,
+                "y": 0.055959896517973826,
+                "z": 0.68658602609462971
+            },
+            "position": {
+                "x": -0.0048188441222447899,
+                "y": -0.037201906316574267,
+                "z": -0.0029347378902426034
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.70484682058054127,
+                "x": -0.049243987457781808,
+                "y": 0.16829421285933185,
+                "z": 0.687344925881335
+            },
+            "position": {
+                "x": -0.0028512860244916229,
+                "y": -0.035464490357299733,
+                "z": 0.0085004555421530487
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66984197143493718,
+                "x": -0.15616214803482803,
+                "y": 0.27648456714362291,
+                "z": 0.67117911242581774
+            },
+            "position": {
+                "x": -0.00088935145385074434,
+                "y": -0.030231148487844892,
+                "z": 0.018816292567708254
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.17004251867438003,
+                "x": -0.63478511580316599,
+                "y": 0.7044270894899719,
+                "z": 0.26817135229237532
+            },
+            "position": {
+                "x": 0.0022012696790739347,
+                "y": 0.030366362663127783,
+                "z": 0.018816292567708261
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.057752338195905528,
+                "x": -0.66892109969709435,
+                "y": 0.72235493353153324,
+                "z": 0.16556744793464098
+            },
+            "position": {
+                "x": 0.00078195702022153995,
+                "y": 0.035772156403041128,
+                "z": 0.0085004555421530539
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.055959896517973791,
+                "x": 0.68658602609462971,
+                "y": -0.72249600175096995,
+                "z": -0.058886723521899512
+            },
+            "position": {
+                "x": -0.00099862630925247309,
+                "y": 0.037700736733329486,
+                "z": -0.002934737890242599
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.16829421285933183,
+                "x": 0.687344925881335,
+                "y": -0.70484682058054127,
+                "z": 0.049243987457781774
+            },
+            "position": {
+                "x": -0.002966184407005639,
+                "y": 0.035963320774054952,
+                "z": -0.014369931322638252
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.27648456714362285,
+                "x": 0.67117911242581785,
+                "y": -0.66984197143493729,
+                "z": 0.15616214803482806
+            },
+            "position": {
+                "x": -0.004928118977646518,
+                "y": 0.030729978904600115,
+                "z": -0.024685768348193457
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.7044270894899719,
+                "x": 0.26817135229237538,
+                "y": -0.17004251867438008,
+                "z": 0.63478511580316599
+            },
+            "position": {
+                "x": -0.0080187401105711979,
+                "y": -0.029867532246372563,
+                "z": -0.024685768348193471
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.72235493353153324,
+                "x": 0.16556744793464104,
+                "y": -0.05775233819590557,
+                "z": 0.66892109969709435
+            },
+            "position": {
+                "x": -0.0065994274517188036,
+                "y": -0.035273325986285908,
+                "z": -0.014369931322638264
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.97222222222222221,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.69916903064361324,
+                "x": 0.039949853070986106,
+                "y": -0.040721682142211953,
+                "z": -0.71267693973636159
+            },
+            "position": {
+                "x": -0.0036434177635437052,
+                "y": 0.034985451889319182,
+                "z": -0.047430686915307892
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6969313742333566,
+                "x": 0.15094523990086839,
+                "y": 0.069153802620146435,
+                "z": -0.69765317009503236
+            },
+            "position": {
+                "x": -0.004998253888643894,
+                "y": 0.033175662507578169,
+                "z": -0.035917970928724119
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67753295440685257,
+                "x": 0.25822385396586123,
+                "y": 0.17732649125368422,
+                "z": -0.66545086402783826
+            },
+            "position": {
+                "x": -0.0062907031804990167,
+                "y": 0.027872938609295978,
+                "z": -0.025532199796716119
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.25478373356538558,
+                "x": 0.69014123107127201,
+                "y": 0.65236557076389601,
+                "z": -0.18223471778947078
+            },
+            "position": {
+                "x": -0.0074516436792360901,
+                "y": -0.032792228610764751,
+                "z": -0.025532199796716115
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.14959446394271445,
+                "x": 0.71015223788222348,
+                "y": 0.68419082511044615,
+                "z": -0.072029231727464768
+            },
+            "position": {
+                "x": -0.0063630212965373346,
+                "y": -0.038140518732038761,
+                "z": -0.035917970928724119
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.040721682142212001,
+                "x": 0.71267693973636159,
+                "y": 0.69916903064361324,
+                "z": 0.039949853070986065
+            },
+            "position": {
+                "x": -0.0050784191378152382,
+                "y": -0.040000818661067826,
+                "z": -0.047430686915307885
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.069153802620146379,
+                "x": -0.69765317009503236,
+                "y": -0.69693137423335649,
+                "z": -0.15094523990086833
+            },
+            "position": {
+                "x": -0.0037235830127150494,
+                "y": -0.03819102927932682,
+                "z": -0.058943402901891657
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.17732649125368419,
+                "x": -0.66545086402783837,
+                "y": -0.67753295440685257,
+                "z": -0.25822385396586123
+            },
+            "position": {
+                "x": -0.0024311337208599267,
+                "y": -0.032888305381044633,
+                "z": -0.069329174033899654
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.2811328131596727,
+                "x": -0.61686294918348017,
+                "y": -0.64145142463989402,
+                "z": -0.35914413975037696
+            },
+            "position": {
+                "x": -0.0013275852039603725,
+                "y": -0.024611714527635005,
+                "z": -0.077571368671008487
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.37801671217935578,
+                "x": -0.55308582127947004,
+                "y": -0.58957523194307548,
+                "z": -0.45122110488317485
+            },
+            "position": {
+                "x": -0.00052096047972514936,
+                "y": -0.014171427098229019,
+                "z": -0.082863183375391128
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.46559258517964275,
+                "x": -0.47568988486895736,
+                "y": -0.52318174034780529,
+                "z": -0.53218750889675825
+            },
+            "position": {
+                "x": -9.0217596247321556e-05,
+                "y": -0.0025894111681767566,
+                "z": -0.084686618453541529
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.54170402351960745,
+                "x": -0.38658088476875502,
+                "y": -0.44390577796452446,
+                "z": -0.60004969021222354
+            },
+            "position": {
+                "x": -7.7520668123841167e-05,
+                "y": 0.009000604846638208,
+                "z": -0.082863183375391128
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.60447691098793843,
+                "x": -0.28795298029714639,
+                "y": -0.35369938208894436,
+                "z": -0.65313665670391685
+            },
+            "position": {
+                "x": -0.00048411255914413342,
+                "y": 0.019464109426295863,
+                "z": -0.0775713686710085
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.6523655707638959,
+                "x": -0.18223471778947078,
+                "y": -0.25478373356538564,
+                "z": -0.69014123107127201
+            },
+            "position": {
+                "x": -0.0012701932221228516,
+                "y": 0.027776861839016103,
+                "z": -0.069329174033899668
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68419082511044615,
+                "x": -0.072029231727464824,
+                "y": -0.14959446394271447,
+                "z": -0.71015223788222359
+            },
+            "position": {
+                "x": -0.0023588156048216071,
+                "y": 0.033125151960290117,
+                "z": -0.058943402901891671
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.6354679802955665,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68923322108533069,
+                "x": 0.02503190025356512,
+                "y": -0.026281136233463571,
+                "z": -0.72362992807118853
+            },
+            "position": {
+                "x": -0.0014984503054489783,
+                "y": 0.044932830503332841,
+                "z": -0.0044572293275282338
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.68485889190414329,
+                "x": 0.13792437670830382,
+                "y": 0.081862258393054499,
+                "z": -0.71080499093650407
+            },
+            "position": {
+                "x": -0.0024273857878925028,
+                "y": 0.043140530341501462,
+                "z": 0.0071003779905647792
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.66362106388792541,
+                "x": 0.24742069726372146,
+                "y": 0.18798993253267637,
+                "z": -0.68047767589844677
+            },
+            "position": {
+                "x": -0.0034440169648672285,
+                "y": 0.037857260458351673,
+                "z": 0.017526646177777598
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.1337774020638233,
+                "x": 0.71863669478671777,
+                "y": 0.67663634092948066,
+                "z": -0.088476944661530416
+            },
+            "position": {
+                "x": -0.0058984050543709251,
+                "y": -0.028104205056500232,
+                "z": 0.0071003779905647827
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.026281136233463613,
+                "x": 0.72362992807118842,
+                "y": 0.68923322108533069,
+                "z": 0.025031900253565078
+            },
+            "position": {
+                "x": -0.0051480959437542597,
+                "y": -0.029978317443516821,
+                "z": -0.0044572293275282294
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.081862258393054457,
+                "x": -0.71080499093650418,
+                "y": -0.6848588919041434,
+                "z": -0.13792437670830382
+            },
+            "position": {
+                "x": -0.0042191604613107357,
+                "y": -0.028186017281685443,
+                "z": -0.016014836645621242
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.18798993253267632,
+                "x": -0.68047767589844688,
+                "y": -0.66362106388792541,
+                "z": -0.24742069726372146
+            },
+            "position": {
+                "x": -0.0032025292843360096,
+                "y": -0.022902747398535653,
+                "z": -0.026441104832834062
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.54215372465429856,
+                "x": -0.40508776713107503,
+                "y": -0.42638300858835032,
+                "z": -0.60014229125381391
+            },
+            "position": {
+                "x": -0.00017528014228429924,
+                "y": 0.018925769352468161,
+                "z": -0.040027887099559338
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.60217991050204012,
+                "x": -0.30621752623277226,
+                "y": -0.33632199832472631,
+                "z": -0.65612323191493471
+            },
+            "position": {
+                "x": -5.2509473428889904e-05,
+                "y": 0.029385996934521846,
+                "z": -0.034715438114920269
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.64737842843267845,
+                "x": -0.19980719356091475,
+                "y": -0.23797962427362887,
+                "z": -0.69594824105814712
+            },
+            "position": {
+                "x": -0.00024990393950063321,
+                "y": 0.037701644358601683,
+                "z": -0.026441104832834076
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    },
+    {
+        "flag": 0,
+        "frame": "gripper_l_tool_frame",
+        "gripper_pose": {
+            "orientation": {
+                "w": 0.67663634092948066,
+                "x": -0.088476944661530429,
+                "y": -0.13377740206382333,
+                "z": -0.71863669478671777
+            },
+            "position": {
+                "x": -0.00074814119483231165,
+                "y": 0.043058718116316258,
+                "z": -0.016014836645621255
+            }
+        },
+        "gripper_width": 0.1,
+        "jaw_width": 0,
+        "metric": "PFC",
+        "quality": 0.93103448275862066,
+        "reference_frame": "object"
+    }
+]
