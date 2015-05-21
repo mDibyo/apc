@@ -1,44 +1,43 @@
 #!/usr/bin/env python
 import shutil
-import time
 import os
 import h5py
-import subprocess
+from argparse import ArgumentParser
 
-from camera import Carmine
 import cyni
 
-import numpy as np
 import roslib
 roslib.load_manifest('apc')
 import rospy
 from ros_utils import ROSNode
-from utils import MODEL_DIR
-
-from apc.msg import RobotStateBase
-from apc.srv import *
+from camera import Carmine
+import utils
+from apc.srv import CaptureScene, GetCameraPose
 
 CARMINE_EXPOSURE=80
 
-class APCCaptureSceneService(ROSNode):
 
-    def __init__(self, update_rate, output_path):
-        super(APCCaptureSceneService, self).__init__('capture')
+class APCCaptureSceneService(ROSNode):
+    def __init__(self, output_directory=None, camera_pose_service_name=None):
+        super(APCCaptureSceneService, self).__init__('capture_scene')
         
         self.capture_scene_service = rospy.Service('capture_scene',
                                                    CaptureScene,
                                                    self.handle_capture_scene)
-                                                   
-        self.camera_pose_client = rospy.ServiceProxy('get_camera_pose',
+
+        self.camera_pose_service_name = camera_pose_service_name
+        if self.camera_pose_service_name is None:
+            self.camera_pose_service_name = 'get_camera_pose'
+        self.camera_pose_client = rospy.ServiceProxy(self.camera_pose_service_name,
                                                      GetCameraPose)
-        self.output_dir = output_path
+        self.output_dir = utils.PERCEPTION_DIR if output_directory is None else self.output_dir
 
         if os.path.exists(self.output_dir):
             shutil.rmtree(self.output_dir)
         os.mkdir(self.output_dir)
             
         self.initialize_cameras()
-        self.next_scene = 0
+        self.scene_count = 0
         print "ready to capture images"
                                                   
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -53,9 +52,8 @@ class APCCaptureSceneService(ROSNode):
         cyni.initialize()
         device = cyni.getAnyDevice()
         if device is None:
-            print "No carmine found."
-            print "Please restart the program with the Carmine plugged in."
-            self.set_test_set_name.config(state='disabled')
+            rospy.logfatal("No carmine found. ")
+            rospy.logfatal("Please restart the program with the Carmine plugged in. ")
         else:
             self.carmine = Carmine(device, settings)
             self.carmine.initialize()
@@ -65,10 +63,10 @@ class APCCaptureSceneService(ROSNode):
     def shutter(self, highres_filename, color_filename, depth_filename, cloud_filename):
         self.carmine.capture_depth(depth_filename)
         self.carmine.stop_depth_stream()
-        print "Took depth"
+        rospy.loginfo("Took depth")
         self.carmine.capture_color(color_filename)
         self.carmine.start_depth_stream()
-        print "Took carmine color"
+        rospy.loginfo("Took carmine color")
 
         self.carmine.save_cloud(cloud_filename)
 
@@ -76,24 +74,36 @@ class APCCaptureSceneService(ROSNode):
             depth_map = cyni.depthMapToImage(df["depth"][:])
 
     def handle_capture_scene(self, req):
-        path_base = os.path.join(self.output_dir, "scene_{0}/".format(self.next_scene))
-        os.makedirs(path_base)
-        self.next_scene += 1
+        if req.request:
+            path_base = os.path.join(self.output_dir, req.request)
+        else:
+            path_base = os.path.join(self.output_dir, "scene_{0}".format(self.scene_count))
 
-        highres_filename = path_base + "rgb.jpg"
-        rgbd_filename = path_base + "rgbd.jpg"
-        depth_filename = path_base + "rgbd.h5"
-        cloud_filename = path_base + "rgbd.pcd"
+        os.makedirs(path_base)
+        self.scene_count += 1
+
+        highres_filename = os.path.join(path_base, "rgb.jpg")
+        rgbd_filename = os.path.join(path_base, "rgbd.jpg")
+        depth_filename = os.path.join(path_base, "rgbd.h5")
+        cloud_filename = os.path.join(path_base, "rgbd.pcd")
         
         self.shutter(highres_filename, rgbd_filename, depth_filename, cloud_filename)
-        
+        """
         response = self.camera_pose_client("")
         mat = np.loadtxt(response.transform_mat_path)
         np.save_txt(path_base + "transform.txt")
+        """
         return path_base
         
         
 if __name__ == '__main__':
-    with APCCaptureSceneService(10, "scenes") as node:
+    description = "Capture rgbd from Carmine sensor and save"
+    parser = ArgumentParser(description=description)
+    parser.add_argument('-d', '--output-directory', default=None)
+    parser.add_argument('-c', '--camera-pose-service', default=None)
+    args = parser.parse_known_args()[0]
+
+    with APCCaptureSceneService(output_directory=args.output_directory,
+                                camera_pose_service_name=args.camera_pose_service) as node:
         node.spin()
 

@@ -11,10 +11,12 @@ import numpy as np
 
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
 DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
+
 MESH_DIRECTORY = osp.join(DATA_DIRECTORY, "meshes")
 SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
 MODEL_DIR = osp.join(DATA_DIRECTORY, "models")
 JSON_DIR = osp.join(APC_DIRECTORY, "json")
+PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 
 NEW_WRISTS = True
 NEW_SHELF = True
@@ -44,33 +46,35 @@ elif grasps_fn == "tmp_grasps":
     OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
     GRASP_TAG = "_sorted.json"
     
-obj_ease = {"champion_copper_plus_spark_plug":              3,      
-            "kong_sitting_frog_dog_toy":                    4,
-            "cheezit_big_original":                         1,
-            "kyjen_squeakin_eggs_plush_puppies":            4,
-            "crayola_64_ct":                                1,                        
-            "mark_twain_huckleberry_finn":                  4,
-            #"dove_beauty_bar":                              1,                      
-            "mead_index_cards":                             2,
-            "dr_browns_bottle_brush":                       3,                
-            "mommys_helper_outlet_plugs":                   3,
-            "elmers_washable_no_run_school_glue":           4,    
-            "munchkin_white_hot_duck_bath_toy":             4,
-            "expo_dry_erase_board_eraser":                  2,
-            #"one_with_nature_soap_dead_sea_mud":            2,
-            "feline_greenies_dental_treats":                4,         
-            "oreo_mega_stuf":                               1,
-            "first_years_take_and_toss_straw_cups":         3,  
-            "paper_mate_12_count_mirado_black_warrior":     3,
-            "genuine_joe_plastic_stir_sticks":              1,       
-            "rollodex_mesh_collection_jumbo_pencil_cup":    5,
-            "highland_6539_self_stick_notes":               2,        
-            "safety_works_safety_glasses":                  4,
-            "kong_air_dog_squeakair_tennis_ball":           4,    
-            "sharpie_accent_tank_style_highlighters":       3,
-            "kong_duck_dog_toy":                            4,                     
-            "stanley_66_052":                               3,
-            "laugh_out_loud_joke_book":                     4}
+obj_ease = {
+    "champion_copper_plus_spark_plug":              3,
+    "kong_sitting_frog_dog_toy":                    4,
+    "cheezit_big_original":                         1,
+    "kyjen_squeakin_eggs_plush_puppies":            4,
+    "crayola_64_ct":                                1,
+    "mark_twain_huckleberry_finn":                  4,
+    #"dove_beauty_bar":                              1,
+    "mead_index_cards":                             2,
+    "dr_browns_bottle_brush":                       3,
+    "mommys_helper_outlet_plugs":                   3,
+    "elmers_washable_no_run_school_glue":           4,
+    "munchkin_white_hot_duck_bath_toy":             4,
+    "expo_dry_erase_board_eraser":                  2,
+    #"one_with_nature_soap_dead_sea_mud":            2,
+    "feline_greenies_dental_treats":                4,
+    "oreo_mega_stuf":                               1,
+    "first_years_take_and_toss_straw_cups":         3,
+    "paper_mate_12_count_mirado_black_warrior":     3,
+    "genuine_joe_plastic_stir_sticks":              1,
+    "rollodex_mesh_collection_jumbo_pencil_cup":    5,
+    "highland_6539_self_stick_notes":               2,
+    "safety_works_safety_glasses":                  4,
+    "kong_air_dog_squeakair_tennis_ball":           4,
+    "sharpie_accent_tank_style_highlighters":       3,
+    "kong_duck_dog_toy":                            4,
+    "stanley_66_052":                               3,
+    "laugh_out_loud_joke_book":                     4
+}
 
 OBJ_LIST = obj_ease.keys()
      

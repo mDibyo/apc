@@ -99,9 +99,9 @@ class Carmine(object):
                                                      format=format)
         self.depth_stream.setMirroring(False)
         self.depth_stream.start()
-        self.device.setImageRegistrationMode("off")
+        self.device.setImageRegistrationMode("depth_to_color")
         sleep(1)
-        self.device.setImageRegistrationMode("off")
+        self.device.setImageRegistrationMode("depth_to_color")
         #self.depth_stream.setEmitterState(on=False)
 
     def enable_emitter(self):
@@ -160,7 +160,6 @@ class Carmine(object):
     def save_cloud(self, cloud_filename):
         cloud = cyni.depthMapToPointCloud(self.depth_data, self.depth_stream, imresize(self.color_data, self.depth_data.shape))
         cyni.writePCD(cloud, cloud_filename)
-
 
     def capture_ir(self, ir_filename):
         print 'Capturing ir {0}'.format(ir_filename)

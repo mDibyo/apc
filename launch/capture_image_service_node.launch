@@ -1,0 +1,9 @@
+<launch>
+    <arg name="camera_pose_service" default="get_camera_pose" />
+    <arg name="output_directory" default="$(find apc)/data/perception" />
+
+    <node name="capture_image_service"
+          pkg="apc"
+          type="apc_capture_img_service.py"
+          args="-c $(arg camera_pose_service) -d $(output_directory)" />
+</launch>
