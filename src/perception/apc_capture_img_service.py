@@ -88,11 +88,11 @@ class APCCaptureSceneService(ROSNode):
         cloud_filename = os.path.join(path_base, "rgbd.pcd")
         
         self.shutter(highres_filename, rgbd_filename, depth_filename, cloud_filename)
-        """
+
         response = self.camera_pose_client("")
         mat = np.loadtxt(response.transform_mat_path)
         np.save_txt(path_base + "transform.txt")
-        """
+
         return path_base
         
         

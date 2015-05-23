@@ -14,7 +14,7 @@ rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 
 if NEW_WRISTS:
-    e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  
+    e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  #"pr2-box-hook.xml")) #
 else:
     e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
     
@@ -41,7 +41,7 @@ r = e.GetRobot("pr2")
 
 obj = e.GetBodies()[-1]
 
-taskprob = rave.interfaces.TaskManipulation(r)
+#taskprob = rave.interfaces.TaskManipulation(r)
     
 if __name__ == "__main__":
     for manip in ["leftarm", "leftarm_torso", "rightarm", "rightarm_torso"]:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             m = r.SetActiveManipulator(sol["manip"])
             r.SetDOFValues(sol["joints"], m.GetArmIndices())
             r.SetTransform(sol["base"])
-            taskprob.CloseFingers()
+            #taskprob.CloseFingers()
 
         else:
             print "no IK sol found in " + str(time.time()-st) + "s",

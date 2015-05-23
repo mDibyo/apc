@@ -20,6 +20,7 @@ PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 
 NEW_WRISTS = True
 NEW_SHELF = True
+MOVE_BASE = False
 
 if NEW_SHELF:
     SHELF_Y = [11*.0254, 0, -11*.0254]
@@ -45,6 +46,13 @@ elif grasps_fn == "v1":
 elif grasps_fn == "tmp_grasps":
     OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
     GRASP_TAG = "_sorted.json"
+elif grasps_fn == "tmp_grasps":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
+    GRASP_TAG = "_sorted.json"  
+elif grasps_fn == "latest":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
+    GRASP_TAG = "_coll_free.json"     
+    
     
 obj_ease = {
     "champion_copper_plus_spark_plug":              3,

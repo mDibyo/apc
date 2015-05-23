@@ -65,9 +65,9 @@ class APCController(ROSNode):
 
     def execute_motion_plan(self, motion_plan):
         if motion_plan.strategy != "failed":
-            self.base_movement_publisher.publish(motion_plan.base_target)    
-            rospy.sleep(1.0)
-            self.wait_for_idle_exec_status()
+            #self.base_movement_publisher.publish(motion_plan.base_target)    
+            #rospy.sleep(1.0)
+            #self.wait_for_idle_exec_status()
             
             self.torso_height_publisher.publish(Float32(motion_plan.torso_height.data))
             rospy.sleep(1.0)
@@ -104,10 +104,12 @@ if __name__ == '__main__':
     rightjoints = controller.get_robot_state("rightarm_torso")
     leftjoints = controller.get_robot_state("leftarm_torso")
     
-    start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] + rightjoints.base_pos])
+    start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] ])
     
-    work_order = BinWorkOrder('bin_G', 'all_combined', ['expo_dry_erase_board_eraser'],
-                              'expo_dry_erase_board_eraser', rightjoints.joint_values, [0,1.57,0.2,1.57,-.8,2,-1.57,-1.57], start_pose, 'simple')
+    work_order = BinWorkOrder('bin_H', 'all_combined', ['expo_dry_erase_board_eraser'],
+                              'expo_dry_erase_board_eraser', rightjoints.joint_values, 
+                              leftjoints.joint_values, start_pose, 'simple')
+                              #[0,1.57,0.2,1.57,-.8,2,-1.57,-1.57], start_pose, 'simple')
     controller.execute_work_order(work_order)
     
     

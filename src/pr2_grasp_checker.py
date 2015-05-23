@@ -7,7 +7,7 @@ import time
 
 import numpy as np
 import openravepy as rave
-import IK as ik
+from planning import IK as ik
 from pymongo import MongoClient
 
 from message_wrappers import GraspWrapper
@@ -17,8 +17,8 @@ import IPython
 APC_DIRECTORY = os.path.abspath(os.path.join(__file__, "../.."))
 DATA_DIRECTORY = os.path.join(APC_DIRECTORY, "data")
 
-PR2_MODEL_FILE = "data/models/pr2.robot.xml"
-OBJECT_MESH_DIR = "data/meshes/objects"
+PR2_MODEL_FILE = "../data/models/pr2.robot.xml"
+OBJECT_MESH_DIR = "../data/meshes/objects/good"
 
 class PR2GraspChecker(object):
     def __init__(self, env, robot, object_name, win_height = 1200, win_width = 1200, cam_dist = 0.5):
@@ -33,7 +33,7 @@ class PR2GraspChecker(object):
     def loadObject(self, object_name):
         # construct object filename
         object_filename = os.path.join(OBJECT_MESH_DIR, object_name + '.stl')
-        object_grasps_filename = os.path.join(DATA_DIRECTORY, 'grasps',
+        object_grasps_filename = os.path.join(DATA_DIRECTORY, 'grasps', 'apc_test',
                                               "{}.json".format(object_name))
 
         # load object model
@@ -207,16 +207,21 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk(root_dir):
         for f in files:
             if root.find('clean') == -1 and f.find('old') == -1 and f.find('centered') == -1:
+                
                 object_name, object_ext = os.path.splitext(f)
                 # object_name = 'mommys_helper_outlet_plugs'
                 print 'Pruning grasps for ', object_name
-                
-                # prune grasps
-                grasp_checker = PR2GraspChecker(e, r, object_name)
-                object_grasps_keep = grasp_checker.pruneBadGrasps()
+                try:
+                    # prune grasps
+                    grasp_checker = PR2GraspChecker(e, r, object_name)
+                    object_grasps_keep = grasp_checker.pruneBadGrasps()
 
-                # resave the json file
-                object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
-                                                          "{}.json".format(object_name + '_coll_free'))
-                GraspWrapper.grasps_to_file(object_grasps_keep, object_grasps_out_filename)
-                e.Remove(grasp_checker.object)
+                    # resave the json file
+                    object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
+                                                              "{}.json".format(object_name + '_coll_free'))
+                    GraspWrapper.grasps_to_file(object_grasps_keep, object_grasps_out_filename)
+                    e.Remove(grasp_checker.object)
+                except Exception:
+                    print 'error on',object_name  
+                
+                

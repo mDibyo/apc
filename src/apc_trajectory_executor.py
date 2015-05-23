@@ -13,6 +13,8 @@ from trajectory_msgs.msg import JointTrajectory
 from geometry_msgs.msg import Twist, Point
 #from pr2.manip import Manip
 from pr2.arm import Arm
+import openravepy as rave
+
 
 from apc.msg import ExecStatus, RobotStateBase
 from ros_utils import ROSNode
@@ -58,10 +60,11 @@ class APCTrajectoryExecutor(ROSNode):
         #self.rarm = Arm('right')
         # self.rarm_gripper_name = 'r_gripper_l_finger_joint'
         
-        self.right = Arm("right", default_speed=0.15)
-        self.left = Arm("left", default_speed=0.15)
+        self.right = Arm("right", default_speed=0.20)
+        self.left = Arm("left", default_speed=0.20)
         self.r_gripper_name = "r_gripper_l_finger_joint"
         self.l_gripper_name = "l_gripper_l_finger_joint"
+        self.left.close_gripper()
         
         self.get_robot_state_client = rospy.ServiceProxy("/get_latest_robot_state", GetLatestRobotState)      
 
@@ -71,7 +74,7 @@ class APCTrajectoryExecutor(ROSNode):
 
         self.base_movement_subscriber = rospy.Subscriber(self.base_movement_topic,
                                                          Point,
-                                                         self.move_base_linear)
+                                                         self.move_base)
                                                          
         self.torso_height_subscriber = rospy.Subscriber(self.torso_height_topic,
                                                         Float32,
@@ -111,20 +114,33 @@ class APCTrajectoryExecutor(ROSNode):
             rospy.sleep(0.5)   
             rospy.logwarn("not idle so waiting")
         try:
-            arm = self.manip
+            arm = self.right
             self.exec_status = ExecStatus.BUSY
             arm.move_torso_simple(target_height.data)
             self.exec_status = ExecStatus.IDLE
         except rospy.ROSException:
             self.exec_status = ExecStatus.ERROR
             
+    def move_base(self, base_pos):
+        while self.exec_status != ExecStatus.IDLE:
+            rospy.sleep(0.5)   
+            rospy.logwarn("not idle so waiting")
+        try:
+            arm = self.right
+            self.exec_status = ExecStatus.BUSY
+            arm.move_base(base_pos)
+            self.exec_status = ExecStatus.IDLE
+        except rospy.ROSException:
+            self.exec_status = ExecStatus.ERROR
+    
+    """        
     def move_base_linear(self, base_target):
         while self.exec_status != ExecStatus.IDLE:
             rospy.sleep(0.5)   
             rospy.logwarn("not idle so waiting")         
         try:
             self.exec_status = ExecStatus.BUSY 
-   
+            rospy.logwarn(base_target)
             cmd_vel_publisher = rospy.Publisher("base_controller/command", Twist)
             tf_listener = tf.TransformListener()
             
@@ -141,9 +157,9 @@ class APCTrajectoryExecutor(ROSNode):
                 pos = self.get_robot_state("").base_pos
                                                  
                 vel = Twist()
-                v = (target - pos); v /= 20*np.linalg.norm(v)
+                v = (target - pos); v /= 40*np.linalg.norm(v)
                 vel.linear.x, vel.linear.y = v[0], v[1]
-                
+                rospy.logwarn(vel)
                 dist_moved = np.linalg.norm(pos - start)
                 cmd_vel_publisher.publish(vel)                     
                 rate.sleep()
@@ -151,6 +167,7 @@ class APCTrajectoryExecutor(ROSNode):
             self.exec_status = ExecStatus.IDLE
         except rospy.ROSException:
             self.exec_status = ExecStatus.ERROR
+    """
         
     def execute_joint_trajectory(self, trajectory):
         # TODO: Add handling for speed
@@ -158,18 +175,11 @@ class APCTrajectoryExecutor(ROSNode):
             rospy.sleep(0.5)   
             rospy.logwarn("not idle so waiting")
         try:
-            arm = self.manip
-            """
-            if joint_names[0][0] == 'l':
-                arm = self.larm
-            # elif joint_names[0][0] == 'r':
-            #     arm = self.rarm
-            else:  # TODO: Add handling for torso joint
-                return """ 
-
             if len(trajectory.joint_names) > 1:
-                print "move arm"
-                # [1:] for no torso
+                if trajectory.joint_names[0][0] == 'l':
+                    arm = self.left
+                elif trajectory.joint_names[0][0] == 'r':
+                    arm = self.right
                 joint_names = trajectory.joint_names
                 points = [point.positions for point in trajectory.points]
                 
@@ -178,9 +188,10 @@ class APCTrajectoryExecutor(ROSNode):
                 self.exec_status = ExecStatus.IDLE
          
             else:
+                arm = self.right
                 if trajectory.points[0].positions[0] == 0:
                     self.exec_status = ExecStatus.BUSY
-                    arm.close_gripper(max_effort=60)
+                    arm.close_gripper()
                     self.exec_status = ExecStatus.IDLE
                 else:
                     self.exec_status = ExecStatus.BUSY

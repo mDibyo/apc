@@ -38,7 +38,10 @@ class MotionPlanWrapper(object):
     def __init__(self, strategy, trajectories, base_pos, torso_height):
         self.strategy = strategy
         self.trajectories = trajectories
-        self.base_pos = Point(base_pos[0], base_pos[1], 0)
+        if len(base_pos) > 1:
+            self.base_pos = Point(base_pos[0], base_pos[1], 0)
+        else:
+            self.base_pos = Point(0,0,0)
         self.torso_height = torso_height
         
     def to_msg(self):

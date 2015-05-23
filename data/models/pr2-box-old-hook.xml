@@ -1,0 +1,56 @@
+<robot name="pr2" file="pr2-new-wrists.dae">
+    <KinBody>
+        <Body name="bin">
+            <Geom type="trimesh">
+                <Render>../meshes/cubbyholes/order_bin.stl</Render>
+                <collision>../meshes/cubbyholes/order_bin_coll.stl</collision>
+                <Translation>0.976 0.188 1.09</Translation>
+                <RotationAxis>0 1 0 -90</RotationAxis>
+                <RotationAxis>1 0 0  90</RotationAxis>
+            </Geom>
+        </Body>
+        <Joint name="bin_fix" type="hinge" enable="false">
+            <Body>bin</Body>
+            <Body>l_gripper_palm_link</Body>
+            <limits>0 0</limits>
+        </Joint>
+    </KinBody>
+
+    <Manipulator name="leftarm_box">
+        <base>torso_lift_link</base>
+        <effector>bin</effector>
+        <Translation>0.976 0.188 1.09</Translation>
+        <RotationAxis>0 1 0 -90</RotationAxis>
+        <RotationAxis>1 0 0 -90</RotationAxis>
+    </Manipulator>
+  
+    <KinBody>
+        <Body name="hook">
+            <Geom type="trimesh">
+                <RotationAxis>1 0 0 90</RotationAxis>
+                <Translation>1.25 -0.126 0.78</Translation>
+                
+                <Render>../meshes/cubbyholes/hook.wrl</Render>
+                <collision>../meshes/cubbyholes/hook.wrl</collision>
+            </Geom>
+        </Body>
+        <Joint name="hook_fix" type="hinge" enable="false">
+            <Body>hook</Body>
+            <Body>r_gripper_palm_link</Body>
+            <limits>0 0</limits>
+        </Joint>
+    </KinBody>
+    <Manipulator name="rightarm_torso_hook">
+        <base>base_link</base>
+        <effector>hook</effector>
+        <RotationAxis>1 0 0 90</RotationAxis>
+        <Translation>1.25 -0.1 0.78</Translation>
+    </Manipulator>
+    <Manipulator name="rightarm_hook">
+        <base>torso_lift_link</base>
+        <effector>hook</effector>
+        <RotationAxis>1 0 0 90</RotationAxis>
+        <Translation>1.25 -0.1 0.78</Translation>
+    </Manipulator>
+
+</robot>
