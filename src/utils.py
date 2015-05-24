@@ -13,7 +13,7 @@ import numpy as np
 
 # Define computer configuration
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
-config = json.load(osp.join(APC_DIRECTORY, 'config.json'))
+config = json.load(open(osp.join(APC_DIRECTORY, 'config.json')))
 
 COMPUTER = config['computer']
 PERCEPTION_COMPUTER = config['perception_computer']

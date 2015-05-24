@@ -1,0 +1,24 @@
+<robot name="pr2" file="pr2-beta-static.dae">
+    <KinBody>
+        <Body name="bin">
+            <Geom type="trimesh">
+                <Render>../meshes/cubbyholes/order_bin.stl</Render>
+                <collision>../meshes/cubbyholes/order_bin_coll.stl</collision>
+                <Translation>0.976 -0.13 0.79</Translation>
+                <RotationAxis>0 1 0 -90</RotationAxis>
+            </Geom>
+        </Body>
+        <Joint name="bin_fix" type="hinge" enable="false">
+            <Body>bin</Body>
+            <Body>l_gripper_palm_link</Body>
+            <limits>0 0</limits>
+        </Joint>
+    </KinBody>
+
+    <Manipulator name="leftarm_box">
+        <base>torso_lift_link</base>
+        <effector>bin</effector>
+        <Translation>0.976 -0.13 0.79</Translation>
+        <RotationAxis>0 1 0 -90</RotationAxis>
+    </Manipulator>
+</robot>
