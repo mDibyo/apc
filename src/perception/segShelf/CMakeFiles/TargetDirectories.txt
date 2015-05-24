@@ -1,0 +1,3 @@
+/home/nmishra/workspace/apc/src/perception/segShelf/CMakeFiles/MyPCLUtils.dir
+/home/nmishra/workspace/apc/src/perception/segShelf/CMakeFiles/segmentShelf.dir
+/home/nmishra/workspace/apc/src/perception/segShelf/CMakeFiles/transformCloud.dir

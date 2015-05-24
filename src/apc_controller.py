@@ -37,7 +37,9 @@ class APCController(ROSNode):
         self.get_motion_plan_client = rospy.ServiceProxy('get_motion_plan', GetMotionPlan)
         self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)
         self.look_at_bins_client = rospy.ServiceProxy("look_at_bins", LookAtBins)
-
+        self.get_grasp_plan_client = rospy.ServiceProxy('get_motion_plan_grasp', GetMotionPlan)
+        self.get_hook_plan_client = rospy.ServiceProxy('get_motion_plan_hook', GetMotionPlan)
+        
         self.joint_trajectories_publisher = rospy.Publisher(self.joint_trajectories_topic, JointTrajectory)
         self.base_movement_publisher = rospy.Publisher("base_movement", Point)
         self.torso_height_publisher = rospy.Publisher("torso_height", Float32)
@@ -97,11 +99,12 @@ class APCController(ROSNode):
             print "end arms"
 
             # Point Head
-            print "start head"
-            self.head_point_publisher.publish(motion_plan.head_direction)
-            rospy.sleep(1.0)
-            self.wait_for_idle_exec_status()
-            print "end head"
+            if motion_plan.head_direction.x != 0:
+                print "start head"
+                self.head_point_publisher.publish(motion_plan.head_direction)
+                rospy.sleep(1.0)
+                self.wait_for_idle_exec_status()
+                print "end head"
             
             # Capture Image
             if motion_plan.capture_scene:
@@ -110,13 +113,17 @@ class APCController(ROSNode):
                 rospy.sleep(1.0)
                 self.wait_for_idle_exec_status()
                 print "end scene"
+                
             rospy.sleep(1.0)    
             rospy.logwarn("completed executing motion plan")
         
     def execute_work_order(self, work_order):
         try:
             rospy.logwarn("Here")
-            res = self.get_motion_plan_client(work_order)
+            if work_order.strategy == "grasp":
+                res = self.get_grasp_plan_client(work_order)
+            elif work_order.strategy == "hook":
+                res = self.get_hook_plan_client(work_order)
             print res
             rospy.logwarn("Here too")
             self.execute_motion_plan(res.motion_plan)

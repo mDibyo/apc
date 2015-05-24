@@ -167,7 +167,7 @@ class APCPlannerService(ROSNode):
         self.robot.SetDOFValues(self.plan["grasp"]["joints"], self.robot.GetManipulator(self.plan["grasp"]["manip"]).GetArmIndices())
         
         self.plan["pregrasp"] = self.ik.GetPregraspJoints(self.plan["grasp"]["target"])
-        self.plan["drop"] = self.ik.GetDropJoints(self.plan["grasp"]["target"], self.robot.GetManipulator("leftarm_box").GetTransform()[:3,3])
+        self.plan["drop"] = self.ik.GetDropJoints(self.plan["grasp"]["target"], self.order_bin.GetTransform()[:3,3])
         self.plan["postgrasp"] = self.ik.GetPostgraspJoints(self.plan["grasp"]["target"])
         
         for k,v in self.plan.items():
@@ -255,7 +255,7 @@ class APCPlannerService(ROSNode):
         return motion_plan.to_msg()
         
     def replay(self, trajectories, numL=0):
-        raw_input("start replay?")
+        #raw_input("start replay?")
         traj_wrap = []
         for i,traj in enumerate(trajectories):
             m = "leftarm" if i < numL else "rightarm"

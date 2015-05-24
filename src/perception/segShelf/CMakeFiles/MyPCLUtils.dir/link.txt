@@ -1,0 +1,2 @@
+/usr/bin/ar cr libMyPCLUtils.a  CMakeFiles/MyPCLUtils.dir/utils.cpp.o
+/usr/bin/ranlib libMyPCLUtils.a
