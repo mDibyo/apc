@@ -1,0 +1,33 @@
+{
+  "bin_contents":
+  {
+    "bin_G":
+    [
+      "crayola_64_ct","munchkin_white_hot_duck_bath_toy"
+    ],
+    "bin_H":
+    [
+      "dove_beauty_bar","expo_dry_erase_board_eraser"
+    ],
+    "bin_I":
+    [
+      "kong_duck_dog_toy","cheezit_big_original"
+    ]
+  },
+
+  "work_order":
+  [
+    {
+      "bin": "bin_G",
+      "item": "munchkin_white_hot_duck_bath_toy"
+    },
+    {
+      "bin": "bin_H",
+      "item": "expo_dry_erase_board_eraser"
+    },
+    {
+      "bin": "bin_I",
+      "item": "cheezit_big_original"
+    },
+  ]
+}

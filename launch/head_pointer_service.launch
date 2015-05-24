@@ -1,0 +1,6 @@
+<!-- point the head in a direction -->
+<launch>
+    <node name="head_pointer"
+          pkg="apc"
+          type="pr2_head_pointer.py" />
+</launch>
