@@ -15,6 +15,7 @@ from apc.srv import *
 import openravepy as rave
 import numpy as np
 
+
 class APCController(ROSNode):
     def __init__(self, joint_trajectories_topic, exec_status_topic, shelf_pose_file):
         super(APCController, self).__init__('apc_controller')

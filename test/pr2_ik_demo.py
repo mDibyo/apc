@@ -1,10 +1,6 @@
 import time
 import os.path as osp
 
-
-import numpy as np
-import openravepy as rave
-
 from test_utils import *
 from planning import IkSolver
 from utils import SHELF_MESH_DIR, OBJ_MESH_DIR, OBJ_LIST, MODEL_DIR, \

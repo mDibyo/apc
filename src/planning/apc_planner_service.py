@@ -22,7 +22,6 @@ from apc.msg import MotionPlan
 from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode, fromPoseMsg
 from utils import MODEL_DIR, OBJ_MESH_DIR, trajopt_request_template, timed, order_bin_pose
-from test_utils import plotPose
 from message_wrappers import MotionPlanWrapper, JointTrajectoryWrapper
 
 class APCPlannerService(ROSNode):
@@ -80,9 +79,6 @@ class APCPlannerService(ROSNode):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass#rave.RaveDestroy()
-
-
-
 
     def find_trajectory(self, manip, start_joints, end_joints, dist_pen=0.02):
         """ Return a trajectory from (start_joints) to (end_joints) with the given base_pos, torso_height """

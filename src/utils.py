@@ -18,7 +18,7 @@ MODEL_DIR = osp.join(DATA_DIRECTORY, "models")
 JSON_DIR = osp.join(APC_DIRECTORY, "json")
 PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 
-NEW_WRISTS = True
+NEW_WRISTS = False
 NEW_SHELF = True
 
 if NEW_SHELF:

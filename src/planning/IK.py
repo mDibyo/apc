@@ -13,9 +13,9 @@ from Grasps import Grasp, GraspSet
 
 
 class IkSolver(object):
-
     env = None
     robot = None
+    ikmodel = None
     basePositions = np.load(osp.join(DATA_DIRECTORY,"simulated","reachability_NW_R_base.npy"))
     objPoses = np.load(osp.join(DATA_DIRECTORY,"simulated","reachability_NW_R_gripper.npy"))
     nn = interp(objPoses,basePositions)
