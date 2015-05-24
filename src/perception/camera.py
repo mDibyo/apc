@@ -99,9 +99,9 @@ class Carmine(object):
                                                      format=format)
         self.depth_stream.setMirroring(False)
         self.depth_stream.start()
-        self.device.setImageRegistrationMode("depth_to_color")
+        self.device.setImageRegistrationMode("off") #depth_to_color")
         sleep(1)
-        self.device.setImageRegistrationMode("depth_to_color")
+        self.device.setImageRegistrationMode("off") #depth_to_color")
         #self.depth_stream.setEmitterState(on=False)
 
     def enable_emitter(self):

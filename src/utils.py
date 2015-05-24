@@ -18,6 +18,8 @@ MODEL_DIR = osp.join(DATA_DIRECTORY, "models")
 JSON_DIR = osp.join(APC_DIRECTORY, "json")
 PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 
+SHELF_POSE_FILE = 'perception/shelf_finder/shelf_pose.txt'
+
 NEW_WRISTS = True
 NEW_SHELF = True
 MOVE_BASE = False

@@ -46,7 +46,7 @@ class APCTrajectoryExecutor(ROSNode):
             self.publisher.publish(ExecStatus(header, self.status))
 
 
-    def __init__(self, joint_trajectories_topic, base_movement_topic, torso_height_topic, exec_status_topic, shelf_pose_file):
+    def __init__(self, joint_trajectories_topic, base_movement_topic, torso_height_topic, exec_status_topic):
         super(APCTrajectoryExecutor, self).__init__('execute')
 
         self.joint_trajectories_topic = joint_trajectories_topic
@@ -86,9 +86,6 @@ class APCTrajectoryExecutor(ROSNode):
         self.exec_status_publisher_thread.start()
         
         self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)     
-        
-        self.robot_start_pose = rave.poseFromMatrix(np.linalg.inv(np.loadtxt(shelf_pose_file)))
-        self.robot_initial_odom = self.get_robot_state("").base_pos
     
     def get_robot_state(self, manip):
         try:
@@ -201,7 +198,7 @@ class APCTrajectoryExecutor(ROSNode):
             self.exec_status = ExecStatus.ERROR
 
 if __name__ == '__main__':
-    executor = APCTrajectoryExecutor('joint_trajectories', 'base_movement', 'torso_height', 'exec_status', 'perception/shelf_finder/shelf_pose.txt')
+    executor = APCTrajectoryExecutor('joint_trajectories', 'base_movement', 'torso_height', 'exec_status')
     print "ready for execution"
     executor.spin()
 

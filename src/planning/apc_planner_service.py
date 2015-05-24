@@ -38,7 +38,8 @@ class APCPlannerService(ROSNode):
     gripper_joint_name = "_gripper_l_finger_joint"        
     waypoint = np.array([1.57,0.2,1.57,-.8,2,-1.57,-1.57])
 
-    
+    waypoint_R = np.array([-1.6839978439623269, -0.3506176705901336, -0.008834850621833645, -1.53, -1.57, -2.023647262846895, 1.8131143429376613])
+
     def __init__(self, work_orders_topic, update_rate, shelf_name="pod_lowres"):
         super(APCPlannerService, self).__init__('plan')
 
@@ -86,7 +87,7 @@ class APCPlannerService(ROSNode):
 
 
 
-    def find_trajectory(self, manip, start_joints, end_joints, dist_pen=0.02, dir_cost=False):
+    def find_trajectory(self, manip, start_joints, end_joints, fail_coll=True, dist_pen=0.02, coll_cost=100):
         """ Return a trajectory from (start_joints) to (end_joints) with the given base_pos, torso_height """
                                     
         manip = self.robot.SetActiveManipulator(manip)      
@@ -99,14 +100,18 @@ class APCPlannerService(ROSNode):
         request['basic_info']['start_fixed'] = True
         request['basic_info']['manip'] = "active"
         request['costs'][1]['params']['dist_pen'] = [dist_pen]
-        request['costs'][1]['params']['coeffs'] = [100]
+        request['costs'][1]['params']['coeffs'] = [coll_cost]
         
-        request['basic_info']['n_steps'] = 4
+        
          
-        if "box" or "hook" in manip.GetName():
-            problem = trajoptpy.ConstructProblem(json.dumps(request), self.env)
+        if "box" in manip.GetName():
+            request['basic_info']['n_steps'] = 4
+        elif "box" in manip.GetName():
+            request['basic_info']['n_steps'] = 6  
+            
+        problem = trajoptpy.ConstructProblem(json.dumps(request), self.env)
         """
-        if dir_cost and "box" in manip.GetName() or "hook" in manip.GetName():
+        if "box" in manip.GetName() or "hook" in manip.GetName():
             arm_inds = manip.GetArmIndices()
             if manip.GetName() == "leftarm_box":
                 local_dir = np.array([0,0,1])
@@ -123,12 +128,14 @@ class APCPlannerService(ROSNode):
                 robot.SetDOFValues(x, arm_inds, False)
                 world_dir = tool_link.GetTransform()[:3,:3].dot(local_dir)
                 return np.array([np.cross(joint.GetAxis(), world_dir)[:2] for joint in arm_joints]).T.copy()       
-            for t in xrange(1,10):
+            for t in xrange(1,request['basic_info']['n_steps']):
                 problem.AddConstraint(f, dfdx, [(t,j) for j in xrange(7)], "EQ", "up%i"%t)
-        """       
+        """
         result = trajoptpy.OptimizeProblem(problem)
         traj = result.GetTraj()
-        return traj
+        if traj_is_safe(traj, self.robot):
+            return traj
+        return None
         
     def intr_trajectory(self, manip, start, end):
         return np.array([np.linspace(start[i], end[i], 10) for i in range(len(start))]).T
@@ -151,7 +158,7 @@ class APCPlannerService(ROSNode):
         self.plan["binholder"] = self.ik.GetBinholderJoints(self.work_order.bin_name)
         
         if self.plan["binholder"] is None:
-            rospy.logwarn("no pose found for " + k)
+            rospy.logwarn("no pose found for binholder")
             return None
                  
         self.robot.SetDOFValues(self.plan["binholder"]["joints"], self.robot.GetManipulator("leftarm_box").GetArmIndices())
@@ -169,6 +176,7 @@ class APCPlannerService(ROSNode):
         trajectories = []
         
         trajectories.append(self.find_trajectory("leftarm_box", self.work_order.left_joints[1:], self.plan["binholder"]["joints"], 0.05))
+        self.robot.SetDOFValues(self.plan["binholder"]["joints"], self.robot.GetManipulator("leftarm_box").GetArmIndices())
         trajectories.append([[0.54]])     
         
         trajectories.append(self.find_trajectory("rightarm", self.work_order.right_joints[1:], self.plan["pregrasp"]["joints"]))                                                           
@@ -179,6 +187,7 @@ class APCPlannerService(ROSNode):
         trajectories.append(self.find_trajectory("rightarm", self.plan["postgrasp"]["joints"], self.plan["drop"]["joints"]))    
         trajectories.append([[0.54]])     
         
+        self.trajs = trajectories
         
         self.robot.SetTransform(self.plan["grasp"]["base"])
         self.robot.SetDOFValues([self.plan["grasp"]["joints"][0]], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
@@ -192,12 +201,17 @@ class APCPlannerService(ROSNode):
     def find_motion_plan_hook(self):
         self.plan = {}
         self.plan["prehook"] = self.ik.GetHookJoints(self.work_order.bin_name, self.work_order.target_object, 'prehook')
+        
+        if self.plan["prehook"] is None:
+            rospy.logwarn("no pose found for prehook")
+            return None
+        
         torso_height = self.plan["prehook"]["joints"][0]        
         self.robot.SetDOFValues([torso_height], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
         
         self.plan["binholder"] = self.ik.GetBinholderJoints(self.work_order.bin_name)      
         if self.plan["binholder"] is None:
-            rospy.logwarn("no pose found for " + k)
+            rospy.logwarn("no pose found for binholder")
             return None              
         self.robot.SetDOFValues(self.plan["binholder"]["joints"], self.robot.GetManipulator("leftarm_box").GetArmIndices())
         
@@ -215,24 +229,36 @@ class APCPlannerService(ROSNode):
         
         trajectories = []
         trajectories.append(self.find_trajectory("leftarm_box", self.work_order.left_joints[1:], self.plan["binholder"]["joints"], 0.05))
+        self.robot.SetDOFValues(self.plan["binholder"]["joints"], self.robot.GetManipulator("leftarm_box").GetArmIndices())
+        
         trajectories.append([[0]])
-        trajectories.append(self.find_trajectory("rightarm_hook", self.work_order.right_joints[1:], self.plan["prehook"]["joints"][1:]))  
+        trajectories.append(self.find_trajectory("rightarm_hook", self.work_order.right_joints[1:], self.waypoint_R))  
+        trajectories.append(self.find_trajectory("rightarm_hook", self.waypoint_R, self.plan["prehook"]["joints"][1:]))  
         trajectories.append(self.find_trajectory("rightarm_hook", self.plan["prehook"]["joints"][1:], self.plan["insert"]["joints"])) 
-        trajectories.append(self.find_trajectory("rightarm_hook", self.plan["insert"]["joints"], self.plan["twist"]["joints"])) 
-        trajectories.append(self.intr_trajectory("rightarm_hook", self.plan["twist"]["joints"], np.hstack([self.plan["out"]["joints"][:-1], [self.plan["twist"]["joints"][-1]]]))) 
+        trajectories.append(self.find_trajectory("rightarm_hook", self.plan["insert"]["joints"], self.plan["twist"]["joints"], False)) 
+        trajectories.append(self.find_trajectory("rightarm_hook", self.plan["twist"]["joints"], 
+                                                 np.hstack([self.plan["out"]["joints"][:-1], [self.plan["twist"]["joints"][-1]]]), False, 0.1, 10)) 
+        trajectories.append(self.find_trajectory("rightarm_hook", np.hstack([self.plan["out"]["joints"][:-1], [self.plan["twist"]["joints"][-1]]]),self.waypoint_R)) 
+        
+        self.trajs = trajectories
         
         for i,ob in enumerate(objs):
             self.env.AddKinBody(ob)
             ob.SetTransform(objposes[i])
         
         traj_wrap = self.replay(trajectories,1)
+        if traj_wrap is None:
+            return None
         motion_plan = MotionPlanWrapper(self.work_order.strategy, traj_wrap, [0,0,0], torso_height)   
         return motion_plan.to_msg()
         
     def replay(self, trajectories, numL=0):
+        raw_input("start replay?")
         traj_wrap = []
         for i,traj in enumerate(trajectories):
-            m = "leftarm" if i < numL else "rightarm"                     
+            m = "leftarm" if i < numL else "rightarm"
+            if traj is None:
+                return None                     
             for t in traj:
                 if len(t) == 1:
                     self.robot.SetDOFValues(t, self.robot.GetManipulator(m).GetGripperJoints())
@@ -249,7 +275,7 @@ class APCPlannerService(ROSNode):
         """ Main method of service call. """
         self.work_order = req.work_order
         self.update_state()
-        if self.work_order.strategy = "simple":
+        if self.work_order.strategy == "simple":
             msg = self.find_motion_plan_grasp()
         else:
             msg = self.find_motion_plan_hook()

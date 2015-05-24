@@ -50,7 +50,7 @@ class IkSolver(object):
             m = "rightarm_torso_hook"
             if dist[2] > thresh:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0])) 
-                dx, dy, dz = -0.05, -0.08, 0.02
+                dx, dy, dz = -0.10, -0.08, 0.05
                 if dist[1] < 0:
                     dy = -dy  
             else:
@@ -64,7 +64,7 @@ class IkSolver(object):
             m = "rightarm_hook"
             if dist[2] > thresh:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0]))  
-                dx, dy, dz = 0.05, -0.08, 0.02
+                dx, dy, dz = 0.05, -0.1, 0.02
                 if dist[1] < 0:
                     dy = -dy         
             else:
@@ -77,30 +77,32 @@ class IkSolver(object):
             m = "rightarm_hook"
             if dist[2] > thresh:
                 if dist[1] > 0:
-                    rot = rave.quatFromAxisAngle(-np.pi/2 * np.array([1,0,0]))  
+                    rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0]))  
                 else:
-                    rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0])) 
+                    rot = rave.quatFromAxisAngle(-np.pi/2 * np.array([1,0,0])) 
                     
-                dx, dy, dz = 0.05, -0.08, 0
+                dx, dy, dz = 0.05, 0.01, 0
                 if dist[1] < 0:
                     dy = -dy            
             else:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0]))  
                 dx, dz = 0.05, -dist[2]/2
             trans = [obj_mat[0,3] + obj_size[0] + dx,
-                     obj_mat[1,3],
+                     obj_mat[1,3] + dy,
                      obj_mat[2,3] + dz]
         elif which == 'out':
             m = "rightarm_hook"
             if dist[2] > thresh:
+                dx, dy, dz = -0.10, 0, 0.02
                 if dist[1] > 0:
                     rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0]))
                 else:
-                    rot = rave.quatFromAxisAngle(np.pi/2 * np.array([-1,0,0]))
-                dx, dy, dz = -0.05, 0, 0
+                    rot = rave.quatFromAxisAngle(-np.pi/2 * np.array([1,0,0]))
+                    dy = -dy
+                
             else:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0]))  
-                dx, dy, dz = -0.05, -0.05, 0.02
+                dx, dy, dz = -0.05, 0, 0.02
             trans = [bin_mat[0,3] + dx,
                      obj_mat[1,3] + dy,
                      obj_mat[2,3] + dz]
@@ -115,6 +117,7 @@ class IkSolver(object):
                     "manip" : m}
         else:
             plotPose(IkSolver.env, pose)
+            
     @staticmethod
     def GetBinholderJoints(bin_N):
         bin_mat = rave.matrixFromPose(bin_pose[bin_N])  

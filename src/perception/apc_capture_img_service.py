@@ -3,6 +3,8 @@ import shutil
 import os
 import h5py
 from argparse import ArgumentParser
+import numpy as np
+import openravepy as rave
 
 import cyni
 
@@ -12,13 +14,13 @@ import rospy
 from ros_utils import ROSNode
 from camera import Carmine
 import utils
-from apc.srv import CaptureScene, GetCameraPose
+from apc.srv import *
 
 CARMINE_EXPOSURE=80
 
 
 class APCCaptureSceneService(ROSNode):
-    def __init__(self, output_directory=None, camera_pose_service_name=None):
+    def __init__(self, output_directory=None, camera_pose_service_name=None, robot_state_service_name=None):
         super(APCCaptureSceneService, self).__init__('capture_scene')
         
         self.capture_scene_service = rospy.Service('capture_scene',
@@ -26,10 +28,18 @@ class APCCaptureSceneService(ROSNode):
                                                    self.handle_capture_scene)
 
         self.camera_pose_service_name = camera_pose_service_name
+        self.robot_state_service_name = robot_state_service_name
+        
         if self.camera_pose_service_name is None:
             self.camera_pose_service_name = 'get_camera_pose'
+        if self.robot_state_service_name is None:
+            self.robot_state_service_name = 'get_latest_robot_state'
+                
         self.camera_pose_client = rospy.ServiceProxy(self.camera_pose_service_name,
                                                      GetCameraPose)
+        self.robot_state_client = rospy.ServiceProxy(self.robot_state_service_name,
+                                                     GetLatestRobotState)
+                                                                                                 
         self.output_dir = utils.PERCEPTION_DIR if output_directory is None else self.output_dir
 
         if os.path.exists(self.output_dir):
@@ -90,8 +100,13 @@ class APCCaptureSceneService(ROSNode):
         self.shutter(highres_filename, rgbd_filename, depth_filename, cloud_filename)
 
         response = self.camera_pose_client("")
-        mat = np.loadtxt(response.transform_mat_path)
-        np.save_txt(path_base + "transform.txt")
+        state = self.robot_state_client("base")
+        
+        camera_to_robot = np.loadtxt(response.transform_mat_path)
+        robot_to_world = np.eye(4) #rave.matrixFromPose(state.state_with_base.base_pose)
+        
+        camera_to_world = camera_to_robot.dot(robot_to_world)
+        np.savetxt(os.path.join(path_base, "transform.txt"), camera_to_world)
 
         return path_base
         
@@ -101,9 +116,11 @@ if __name__ == '__main__':
     parser = ArgumentParser(description=description)
     parser.add_argument('-d', '--output-directory', default=None)
     parser.add_argument('-c', '--camera-pose-service', default=None)
+    parser.add_argument('-r', '--robot-state-service', default=None)
     args = parser.parse_known_args()[0]
 
     with APCCaptureSceneService(output_directory=args.output_directory,
-                                camera_pose_service_name=args.camera_pose_service) as node:
+                                camera_pose_service_name=args.camera_pose_service,
+                                robot_state_service_name=args.robot_state_service) as node:
         node.spin()
 

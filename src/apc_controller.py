@@ -16,7 +16,7 @@ import openravepy as rave
 import numpy as np
 
 class APCController(ROSNode):
-    def __init__(self, joint_trajectories_topic, exec_status_topic, shelf_pose_file):
+    def __init__(self, joint_trajectories_topic, exec_status_topic):
         super(APCController, self).__init__('apc_controller')
         self.joint_trajectories_topic = joint_trajectories_topic
         self.exec_status_topic = exec_status_topic
@@ -36,9 +36,7 @@ class APCController(ROSNode):
         self.exec_status_subscriber = rospy.Subscriber(self.exec_status_topic,
                                                        ExecStatus,
                                                        self.record_exec_status)                                     
-        self.robot_start_pose = rave.poseFromMatrix(np.linalg.inv(np.loadtxt(shelf_pose_file)))
         
-        self.robot_initial_odom = self.get_robot_state("").base_pos
 
     @property
     def robot_exec_status(self):
@@ -100,15 +98,14 @@ class APCController(ROSNode):
 
 if __name__ == '__main__':
 
-    controller = APCController('joint_trajectories', 'exec_status', 'perception/shelf_finder/shelf_pose.txt')
+    controller = APCController('joint_trajectories', 'exec_status')
     rightjoints = controller.get_robot_state("rightarm_torso")
     leftjoints = controller.get_robot_state("leftarm_torso")
     
-    start_pose = np.hstack([controller.robot_start_pose[:4], controller.robot_start_pose[-3:] ])
-    
-    work_order = BinWorkOrder('bin_H', 'all_combined', ['expo_dry_erase_board_eraser'],
+    work_order = BinWorkOrder('bin_I', 'all_combined', ['expo_dry_erase_board_eraser'],
                               'expo_dry_erase_board_eraser', rightjoints.joint_values, 
-                              leftjoints.joint_values, start_pose, 'simple')
+                              leftjoints.joint_values, rightjoints.base_pose, 'hook')
+                              
                               #[0,1.57,0.2,1.57,-.8,2,-1.57,-1.57], start_pose, 'simple')
     controller.execute_work_order(work_order)
     

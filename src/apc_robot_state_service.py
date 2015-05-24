@@ -14,7 +14,7 @@ import openravepy as rave
 from sensor_msgs.msg import JointState, PointCloud2
 from apc.msg import RobotStateBase
 from apc.srv import *
-from utils import MODEL_DIR
+from utils import MODEL_DIR, SHELF_POSE_FILE
 
 class APCRobotStateService(ROSNode):
     """ Subscribes to tf and joint_states and keep log of recent robot state.
@@ -42,13 +42,18 @@ class APCRobotStateService(ROSNode):
                       
     T_tr = np.array([[ 1.  ,  0.  ,  0.  , -0.22],
                      [ 0.  ,  1.  ,  0.  , 0.025],
-                     [ 0.  ,  0.  ,  1.  ,  0.21],
+                     [ 0.  ,  0.  ,  1.  , 0.21 ],
                      [ 0.  ,  0.  ,  0.  ,  1.  ]])
 
 
-    def __init__(self, update_rate):
+    def __init__(self, update_rate, shelf_pose_file):
         super(APCRobotStateService, self).__init__('robot_state')
         
+        try:
+            self.robot_start_mat = np.linalg.inv(np.loadtxt(shelf_pose_file)) # store world to robot
+        except Exception:
+            self.robot_start_mat = None
+            
         self.tf_listener = tf.TransformListener()
         self.get_latest_state_service = rospy.Service('get_latest_robot_state',
                                                       GetLatestRobotState,
@@ -74,6 +79,7 @@ class APCRobotStateService(ROSNode):
         self.env = rave.Environment()
         self.env.Load(os.path.join(MODEL_DIR, "pr2-beta-static.zae"))
         self.robot = self.env.GetRobot('pr2')
+        print "ready"
         return self
                                                   
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -87,9 +93,9 @@ class APCRobotStateService(ROSNode):
         for transform in tf_msg.transforms:
             self.tf_all.append(transform)
             if transform.header.frame_id == "/odom_combined" and transform.child_frame_id == "/base_footprint":
-                T = transform.transform.translation
-                R = transform.transform.rotation
-                self.base.append([T.x, T.y, T.z])
+               T = transform.transform
+               self.base.append(np.array([T.rotation.w, T.rotation.x, T.rotation.y, T.rotation.z,
+                                          T.translation.x, T.translation.y, T.translation.z]))
                                                       
     def log_angles(self, joint_state):
         """ Log all joint angles. """
@@ -99,6 +105,7 @@ class APCRobotStateService(ROSNode):
         self.joints.append(state)                                                  
     
     def handle_get_camera_pose(self, req):
+        """ save T_camera_to_robot """
         joints = self.head_joints
         latest = self.joints[-1]        
         joint_angles = []      
@@ -108,8 +115,9 @@ class APCRobotStateService(ROSNode):
         
         T = self.robot.GetLink("sensor_mount_link").GetTransform()
         mat = T.dot(self.T_tr.dot(self._T_rot))
-        np.savetxt("perception/shelf_finder/transform.txt", mat)
-        return os.path.abspath("transform.txt")
+        fname = "perception/shelf_finder/transform.txt"
+        np.savetxt(fname, mat)
+        return os.path.abspath(fname)
                     
     def handle_get_latest_state(self, req):
         """ Return most recent joint angles and base position for given manipulator. """
@@ -131,11 +139,23 @@ class APCRobotStateService(ROSNode):
         for j in joints:
             joint_angles.append(latest[j])
         
-        base_pos = self.base[-1]
-        msg = RobotStateBase(joint_angles, base_pos)
+        if self.robot_start_mat is None:
+            try:
+                self.robot_start_mat = np.linalg.inv(np.loadtxt(shelf_pose_file)) # store world to robot
+            except Exception:
+                self.robot_start_mat = None
+                
+        if self.robot_start_mat is None:
+            start_mat = np.eye(4)
+        else:
+            start_mat = self.robot_start_mat
+            
+        base_mat = rave.matrixFromPose(self.base[-1])
+        base_pose = rave.poseFromMatrix(base_mat.dot(start_mat))
+        msg = RobotStateBase(joint_angles, base_pose.tolist())
         return GetLatestRobotStateResponse(msg)
         
 if __name__ == '__main__':
-    with APCRobotStateService(10) as node:
-        node.spin()
+    with APCRobotStateService(10, SHELF_POSE_FILE) as self:
+        self.spin()
         
