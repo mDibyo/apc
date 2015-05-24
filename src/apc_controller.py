@@ -149,7 +149,7 @@ class APCController(ROSNode):
             rospy.logerr("Service call failed: {}".format(e))
             
     def get_startup_sequence(self):
-        return self.look_at_bins_client([])
+        return self.look_at_bins_client(['bin_G', 'bin_H', 'bin_I'])
 
 if __name__ == '__main__':
     controller = APCController('joint_trajectories', 'exec_status')
@@ -162,7 +162,7 @@ if __name__ == '__main__':
         
     controller.work_order_sequence = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
     for order in controller.work_order_sequence:
-        # get_perception(order["bin_name"])
+        controller.execute_perception(order["bin_name"])
         
         rightjoints = controller.get_robot_state("rightarm_torso")
         leftjoints = controller.get_robot_state("leftarm_torso")

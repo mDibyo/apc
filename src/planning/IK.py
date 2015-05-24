@@ -243,7 +243,7 @@ class IkSolver(object):
             if i == 0:
                 pass
             elif i == 1:# and MOVE_BASE:
-                pos[:2,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2]   
+                pos[:2,3] = np.array([-1,1]) * IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2] # flip for left hand
             
             """
             elif i == 2:
@@ -256,7 +256,7 @@ class IkSolver(object):
             """
                                
             IkSolver.robot.SetTransform(pos)
-            #i += 1
+            i += 1
             rsol = IkSolver.GetIkSol(obj, targets, parallel)
         
            

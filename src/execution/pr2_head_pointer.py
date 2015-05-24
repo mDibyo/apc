@@ -19,7 +19,7 @@ class HeadPointer(ROSNode):
 
         self.point_head_server = rospy.Service('point_head', PointHead,
                                                self.handle_point_head)
-        rospy.loginfo('Ready to point head')
+        rospy.logwarn('Ready to point head')
 
     def handle_point_head(self, req):
         if self.last_head_direction != req.head_direction:

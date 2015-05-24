@@ -22,10 +22,7 @@ from apc.msg import MotionPlan
 from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode, fromPoseMsg
 from utils import MODEL_DIR, OBJ_MESH_DIR, trajopt_request_template, timed, order_bin_pose
-<<<<<<< HEAD
 from test_utils import *
-=======
->>>>>>> a15020f6af68b32500455377f9c0c3888322737f
 from message_wrappers import MotionPlanWrapper, JointTrajectoryWrapper
 
 class APCPlannerService(ROSNode):
@@ -277,11 +274,14 @@ class APCPlannerService(ROSNode):
         """ Main method of service call. """
         self.work_order = req.work_order
         self.update_state()
-        if self.plan_type == "grasp":
+        
+        if self.no_perception:
+            msg = None  
+        elif self.plan_type == "grasp":
             msg = self.find_motion_plan_grasp()
         elif self.plan_type == "hook":
             msg = self.find_motion_plan_hook()
-            
+         
         if msg is not None:
             return GetMotionPlanResponse(msg)
         else:
@@ -292,6 +292,7 @@ class APCPlannerService(ROSNode):
          
     def update_state(self):
         """ Update body poses in the local rave env. """
+        self.no_perception = False
         self.update_objects()
         self.update_simulation_environment()     
            
@@ -324,11 +325,15 @@ class APCPlannerService(ROSNode):
 
         for object_name in self.work_order.bin_contents:
             self.env.Load(osp.join(OBJ_MESH_DIR, object_name + ".stl"))
-            robot_to_object = rave.matrixFromPose(fromPoseMsg(self.object_poses[object_name]))
-            self.env.GetKinBody(object_name).SetTransform(world_to_robot.dot(robot_to_object))
             
-            self.env.GetKinBody(object_name).SetTransform(rave.matrixFromPose(np.loadtxt("obj.txt")[0]))
-
+            if object_name in self.object_poses:         
+                robot_to_object = rave.matrixFromPose(fromPoseMsg(self.object_poses[object_name]))
+                self.env.GetKinBody(object_name).SetTransform(world_to_robot.dot(robot_to_object))
+                
+                self.env.GetKinBody(object_name).SetTransform(rave.matrixFromPose(np.loadtxt("obj.txt")[0]))
+            else:
+                self.no_perception = True
+                
         self.robot.SetDOFValues([0.548, 0.548],[22, 34]) # open the grippers
         self.robot.SetDOFValues([-1.57,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ], self.robot.GetManipulator("rightarm").GetArmIndices())
         self.robot.SetDOFValues([ 1.57,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ], self.robot.GetManipulator("leftarm").GetArmIndices())

@@ -1,4 +1,4 @@
 string bin_name     # The name of the bin eg. 'bin_A'
 string object       # The name of the object
 ---
-geometry_msgs/Pose  # The pose of the object in the shelf frame
+geometry_msgs/Pose obj_pose # The pose of the object in the shelf frame

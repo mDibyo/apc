@@ -38,6 +38,7 @@ OBJECT_POSES_DIR = osp.join(DATA_DIRECTORY, "object_poses")
 PERCEPTION_REQUEST_DIR = '/home/{}/perception_request_dir'.format(USER)
 
 
+
 # Define files
 SHELF_POSE_FILE = 'perception/shelf_finder/shelf_pose.txt'
 

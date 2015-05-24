@@ -6,7 +6,7 @@
 float in_to_mm = 0.0254;
 float SHELF_YSTEPS[] = {in_to_mm*9, in_to_mm*19, in_to_mm*28, in_to_mm*37, in_to_mm*47}; // actual values: {780, 1070, 1300, 1520}
 float SHELF_WIDTH = 0.9; // meters
-float SHELF_DEPTH = 0.226; // meters
+float SHELF_DEPTH = 17 * in_to_mm; // meters
 float SHELF_HEIGHT = SHELF_YSTEPS[4];
 
 void printPlaneInfo(std::vector<pcl::ModelCoefficients> coeffs) {
@@ -106,9 +106,9 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
                     }
                 }
                 sideNormal /= 2;
-                
-                Eigen::Vector3f center = regions[side[i]].getCentroid() + regions[side[j]].getCentroid();
-                shelfTrans[1] = center[1]/2;
+                float center = regions[side[i]].getCentroid()[1] + regions[side[j]].getCentroid()[1];
+                std::cout << center << std::endl;
+                shelfTrans[1] = center/2.0;
                 i = side.size();
                 j = side.size();
             }
@@ -116,12 +116,16 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
     }
     
     // average depth of planes facing front to get Z
+    float minZ = 2.0f;
     for (int i = 0; i < front.size(); i++) {
-        //std::cout << front[i] << std::endl;
-        //std::cout << regions[front[i]].getCentroid() << std::endl;
-        shelfTrans[0] += regions[front[i]].getCentroid()[0];
+        std::cout << "Front:" << front[i]
+                  << regions[front[i]].getCentroid() << std::endl;
+        float depth = regions[front[i]].getCentroid()[0];
+        if (depth < minZ) {
+            minZ = depth;
+        }   
     }
-    shelfTrans[0] /= front.size();
+    shelfTrans[0] = minZ;
     std::cout << "depth: " << shelfTrans[0] << std::endl;
     /*
      * check if y values are close to known shelf heights
@@ -139,8 +143,11 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
             }
         }
     }
-    shelfTrans[1] /= shelvesFound;
-    
+    if (shelvesFound > 0) {
+        shelfTrans[2] /= shelvesFound;
+    } else {
+        shelfTrans[2] = 0;
+    }
     // may need to fix signs depending on coordinate system
     float theta = acos(sideNormal[1] / sideNormal.norm()); // shelf yaw   
     std::cout << "shelf yaw: " << theta << std::endl;
