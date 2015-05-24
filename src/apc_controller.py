@@ -2,6 +2,8 @@
 
 from __future__ import division
 import os.path as osp
+import json
+import subprocess
 
 import roslib
 roslib.load_manifest('apc')
@@ -11,41 +13,40 @@ from ros_utils import ROSNode
 from trajectory_msgs.msg import JointTrajectory
 from std_msgs.msg import Float32, String
 from geometry_msgs.msg import Point
-from apc.msg import BinWorkOrder, ExecStatus, RobotStateBase
+from apc.msg import BinWorkOrder, ExecStatus
 from apc.srv import *
-import openravepy as rave
-import numpy as np
-from utils import JSON_DIR
-from strategy import 
+import utils
+from strategy import parse_json
 
 class APCController(ROSNode):
     def __init__(self, joint_trajectories_topic, exec_status_topic):
         super(APCController, self).__init__('apc_controller')
+        self.work_order_sequence = None
+
+        self.perception_request_dir = utils.PERCEPTION_REQUEST_DIR
+        self.ssh_perception_request_dir = None
+        if utils.COMPUTER != utils.PERCEPTION_COMPUTER:
+            self.ssh_perception_request_dir = '{}:{}'.format(utils.PERCEPTION_COMPUTER,
+                                                             self.perception_request_dir)
+
         self.joint_trajectories_topic = joint_trajectories_topic
         self.exec_status_topic = exec_status_topic
 
         self._robot_exec_status = None
 
         self.get_motion_plan_client = rospy.ServiceProxy('get_motion_plan', GetMotionPlan)
-                                                         
-        self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)                                                 
+        self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)
+        self.look_at_bins_client = rospy.ServiceProxy("look_at_bins", LookAtBins)
 
         self.joint_trajectories_publisher = rospy.Publisher(self.joint_trajectories_topic, JointTrajectory)
-
         self.base_movement_publisher = rospy.Publisher("base_movement", Point)
-
         self.torso_height_publisher = rospy.Publisher("torso_height", Float32)
-        
         self.head_point_publisher = rospy.Publisher("head_point", Point)
-        
         self.capture_scene_publisher = rospy.Publisher("capture_scene", String)
 
-        self.look_at_bins_client = rospy.ServiceProxy("look_at_bins", LookAtBins)
-        
         self.exec_status_subscriber = rospy.Subscriber(self.exec_status_topic,
                                                        ExecStatus,
                                                        self.record_exec_status)                                     
-        
 
     @property
     def robot_exec_status(self):
@@ -72,6 +73,7 @@ class APCController(ROSNode):
 
     def execute_motion_plan(self, motion_plan):
         if motion_plan.strategy != "failed":
+            # Move base
             print "start base"
             self.base_movement_publisher.publish(motion_plan.base_target)    
             rospy.sleep(1.0)
@@ -120,6 +122,17 @@ class APCController(ROSNode):
             self.execute_motion_plan(res.motion_plan)
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
+
+    def execute_perception(self, bin_name):
+        perception_request = {
+            "objects": self.work_order_sequence[bin_name]["bin_contents"]
+        }
+        perception_file = '{}.json'.format(bin_name)
+
+        with open(osp.join(self.perception_request_dir, perception_file), 'w') as f:
+            json.dump(perception_request, f)
+        if self.ssh_perception_request_dir is not None:
+            subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
             
     def get_robot_state(self, manip):
         try:
@@ -140,8 +153,8 @@ if __name__ == '__main__':
      
     strategy = 'hook'
         
-    work_order_sequence = parse_json(osp.join(JSON_DIR, "apc.json"))
-    for order in work_order_sequence:
+    controller.work_order_sequence = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
+    for order in controller.work_order_sequence:
         # get_perception(order["bin_name"])
         
         rightjoints = controller.get_robot_state("rightarm_torso")

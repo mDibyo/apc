@@ -265,6 +265,7 @@ class APCDetector(object):
         self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments', 'detections',
                           '{}.h5'.format(calib_extracted), transform_file, cubbyhole)
 
+        pass
 
 
 class NewCubbyholeRequestHandler(PatternMatchingEventHandler):

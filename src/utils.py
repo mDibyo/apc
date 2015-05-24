@@ -35,7 +35,7 @@ JSON_DIR = osp.join(APC_DIRECTORY, "json")
 # Perception
 PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 OBJECT_POSES_DIR = osp.join(DATA_DIRECTORY, "object_poses")
-PERCEPTION_REQUEST_DIR = '/home/nikhil/perception_request_dir'
+PERCEPTION_REQUEST_DIR = '/home/{}/perception_request_dir'.format(USER)
 
 
 # Define files

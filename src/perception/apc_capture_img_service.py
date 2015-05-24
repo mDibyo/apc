@@ -41,14 +41,14 @@ class APCCaptureSceneService(ROSNode):
         self.robot_state_client = rospy.ServiceProxy(self.robot_state_service_name,
                                                      GetLatestRobotState)
                                                                                                  
-        self.output_dir = utils.PERCEPTION_DIR if output_directory is None else self.output_dir
-        self.perception_dir = None
+        self.perception_dir = utils.PERCEPTION_DIR if output_directory is None else self.perception_dir
+        self.ssh_perception_dir = None
         if utils.COMPUTER != utils.PERCEPTION_COMPUTER:
-            self.perception_dir = '{}:{}'.format(utils.PERCEPTION_COMPUTER, self.output_dir)
+            self.ssh_perception_dir = '{}:{}'.format(utils.PERCEPTION_COMPUTER, self.perception_dir)
 
-        if os.path.exists(self.output_dir):
-            shutil.rmtree(self.output_dir)
-        os.mkdir(self.output_dir)
+        if os.path.exists(self.perception_dir):
+            shutil.rmtree(self.perception_dir)
+        os.mkdir(self.perception_dir)
             
         self.initialize_cameras()
         self.scene_count = 0
@@ -89,9 +89,9 @@ class APCCaptureSceneService(ROSNode):
 
     def handle_capture_scene(self, req):
         if req.request:
-            path_base = os.path.join(self.output_dir, req.request)
+            path_base = os.path.join(self.perception_dir, req.request)
         else:
-            path_base = os.path.join(self.output_dir, "scene_{0}".format(self.scene_count))
+            path_base = os.path.join(self.perception_dir, "scene_{0}".format(self.scene_count))
 
         if os.path.exists(path_base):
             shutil.rmtree(path_base)
@@ -114,8 +114,8 @@ class APCCaptureSceneService(ROSNode):
         
         np.savetxt(os.path.join(path_base, "transform.txt"), camera_to_world)
 
-        if self.perception_dir is not None:
-            subprocess.check_call(['scp', '-r', path_base, self.perception_dir])
+        if self.ssh_perception_dir is not None:
+            subprocess.check_call(['scp', '-r', path_base, self.ssh_perception_dir])
 
         return path_base
         
