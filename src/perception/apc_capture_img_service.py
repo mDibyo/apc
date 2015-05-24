@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import shutil
 import os
+import subprocess
 import h5py
 from argparse import ArgumentParser
 import numpy as np
@@ -41,6 +42,9 @@ class APCCaptureSceneService(ROSNode):
                                                      GetLatestRobotState)
                                                                                                  
         self.output_dir = utils.PERCEPTION_DIR if output_directory is None else self.output_dir
+        self.perception_dir = None
+        if utils.COMPUTER != utils.PERCEPTION_COMPUTER:
+            self.perception_dir = '{}:{}'.format(utils.PERCEPTION_COMPUTER, self.output_dir)
 
         if os.path.exists(self.output_dir):
             shutil.rmtree(self.output_dir)
@@ -70,7 +74,7 @@ class APCCaptureSceneService(ROSNode):
             self.carmine.start_color_stream()
             self.carmine.start_depth_stream()
 
-    def shutter(self, highres_filename, color_filename, depth_filename, cloud_filename):
+    def shutter(self, color_filename, depth_filename, cloud_filename):
         self.carmine.capture_depth(depth_filename)
         self.carmine.stop_depth_stream()
         rospy.loginfo("Took depth")
@@ -79,9 +83,9 @@ class APCCaptureSceneService(ROSNode):
         rospy.loginfo("Took carmine color")
 
         self.carmine.save_cloud(cloud_filename)
-
-        with h5py.File(depth_filename, 'r') as df:
-            depth_map = cyni.depthMapToImage(df["depth"][:])
+        #
+        # with h5py.File(depth_filename, 'r') as df:
+        #     depth_map = cyni.depthMapToImage(df["depth"][:])
 
     def handle_capture_scene(self, req):
         if req.request:
@@ -95,12 +99,11 @@ class APCCaptureSceneService(ROSNode):
         
         self.scene_count += 1
 
-        highres_filename = os.path.join(path_base, "rgb.jpg")
         rgbd_filename = os.path.join(path_base, "rgbd.jpg")
         depth_filename = os.path.join(path_base, "rgbd.h5")
         cloud_filename = os.path.join(path_base, "rgbd.pcd")
         
-        self.shutter(highres_filename, rgbd_filename, depth_filename, cloud_filename)
+        self.shutter(rgbd_filename, depth_filename, cloud_filename)
 
         response = self.camera_pose_client("")
         state = self.robot_state_client("base")
@@ -110,7 +113,10 @@ class APCCaptureSceneService(ROSNode):
         camera_to_world = camera_to_robot.dot(robot_to_world)
         
         np.savetxt(os.path.join(path_base, "transform.txt"), camera_to_world)
-        
+
+        if self.perception_dir is not None:
+            subprocess.check_call(['scp', '-r', path_base, self.perception_dir])
+
         return path_base
         
         
