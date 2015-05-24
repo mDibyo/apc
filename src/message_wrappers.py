@@ -51,7 +51,7 @@ class MotionPlanWrapper(object):
             plan.append(t)
            
                           
-        return MotionPlan(self.strategy, plan, self.base_pos, Float32(self.torso_height))
+        return MotionPlan(self.strategy, plan, self.base_pos, Float32(self.torso_height), Point(0,0,0), '')
 
 class GraspWrapper(object):
     def __init__(self, gripper_pose, gripper_width=None, flag=False):
