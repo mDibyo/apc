@@ -200,7 +200,7 @@ class IkSolver(object):
     @staticmethod
     def GetIkSol(obj, targets, parallel):
         """ Iterate through targets and manipulators to find an IK solution. """
-        manips = ["rightarm_torso"]
+        manips = ["leftarm_torso"] #["rightarm_torso"]
         if obj.GetTransform()[1,3] < 0:
             manips.reverse()
         

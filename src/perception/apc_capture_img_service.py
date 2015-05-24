@@ -89,7 +89,10 @@ class APCCaptureSceneService(ROSNode):
         else:
             path_base = os.path.join(self.output_dir, "scene_{0}".format(self.scene_count))
 
-        os.makedirs(path_base)
+        if os.path.exists(path_base):
+            shutil.rmtree(path_base)
+        os.mkdir(path_base)
+        
         self.scene_count += 1
 
         highres_filename = os.path.join(path_base, "rgb.jpg")

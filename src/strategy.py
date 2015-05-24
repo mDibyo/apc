@@ -19,6 +19,10 @@ def parse_json(name):
         return sum([10**i * f for i,f in enumerate(features)])
     
     seq = sorted(q, key=priority)
-    return seq, targets, order["bin_contents"]
-    
-s,t,b  = parse_json("apc.json")
+    result = []
+    for bin_N in seq:
+        result.append({"bin_name": bin_N,
+                       "target_object": targets[bin_N],
+                       "bin_contents": order["bin_contents"][bin_N] })
+                       
+    return result

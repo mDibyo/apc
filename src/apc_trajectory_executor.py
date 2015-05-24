@@ -8,7 +8,7 @@ import roslib
 roslib.load_manifest('apc')
 import rospy
 import tf
-from std_msgs.msg import Header, Float32
+from std_msgs.msg import Header, Float32, String
 from trajectory_msgs.msg import JointTrajectory
 from geometry_msgs.msg import Twist, Point
 #from pr2.manip import Manip
@@ -46,13 +46,12 @@ class APCTrajectoryExecutor(ROSNode):
             self.publisher.publish(ExecStatus(header, self.status))
 
 
-    def __init__(self, joint_trajectories_topic, base_movement_topic, torso_height_topic, exec_status_topic):
+    def __init__(self, joint_trajectories_topic, exec_status_topic):
         super(APCTrajectoryExecutor, self).__init__('execute')
 
         self.joint_trajectories_topic = joint_trajectories_topic
         self.exec_status_topic = exec_status_topic
-        self.base_movement_topic = base_movement_topic
-        self.torso_height_topic = torso_height_topic
+
         self.exec_status = ExecStatus.IDLE
 
         #self.larm = Arm('left', default_speed=0.3)
@@ -72,14 +71,22 @@ class APCTrajectoryExecutor(ROSNode):
                                                               JointTrajectory,
                                                               self.execute_joint_trajectory)
 
-        self.base_movement_subscriber = rospy.Subscriber(self.base_movement_topic,
+        self.base_movement_subscriber = rospy.Subscriber('base_movement',
                                                          Point,
                                                          self.move_base_linear)
                                                          
-        self.torso_height_subscriber = rospy.Subscriber(self.torso_height_topic,
+        self.torso_height_subscriber = rospy.Subscriber('torso_height',
                                                         Float32,
                                                         self.move_torso)
-        
+                                                        
+        self.head_point_subscriber = rospy.Subscriber('head_point',
+                                                      Point,
+                                                      self.point_head_dir)
+                                                      
+        self.head_point_subscriber = rospy.Subscriber('capture_scene',
+                                                      String,
+                                                      self.capture_scene)
+                                                      
         self.exec_status_publisher = rospy.Publisher(self.exec_status_topic, ExecStatus)
         self.exec_status_publisher_thread = LoopingThread(target=self.publish_exec_status,
                                                           rate=50)
@@ -88,7 +95,29 @@ class APCTrajectoryExecutor(ROSNode):
         self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)     
         
         self.cmd_vel_publisher = rospy.Publisher("base_controller/command", Twist)
-    
+        
+        self.point_head_client = rospy.ServiceProxy("point_head", PointHead)
+        
+        self.capture_scene_client = rospy.ServiceProxy("capture_scene", CaptureScene)
+        
+    def capture_scene(self, path):
+        print "capturing scene"
+        #try:
+        self.exec_status = ExecStatus.BUSY
+        self.capture_scene_client(path.data)
+        self.exec_status = ExecStatus.IDLE
+        #except rospy.ROSException:
+        #    self.exec_status = ExecStatus.ERROR
+        
+    def point_head_dir(self, direction):
+        print "pointing head at",direction
+        #try:
+        self.exec_status = ExecStatus.BUSY
+        self.point_head_client(direction)
+        self.exec_status = ExecStatus.IDLE
+        #except rospy.ROSException:
+        #    self.exec_status = ExecStatus.ERROR
+            
     def get_robot_state(self, manip):
         try:
             res = self.get_robot_state_client(manip)
@@ -109,16 +138,17 @@ class APCTrajectoryExecutor(ROSNode):
             rospy.logerr("Service call failed: {}".format(e)) 
             
     def move_torso(self, target_height):
+        print "moving torso",target_height
         while self.exec_status != ExecStatus.IDLE:
             rospy.sleep(0.5)   
             rospy.logwarn("not idle so waiting")
-        try:
-            arm = self.right
-            self.exec_status = ExecStatus.BUSY
-            arm.move_torso_simple(target_height.data)
-            self.exec_status = ExecStatus.IDLE
-        except rospy.ROSException:
-            self.exec_status = ExecStatus.ERROR
+        #try:
+        arm = self.right
+        self.exec_status = ExecStatus.BUSY
+        arm.move_torso_simple(0.01 + target_height.data)
+        self.exec_status = ExecStatus.IDLE
+        #except rospy.ROSException:
+        #    self.exec_status = ExecStatus.ERROR
     """       
     def move_base(self, base_pos):
         while self.exec_status != ExecStatus.IDLE:
@@ -137,35 +167,36 @@ class APCTrajectoryExecutor(ROSNode):
         while self.exec_status != ExecStatus.IDLE:
             rospy.sleep(0.5)   
             rospy.logwarn("not idle so waiting")         
-        try:
-            self.exec_status = ExecStatus.BUSY 
-            rospy.logwarn(base_target)
-            rate = rospy.Rate(10.)
-            tf_listener = tf.TransformListener()
+        #try:
+        self.exec_status = ExecStatus.BUSY 
+        rospy.logwarn(base_target)
+        rate = rospy.Rate(10.)
+        tf_listener = tf.TransformListener()
+        
+        tf_listener.waitForTransform("/base_footprint", "/odom_combined",
+                                         rospy.Time(0), rospy.Duration(1))
+           
+           
+        start = np.array(self.get_robot_state("base").base_pose[-3:])
+        v, dist_moved = np.array([base_target.x, base_target.y, 0]), 0                       
+        
+        
+        dist_to_move = np.linalg.norm(v)
+        v /= 20*np.linalg.norm(v)   
+        print v
+                   
+        while dist_moved < dist_to_move:
+            dist_moved = np.linalg.norm( np.array(self.get_robot_state("base").base_pose[-3:]) - start)
+            rospy.logwarn(dist_moved)                           
+            vel = Twist()
+            vel.linear.x, vel.linear.y = v[0], v[1]
             
-            tf_listener.waitForTransform("/base_footprint", "/odom_combined",
-                                             rospy.Time(0), rospy.Duration(1))
-               
-               
-            start = np.array(self.get_robot_state("base").base_pose[-3:])
-            v, dist_moved = np.array([base_target.x, base_target.y, 0]), 0                       
-            
-            
-            dist_to_move = np.linalg.norm(v)
-            v /= 20*np.linalg.norm(v)   
-                                        
-            while dist_moved < dist_to_move:
-                dist_moved = np.linalg.norm( np.array(self.get_robot_state("base").base_pose[-3:]) - start)
-                rospy.logwarn(dist_moved)                           
-                vel = Twist()
-                vel.linear.x, vel.linear.y = v[0], v[1]
-                
-                self.cmd_vel_publisher.publish(vel)                     
-                rate.sleep()
-                                                 
-            self.exec_status = ExecStatus.IDLE
-        except rospy.ROSException:
-            self.exec_status = ExecStatus.ERROR
+            self.cmd_vel_publisher.publish(vel)                     
+            rate.sleep()
+                                             
+        self.exec_status = ExecStatus.IDLE
+        #except rospy.ROSException:
+        #    self.exec_status = ExecStatus.ERROR
         
     def execute_joint_trajectory(self, trajectory):
         # TODO: Add handling for speed
@@ -199,7 +230,7 @@ class APCTrajectoryExecutor(ROSNode):
             self.exec_status = ExecStatus.ERROR
 
 if __name__ == '__main__':
-    executor = APCTrajectoryExecutor('joint_trajectories', 'base_movement', 'torso_height', 'exec_status')
+    executor = APCTrajectoryExecutor('joint_trajectories', 'exec_status')
     print "ready for execution"
     executor.spin()
 

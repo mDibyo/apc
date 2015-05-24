@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
+import os.path as osp
 
 import roslib
 roslib.load_manifest('apc')
@@ -8,13 +9,14 @@ roslib.load_manifest('apc')
 import rospy
 from ros_utils import ROSNode
 from trajectory_msgs.msg import JointTrajectory
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, String
 from geometry_msgs.msg import Point
 from apc.msg import BinWorkOrder, ExecStatus, RobotStateBase
 from apc.srv import *
 import openravepy as rave
 import numpy as np
-
+from utils import JSON_DIR
+from strategy import 
 
 class APCController(ROSNode):
     def __init__(self, joint_trajectories_topic, exec_status_topic):
@@ -33,10 +35,10 @@ class APCController(ROSNode):
         self.base_movement_publisher = rospy.Publisher("base_movement", Point)
 
         self.torso_height_publisher = rospy.Publisher("torso_height", Float32)
-
-        self.point_head_client = rospy.ServiceProxy("point_head", PointHead)
-
-        self.capture_scene_client = rospy.ServiceProxy("capture_scene", CaptureScene)
+        
+        self.head_point_publisher = rospy.Publisher("head_point", Point)
+        
+        self.capture_scene_publisher = rospy.Publisher("capture_scene", String)
 
         self.look_at_bins_client = rospy.ServiceProxy("look_at_bins", LookAtBins)
         
@@ -70,30 +72,43 @@ class APCController(ROSNode):
 
     def execute_motion_plan(self, motion_plan):
         if motion_plan.strategy != "failed":
-            #self.base_movement_publisher.publish(motion_plan.base_target)    
-            #rospy.sleep(1.0)
-            #self.wait_for_idle_exec_status()
+            print "start base"
+            self.base_movement_publisher.publish(motion_plan.base_target)    
+            rospy.sleep(1.0)
+            self.wait_for_idle_exec_status()
+            print "end base"
             
             # Move Torso
+            print "start torso"
             self.torso_height_publisher.publish(Float32(motion_plan.torso_height.data))
             rospy.sleep(1.0)
             self.wait_for_idle_exec_status()
-
+            print "end torso"
+            
             # Move arms
+            print "start arms"
             for joint_trajectory in motion_plan.trajectories:
                 print joint_trajectory
                 self.joint_trajectories_publisher.publish(joint_trajectory)
                 #self.wait_for_busy_exec_status()
                 rospy.sleep(1.0)
-                self.wait_for_idle_exec_status()
+            print "end arms"
 
             # Point Head
-            self.point_head_client(motion_plan.head_direction)
-
+            print "start head"
+            self.head_point_publisher.publish(motion_plan.head_direction)
+            rospy.sleep(1.0)
+            self.wait_for_idle_exec_status()
+            print "end head"
+            
             # Capture Image
             if motion_plan.capture_scene:
-                self.capture_scene_client(motion_plan.capture_scene)
-
+                print "start scene"
+                self.capture_scene_publisher.publish(motion_plan.capture_scene)
+                rospy.sleep(1.0)
+                self.wait_for_idle_exec_status()
+                print "end scene"
+            rospy.sleep(1.0)    
             rospy.logwarn("completed executing motion plan")
         
     def execute_work_order(self, work_order):
@@ -112,18 +127,34 @@ class APCController(ROSNode):
             return res.state_with_base
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
+            
+    def get_startup_sequence(self):
+        return self.look_at_bins_client([])
 
 if __name__ == '__main__':
-
     controller = APCController('joint_trajectories', 'exec_status')
-    rightjoints = controller.get_robot_state("rightarm_torso")
-    leftjoints = controller.get_robot_state("leftarm_torso")
-    
-    work_order = BinWorkOrder('bin_I', 'all_combined', ['expo_dry_erase_board_eraser'],
-                              'expo_dry_erase_board_eraser', rightjoints.joint_values, 
-                              leftjoints.joint_values, rightjoints.base_pose, 'hook')
-                              
-                              #[0,1.57,0.2,1.57,-.8,2,-1.57,-1.57], start_pose, 'simple')
-    controller.execute_work_order(work_order)
-    
+    startup = controller.get_startup_sequence()
+    for mp in startup.motion_plan_list:
+        print mp
+        controller.execute_motion_plan(mp)
+     
+    strategy = 'hook'
+        
+    work_order_sequence = parse_json(osp.join(JSON_DIR, "apc.json"))
+    for order in work_order_sequence:
+        # get_perception(order["bin_name"])
+        
+        rightjoints = controller.get_robot_state("rightarm_torso")
+        leftjoints = controller.get_robot_state("leftarm_torso")
+        
+        work_order = BinWorkOrder(order['bin_name'],
+                                  'all_combined',
+                                  order['bin_contents'],
+                                  order['target_object'],
+                                  rightjoints.joint_values,
+                                  leftjoints.joint_values,
+                                  rightjoints.base_pose,
+                                  strategy)
+        controller.execute_work_order(work_order)
+
     
