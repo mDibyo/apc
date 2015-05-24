@@ -64,3 +64,6 @@ build/
 msg_gen/
 srv_gen/
 src/apc/
+
+# Config files
+config.json

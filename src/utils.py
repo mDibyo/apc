@@ -1,29 +1,74 @@
 from __future__ import division
 
 import threading
+import json
 import multiprocessing as mp
 import os.path as osp
 import time
-from waiting import wait, TimeoutExpired
+# from waiting import wait, TimeoutExpired
 from copy import deepcopy
 
 import numpy as np
 
-APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
-DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 
+# Define computer configuration
+APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
+config = json.load(osp.join(APC_DIRECTORY, 'config.json'))
+
+COMPUTER = config['computer']
+PERCEPTION_COMPUTER = config['perception_computer']
+ROS_COMPUTER = config['ROS_computer']
+
+USER = config['user']
+PERCEPTION_USER = config['perception_user']
+ROS_USER = config['ROS_user']
+
+
+# Define directories
+DATA_DIRECTORY = osp.join(APC_DIRECTORY, "data")
 MESH_DIRECTORY = osp.join(DATA_DIRECTORY, "meshes")
 SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
 MODEL_DIR = osp.join(DATA_DIRECTORY, "models")
 JSON_DIR = osp.join(APC_DIRECTORY, "json")
-PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 
+
+# Perception
+PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
+OBJECT_POSES_DIR = osp.join(DATA_DIRECTORY, "object_poses")
+PERCEPTION_REQUEST_DIR = '/home/nikhil/perception_request_dir'
+
+
+# Define files
 SHELF_POSE_FILE = 'perception/shelf_finder/shelf_pose.txt'
 
+
+# Define robot configuration
 NEW_WRISTS = True
 NEW_SHELF = True
 MOVE_BASE = False
 
+
+# Define grasp configuration
+grasps_fn = "latest"
+GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", grasps_fn)
+if grasps_fn == "coll_free":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
+    GRASP_TAG = "_coll_free.json"
+elif grasps_fn == "v1":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "old")
+    GRASP_TAG = "_sorted.json"
+elif grasps_fn == "tmp_grasps":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
+    GRASP_TAG = "_sorted.json"
+elif grasps_fn == "tmp_grasps":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
+    GRASP_TAG = "_sorted.json"
+elif grasps_fn == "latest":
+    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "apc_models")
+    GRASP_TAG = "_coll_free.json"
+
+
+# Define shelf cubbyhole configuration
 if NEW_SHELF:
     SHELF_Y = [11*.0254, 0, -11*.0254]
     SHELF_Z = [37*0.0254, 28*0.0254, ] 
@@ -60,26 +105,8 @@ else:
         "bin_L"
     ]
 
-grasps_fn = "latest"
-GRASP_DIR = osp.join(DATA_DIRECTORY, "grasps", grasps_fn)
 
-if grasps_fn == "coll_free":
-    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
-    GRASP_TAG = "_coll_free.json"
-elif grasps_fn == "v1":
-    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "old")
-    GRASP_TAG = "_sorted.json"
-elif grasps_fn == "tmp_grasps":
-    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
-    GRASP_TAG = "_sorted.json"
-elif grasps_fn == "tmp_grasps":
-    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "good")
-    GRASP_TAG = "_sorted.json"  
-elif grasps_fn == "latest":
-    OBJ_MESH_DIR = osp.join(MESH_DIRECTORY, "objects", "apc_models")
-    GRASP_TAG = "_coll_free.json"     
-    
-    
+# Define object ease
 obj_ease = {
     "champion_copper_plus_spark_plug":              3,
     "kong_sitting_frog_dog_toy":                    4,
@@ -111,7 +138,16 @@ obj_ease = {
 }
 
 OBJ_LIST = obj_ease.keys()
-     
+
+
+# Define order bin configuration
+order_bin_pose = np.array([[ 1, 0, 0, -0.75],
+                           [ 0, 1, 0,  0.60],
+                           [ 0, 0, 1,  0.10],
+                           [ 0, 0, 0,     1]])
+
+
+# Trajopt request
 _trajopt_request_template = {
     "basic_info": {
         "n_steps": 10,
@@ -138,14 +174,11 @@ _trajopt_request_template = {
         }
     }
   
-order_bin_pose = np.array([[ 1, 0, 0, -0.75],
-                           [ 0, 1, 0,  0.60],
-                           [ 0, 0, 1,  0.10],
-                           [ 0, 0, 0,     1]])
-  
 def trajopt_request_template():
-    return deepcopy(_trajopt_request_template)  
-    
+    return deepcopy(_trajopt_request_template)
+
+
+
 def timed(func, args, max_time=30):
     q = mp.Queue()
     p = mp.Process(target=func, args=args+[q])
