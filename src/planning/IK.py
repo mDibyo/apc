@@ -242,7 +242,7 @@ class IkSolver(object):
             IkSolver.resetArms()
             if i == 0:
                 pass
-            elif i == 1 and MOVE_BASE:
+            elif i == 1:# and MOVE_BASE:
                 pos[:2,3] = IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2]   
             
             """

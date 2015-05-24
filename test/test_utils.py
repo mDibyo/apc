@@ -60,26 +60,30 @@ def randomObjPoses(objlist):
 def randomObjPose(obj):
 
     if NEW_SHELF:
-        x = SHELF_X[np.random.randint(len(SHELF_X))]
+        x = SHELF_X[np.random.randint(len(SHELF_X))] + 0.2*np.random.random()
         y = SHELF_Y[np.random.randint(len(SHELF_Y))]
         z = SHELF_Z[np.random.randint(len(SHELF_Z))] + obj.ComputeAABB().extents()[2]
-        return np.array([1,0,0,0,x,y,z])
+        
+        yaw = (0.4*np.random.random()-0.2) * 0.7071
+        mat1 = rave.matrixFromAxisAngle(yaw * np.array([0,0,1]))
+        mat2 = rave.matrixFromAxisAngle(np.pi/2 * np.array([0,1,0]))
+        quat = rave.quatFromRotationMatrix(mat1.dot(mat2))  
+        return np.hstack([ quat, [x,y,z] ])
     else:
         biny, binz = np.random.randint(3), np.random.randint(4)
-        xlow, xhigh = -0.35, -0.43
+        xlow, xhigh = -0.25, -0.43
         ystep = 0.55/2
         zss = 0.23
         zsl = 0.27
         zvals = [0, zsl, zsl+zss, zsl+2*zss]
         size = obj.ComputeAABB().extents()
         
-        yaw = (0.4*np.random.random()-0.2) + np.pi/2
+        yaw = (0.4*np.random.random()-0.2) * 0.7071
         mat1 = rave.matrixFromAxisAngle(yaw * np.array([0,0,1]))
-        #quat = np.array([theta,0,0,np.sqrt(1-theta**2)])
         quat = rave.quatFromRotationMatrix(mat1)
         
         x = np.random.random()*(xhigh-xlow+size[0]) + xlow
-        y = ystep * (biny-1)# + (0.2 * np.random.random() - 0.1)
+        y = ystep * (biny-1) + (0.2 * np.random.random() - 0.1)
         z = zvals[binz] + 0.80 + size[2]
         return np.hstack([quat, [x,y,z]])
     

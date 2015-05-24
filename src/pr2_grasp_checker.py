@@ -210,7 +210,7 @@ if __name__ == "__main__":
                 
                 object_name, object_ext = os.path.splitext(f)
                 # object_name = 'mommys_helper_outlet_plugs'
-                print 'Pruning grasps for ', object_name
+                print 'Pruning grasps for ', object_name,
                 try:
                     # prune grasps
                     grasp_checker = PR2GraspChecker(e, r, object_name)
@@ -220,7 +220,8 @@ if __name__ == "__main__":
                     object_grasps_out_filename = os.path.join(DATA_DIRECTORY, 'grasps',
                                                               "{}.json".format(object_name + '_coll_free'))
                     GraspWrapper.grasps_to_file(object_grasps_keep, object_grasps_out_filename)
-                    e.Remove(grasp_checker.object)
+                    [e.Remove(ob) for ob in e.GetBodies() if ob.GetName() != "pr2"]
+                    print len(object_grasps_keep)
                 except Exception:
                     print 'error on',object_name  
                 

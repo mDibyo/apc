@@ -28,10 +28,16 @@ class APCController(ROSNode):
         self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)                                                 
 
         self.joint_trajectories_publisher = rospy.Publisher(self.joint_trajectories_topic, JointTrajectory)
-        
+
         self.base_movement_publisher = rospy.Publisher("base_movement", Point)
-        
+
         self.torso_height_publisher = rospy.Publisher("torso_height", Float32)
+
+        self.point_head_client = rospy.ServiceProxy("point_head", PointHead)
+
+        self.capture_scene_client = rospy.ServiceProxy("capture_scene", CaptureScene)
+
+        self.look_at_bins_client = rospy.ServiceProxy("look_at_bins", LookAtBins)
         
         self.exec_status_subscriber = rospy.Subscriber(self.exec_status_topic,
                                                        ExecStatus,
@@ -67,17 +73,27 @@ class APCController(ROSNode):
             #rospy.sleep(1.0)
             #self.wait_for_idle_exec_status()
             
+            # Move Torso
             self.torso_height_publisher.publish(Float32(motion_plan.torso_height.data))
             rospy.sleep(1.0)
             self.wait_for_idle_exec_status()
 
+            # Move arms
             for joint_trajectory in motion_plan.trajectories:
                 print joint_trajectory
                 self.joint_trajectories_publisher.publish(joint_trajectory)
                 #self.wait_for_busy_exec_status()
                 rospy.sleep(1.0)
                 self.wait_for_idle_exec_status()
-            rospy.logwarn("done")
+
+            # Point Head
+            self.point_head_client(motion_plan.head_direction)
+
+            # Capture Image
+            if motion_plan.capture_scene:
+                self.capture_scene_client(motion_plan.capture_scene)
+
+            rospy.logwarn("completed executing motion plan")
         
     def execute_work_order(self, work_order):
         try:

@@ -52,15 +52,15 @@ if __name__ == "__main__":
     print "press 'ENTER' to start, 'q' to quit"
     while "q" not in str(raw_input("continue?" )):
         resetRobot(r)
-        #e.Remove(obj)
-        #e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
-        #obj = e.GetBodies()[-1]; objName = obj.GetName()
+        e.Remove(obj)
+        e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
+        obj = e.GetBodies()[-1]; objName = obj.GetName()
         objPose = randomObjPose(obj)
         obj.SetTransform(rave.matrixFromPose(objPose))
         
         st = time.time()
         #sol = ik.GetRaveIkSol(obj.GetName(), parallel=False)
-        sol = timed(ik.GetRaveIkSol, [obj.GetName(), False], max_time=20)
+        sol = timed(ik.GetRaveIkSol, [obj.GetName(), ], max_time=10)
         
         if sol is not None:
             print "found sol in " + str(time.time()-st) + "s",

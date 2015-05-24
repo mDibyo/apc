@@ -103,11 +103,11 @@ class APCCaptureSceneService(ROSNode):
         state = self.robot_state_client("base")
         
         camera_to_robot = np.loadtxt(response.transform_mat_path)
-        robot_to_world = np.eye(4) #rave.matrixFromPose(state.state_with_base.base_pose)
-        
+        robot_to_world = rave.matrixFromPose(state.state_with_base.base_pose)
         camera_to_world = camera_to_robot.dot(robot_to_world)
+        
         np.savetxt(os.path.join(path_base, "transform.txt"), camera_to_world)
-
+        
         return path_base
         
         
