@@ -10,7 +10,7 @@ rave.raveSetDebugLevel(rave.DebugLevel.Error)
 e = rave.Environment()
 
 if NEW_WRISTS:
-    e.Load(osp.join(MODEL_DIR, "pr2-ow-box-hook.xml")) #"pr2-new-wrists.dae"))  #
+    e.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))  #"pr2-ow-box-hook.xml")) #
 else:
     e.Load(osp.join("robots/pr2-beta-sim.robot.xml"))
     

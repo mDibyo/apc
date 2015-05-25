@@ -27,4 +27,4 @@ def parse_json(name):
             "bin_contents": order["bin_contents"][bin_N]
         })
                        
-    return result
+    return result, order["bin_contents"]

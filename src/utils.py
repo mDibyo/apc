@@ -10,6 +10,12 @@ from copy import deepcopy
 
 import numpy as np
 
+# Define robot configuration
+NEW_WRISTS = True
+NEW_SHELF = True
+MOVE_BASE = False
+FAKE = False
+FIX_YAW = False
 
 # Define computer configuration
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
@@ -41,12 +47,9 @@ CAMERA_NAME = 'PR2'
 
 
 # Define files
-SHELF_POSE_FILE = 'perception/shelf_finder/shelf_pose.txt'
+SHELF_POSE_FILE = '/home/nmishra/workspace/apc/src/perception/shelf_finder/shelf_pose.txt'
 
-# Define robot configuration
-NEW_WRISTS = True
-NEW_SHELF = True
-MOVE_BASE = False
+
 
 
 # Define grasp configuration
@@ -134,7 +137,7 @@ obj_ease = {
     "mead_index_cards":                             2,
     "dr_browns_bottle_brush":                       3,
     "mommys_helper_outlet_plugs":                   3,
-    "elmers_washable_no_run_school_glue":           4,
+    "elmers_washable_no_run_school_glue":           2,
     "munchkin_white_hot_duck_bath_toy":             4,
     "expo_dry_erase_board_eraser":                  2,
     #"one_with_nature_soap_dead_sea_mud":            2,
@@ -195,7 +198,7 @@ def trajopt_request_template():
 
 
 
-def timed(func, args, max_time=30):
+def timed(func, args, max_time=20):
     q = mp.Queue()
     p = mp.Process(target=func, args=args+[q])
     try:

@@ -9,14 +9,18 @@ from visualization_msgs.msg import Marker
 from apc.srv import *
 import rospy
 from ros_utils import ROSNode
+from geometry_msgs.msg import Pose, Point, Quaternion
+
 import utils
+
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 import json
 import os.path as osp
-
+import numpy as np
+import openravepy as rave
 
 __author__ = 'dibyo'
 
@@ -46,20 +50,25 @@ class RvizMarkerPoseService(ROSNode):
         return GetMarkerPoseResponse(self.markers.get(req.marker_name, None))
 
 
-class APCObjectPoseService(ROSNode, PatternMatchingEventHandler):
+class APCObjectPoseService(PatternMatchingEventHandler):
+
     patterns = ['*.json']
 
     def __init__(self):
-        super(APCObjectPoseService, self).__init__('apc_object_pose_service',
-                                                   anonymous=False)
+        super(APCObjectPoseService, self).__init__()
+        rospy.init_node('apc_object_pose_service')
 
         self.bins = {}
         self.get_object_pose_service = rospy.Service('get_object_pose', GetObjectPose,
                                                      self.handle_get_object_pose)
-
+                                                    
+        rospy.loginfo(utils.OBJECT_POSES_DIR)
+        
     def __enter__(self):
         self.observer = Observer()
         self.observer.schedule(self, path=utils.OBJECT_POSES_DIR)
+        self.observer.start()
+        rospy.loginfo("object pose service ready")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -76,8 +85,17 @@ class APCObjectPoseService(ROSNode, PatternMatchingEventHandler):
 
     def handle_get_object_pose(self, req):
         bin_name = req.bin_name
+        
         if bin_name in self.bins:
-            return GetObjectPoseResponse(self.bins[bin_name].get(req.object, None))
+            mat = self.bins[bin_name].get(req.object, None)
+            if mat is not None:
+                pose = rave.poseFromMatrix(mat)
+                obj_pose = Pose()
+                
+                obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
+                obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
+                
+                return GetObjectPoseResponse(obj_pose)
         return GetObjectPoseResponse(None)
 
 
@@ -88,4 +106,4 @@ class APCObjectPoseService(ROSNode, PatternMatchingEventHandler):
 
 if __name__ == '__main__':
     with APCObjectPoseService() as object_pose_service:
-        object_pose_service.spin()
+        rospy.spin()

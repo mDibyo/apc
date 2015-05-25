@@ -9,7 +9,11 @@ __author__ = 'dibyo'
 
 def fromPoseMsg(pose_msg):
     p,o = pose_msg.position, pose_msg.orientation
-    return [o.w, o.x, o.y, o.z, p.x, p.y, p.z]
+    pose = [o.w, o.x, o.y, o.z, p.x, p.y, p.z]
+    if sum(pose) == 0:
+        return None
+    else:
+        return pose
 
 class ROSNode(object):
     def __init__(self, name, **kwargs):

@@ -48,11 +48,8 @@ class APCRobotStateService(ROSNode):
 
     def __init__(self, shelf_pose_file):
         super(APCRobotStateService, self).__init__('robot_state')
-        
-        try:
-            self.robot_start_mat = np.linalg.inv(np.loadtxt(shelf_pose_file)) # store world to robot
-        except Exception:
-            self.robot_start_mat = None
+
+        self.robot_start_mat = np.linalg.inv(np.loadtxt(shelf_pose_file)) # store world to robot
             
         self.tf_listener = tf.TransformListener()
         self.get_latest_state_service = rospy.Service('get_latest_robot_state',
@@ -108,10 +105,12 @@ class APCRobotStateService(ROSNode):
         """ save T_camera_to_robot """
         joints = self.head_joints
         latest = self.joints[-1]        
-        joint_angles = []      
+        joint_angles = [latest[self.torso_joint]]
         for j in joints:
             joint_angles.append(latest[j])
-        self.robot.SetDOFValues(joint_angles, [13,14])
+        self.robot.SetDOFValues(joint_angles, [12,13,14])
+        
+        
         
         T = self.robot.GetLink("sensor_mount_link").GetTransform()
         mat = T.dot(self.T_tr.dot(self._T_rot))
@@ -147,7 +146,7 @@ class APCRobotStateService(ROSNode):
                 
         if self.robot_start_mat is None:
             start_mat = np.eye(4)
-            print "using default start mat"
+            rospy.logwarn("using default start mat")
         else:
             start_mat = self.robot_start_mat
             
