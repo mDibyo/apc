@@ -65,5 +65,9 @@ msg_gen/
 srv_gen/
 src/apc/
 
+# Mesh files
+*.pcd
+*.ply
+
 # Config files
 config.json
