@@ -38,12 +38,12 @@ JSON_DIR = osp.join(APC_DIRECTORY, "json")
 PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 OBJECT_POSES_DIR = osp.join(DATA_DIRECTORY, "object_poses")
 PERCEPTION_REQUEST_DIR = '/home/{}/perception_request_dir'.format(USER)
-
+CAMERA_CALIBRATION_FILE = osp.join(DATA_DIRECTORY, 'perception', 'calibration.h5')
+CAMERA_NAME = 'PR2'
 
 
 # Define files
 SHELF_POSE_FILE = '/home/nmishra/workspace/apc/src/perception/shelf_finder/shelf_pose.txt'
-
 
 # Define robot configuration
 NEW_WRISTS = True
@@ -72,9 +72,10 @@ elif grasps_fn == "latest":
 
 
 # Define shelf cubbyhole configuration
+inch_to_m = 0.0254
 if NEW_SHELF:
     SHELF_Y = [11*.0254, 0, -11*.0254]
-    SHELF_Z = [37*0.0254, 28*0.0254, ] 
+    SHELF_Z = [37*0.0254, 28*0.0254, ]
     SHELF_X = [-17*0.0254]
     bin_pose = {}
     BINS = [
@@ -89,9 +90,23 @@ if NEW_SHELF:
 
     for x in SHELF_X:
         for z in SHELF_Z:
-            for y in SHELF_Y:  
+            for y in SHELF_Y:
                 bin_pose[BINS[i]] = np.array([1, 0, 0, 0, x, y, z])
                 i += 1
+
+    _bin_dims_in_inches = {
+        "bin_G": [-19, -1, 6, 17, 37, 47],
+        "bin_H": [-19, -1, -6, 6, 37, 47],
+        "bin_I": [-19, -1, -17, -6, 37, 47],
+        "bin_J": [-19, -1, 6, 17, 28, 34.5],
+        "bin_K": [-19, -1, -6, 6, 28, 34.5],
+        "bin_L": [-19, -1, -17, -6, 28, 34.5],
+    }
+    # bin_dims = [x * inch_to_m for x in _bin_dims_in_inches]
+    bin_dims = {}
+    for bin_name, dims in _bin_dims_in_inches.iteritems():
+        bin_dims[bin_name] = [x*inch_to_m for x in dims]
+
 else:
     BINS = [
         "bin_A",
@@ -166,17 +181,17 @@ _trajopt_request_template = {
                 "dist_pen": [0.02]
             }
         }],
-        "constraints": [
-            { "type": "joint",
-              "params": { "vals": None }
-            }
-        ],
-        "init_info": {
-            "type": "straight_line",
-            "endpoint": None
+    "constraints": [
+        { "type": "joint",
+          "params": { "vals": None }
         }
+    ],
+    "init_info": {
+        "type": "straight_line",
+        "endpoint": None
     }
-  
+}
+
 def trajopt_request_template():
     return deepcopy(_trajopt_request_template)
 
@@ -193,19 +208,19 @@ def timed(func, args, max_time=20):
             return q.get_nowait()
     except TimeoutExpired:
         return None
-    
+
 def runInParallel(func, argslist):
     q = mp.Queue()
     processes = []
     processes = [mp.Process(target=func,args=[q]+arg) for arg in argslist]
     [p.start() for p in processes]
-        
+
     while not q.empty():
         res = q.get()
         if res is not None:
             [p.terminate() for p in processes]
             return res
-            
+
 def getch():
     import sys
     import tty
@@ -220,9 +235,12 @@ def getch():
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
-    
-    
-    
+
+
+def datetime_now_string():
+    import datetime
+    return datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+
 
 class LoopingThread(threading.Thread):
     def __init__(self, group=None, target=None, name=None, args=(),

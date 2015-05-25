@@ -53,8 +53,8 @@ class APCPlannerService(ROSNode):
 
         self.tf_listener = tf.TransformListener()
 
-        #rospy.wait_for_service('get_marker_pose')
-        #self.get_marker_pose_client = rospy.ServiceProxy('get_marker_pose', GetMarkerPose)
+        rospy.wait_for_service('get_marker_pose')
+        self.get_marker_pose_client = rospy.ServiceProxy('/apc/get_object_pose', GetMarkerPose)
                                                          
         self.get_motion_plan_service = rospy.Service('get_motion_plan_' + self.plan_type,
                                                      GetMotionPlan,

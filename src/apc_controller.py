@@ -17,6 +17,8 @@ from apc.msg import BinWorkOrder, ExecStatus
 from apc.srv import *
 import utils
 from strategy import parse_json
+import time
+
 
 class APCController(ROSNode):
     def __init__(self, joint_trajectories_topic, exec_status_topic):
@@ -133,10 +135,13 @@ class APCController(ROSNode):
             rospy.logerr("Service call failed: {}".format(e))
 
     def execute_perception(self, bin_name):
+    
         perception_request = {
-            "objects": self.bin_contents[bin_name]
+            "bin_name": bin_name,
+            "objects": self.bin_contents[bin_name]["bin_contents"]
         }
-        perception_file = osp.join(self.perception_request_dir, '{}.json'.format(bin_name))
+        
+        perception_file = '{}.json'.format(utils.datetime_now_string())
 
         with open(perception_file, 'w') as f:
             json.dump(perception_request, f)
@@ -194,5 +199,8 @@ if __name__ == '__main__':
                                   rightjoints.base_pose,
                                   strategy)
         controller.execute_work_order(work_order)
+<<<<<<< HEAD
     """
     
+=======
+>>>>>>> 50a220e69b8c0ab92dee278dc023b28836e5f973
