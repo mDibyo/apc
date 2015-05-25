@@ -45,6 +45,15 @@ class APCDetector(object):
         self.calib_file = calib_file,
 
     @staticmethod
+    def get_pose_matrix(pose):
+        rmat = np.array(pose['rmat']).reshape((3, 3))
+        tvec = np.array(pose['tvec'])
+        H = np.eye(4)
+        H[:3,:3] = rmat
+        H[:3, 3] = tvec.T
+        return H
+
+    @staticmethod
     def project_cloud_to_image(img, cloud, K):
         pts3 = cloud[0, :, :3]
         img_pts = cycloud.projectPoints(K, pts3)
@@ -134,7 +143,7 @@ class APCDetector(object):
         print cmd
         check_call(cmd, shell=True)
 
-    def process_detections(self, cloud_path, feature_path, calib_path):
+    def process_detections(self, cloud_path, feature_path, calib_path, hypothesis_names):
         djs = list()
         pcds = glob.glob('segments_*.pcd')
         pcd_ind = 0
@@ -148,7 +157,8 @@ class APCDetector(object):
                 full_pcd = cloud_path
                 feat = feature_path
                 caminfo = calib_path
-                js = self.detector.process(img, mask, pcd, full_pcd, feat, caminfo, '', '', '')
+                js = self.detector.process(img, mask, pcd, full_pcd, feat, caminfo, '', '',
+                                           ','.join(hypothesis_names))
 
                 djs.append(json.loads(js))
                 pcd_ind += 1
@@ -163,12 +173,7 @@ class APCDetector(object):
         for k in xrange(len(obj_ids)):
             obj_id = obj_ids[k]
             pose = poses[k]
-            rmat = np.array(pose['rmat']).reshape((3, 3))
-            tvec = np.array(pose['tvec'])
-            H = np.eye(4)
-            H[:3,:3] = rmat
-            H[:3, 3] = tvec.T
-            H = np.linalg.inv(H)
+            H = np.linalg.inv(APCDetector.get_pose_matrix(pose))
             cloud = cycloud.transformCloud(APCDetector.get_obj_cloud(obj_id), H)
             print img.shape
             img, _ = APCDetector.project_cloud_to_image(img, cloud, K)
@@ -183,7 +188,7 @@ class APCDetector(object):
         return rgb_K, depth_K, H_rgb_from_depth, depth_scale
 
     def detect_scene(self, image_path, depth_map_path, cloud_path, segment_base, detections_path,
-                     calibration_path, transform_path, cubbyhole):
+                     calibration_path, transform_path, cubbyhole, hypothesis_names):
         calibration = h5.File(calibration_path)
         rgb_K, depth_K, H_rgb_from_depth, depth_scale = self.load_calibration(calibration)
 
@@ -194,7 +199,8 @@ class APCDetector(object):
         if run_features:
             self.extract_features(image_path, "features.h5", "segments_mask.jpg")
 
-        data = self.process_detections(cloud_path, "features.h5", calibration_path.replace("h5", "json"))
+        data = self.process_detections(cloud_path, "features.h5", calibration_path.replace("h5", "json"),
+                                       hypothesis_names)
 
         detections = []
 
@@ -218,6 +224,8 @@ class APCDetector(object):
 
         viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
         imsave('detections.png', viz_img)
+
+        return obj_ids, poses
 
     def extract_calibration(self, output_path):
         calibration = h5.File(self.calib_file)
@@ -258,20 +266,23 @@ class APCDetector(object):
         with open(output_path, 'w') as outfile:
             json.dump(info, outfile)
 
-    def run_pipeline(self, image_file, depth_file, transform_file, cubbyhole):
+    def run_pipeline(self, image_file, depth_file, transform_file, cubbyhole, hypothesis_names):
         calib_extracted = 'calib_extracted'
         self.extract_calibration('{}.json'.format(calib_extracted))
 
-        self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments', 'detections',
-                          '{}.h5'.format(calib_extracted), transform_file, cubbyhole)
+        obj_ids, poses = self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments', 'detections',
+                                           '{}.h5'.format(calib_extracted), transform_file, cubbyhole,
+                                           hypothesis_names)
 
-        pass
+        poses = [self.get_pose_matrix(pose) for pose in poses]
+        return obj_ids, poses
 
 
 class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
     """
     example_json_request = {
-        "cubbyhole": "bin_G"
+        "bin_name": "bin_G",
+        'contents': ['dove_beauty_bar', 'kong_duck_dog_toy']
     }
     """
     patterns = ['*.json']
@@ -279,12 +290,18 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
     def __init__(self, *args, **kwargs):
         super(NewCubbyholeRequestHandler, self).__init__()
 
+        self.object_poses_directory = utils.OBJECT_POSES_DIR
+        self.ssh_object_poses_directory = None
+        if utils.COMPUTER != utils.ROS_COMPUTER:
+            self.ssh_object_poses_directory = '{}:{}'.format(utils.ROS_COMPUTER,
+                                                             self.object_poses_directory)
+
         self.apc_detector = APCDetector(*args, **kwargs)
 
     def __enter__(self, *args, **kwargs):
         self.observer = Observer()
         self.observer.schedule(NewCubbyholeRequestHandler(*args, **kwargs),
-                          path=utils.PERCEPTION_REQUEST_DIR)
+                               path=utils.PERCEPTION_REQUEST_DIR)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.observer.stop()
@@ -295,32 +312,36 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
         with open(event.src_path, 'r') as f:
             cubbyhole = json.load(f)
 
-            scene_directory = os.path.join(utils.PERCEPTION_DIR, cubbyhole['bin_name'])
-            image_file = os.path.join(scene_directory, 'rgbd.jpg')
-            depth_file = os.path.join(scene_directory, 'rgbd.h5')
-            transform_file = os.path.join(scene_directory, 'transform.txt')
+        scene_directory = os.path.join(utils.PERCEPTION_DIR, cubbyhole['bin_name'])
+        image_file = os.path.join(scene_directory, 'rgbd.jpg')
+        depth_file = os.path.join(scene_directory, 'rgbd.h5')
+        transform_file = os.path.join(scene_directory, 'transform.txt')
+        hypothesis_names = cubbyhole['objects']
 
-            cubbyhole = utils.CUBBYHOLE_LENS
+        cubbyhole_name = cubbyhole['bin_name']
+        cubbyhole_dims = utils.bin_dims[cubbyhole_name]
 
-            self.apc_detector.run_pipeline(image_file, depth_file, transform_file, cubbyhole)
+        obj_ids, poses = self.apc_detector.run_pipeline(image_file, depth_file, transform_file, cubbyhole_dims,
+                                                        hypothesis_names)
+
+        object_poses_json = {obj_id: pose for obj_id, pose in zip(obj_ids, poses)}
+        object_poses_file = os.path.join(self.object_poses_directory, '{}.json'.format(cubbyhole_name))
+        with open(object_poses_file) as f:
+            json.dump(object_poses_json, f)
+        if self.ssh_object_poses_directory is not None:
+            check_call(['scp', object_poses_file, self.ssh_object_poses_directory])
+
 
     def on_modified(self, event):
-        self.process_cubbyhole(event)
+            self.process_cubbyhole(event)
 
 
 if __name__ == '__main__':
-    inch_to_m = 0.0254
-
     parser = ArgumentParser()
     parser.add_argument('-n', '--camera-name')
     parser.add_argument('-c', '--calib-file')
-    parser.add_argument('--cubbyhole', type=json.loads)
-    parser.add_argument('--perception-request-dir', )
+    parser.add_argument('--perception-request-dir')
     args = parser.parse_known_args()[0]
-
-    cubbyhole = args.cubbyhole
-    # cubbyhole = [-18, 0, -6, 6, 37, 47] # [front, back, left, right, bottom, top]
-    cubbyhole = [x * inch_to_m for x in cubbyhole]
 
     with NewCubbyholeRequestHandler(camera_name=args.camera_name,
                                     calib_file=args.calib_file) as handler:

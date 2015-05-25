@@ -5,7 +5,7 @@ import json
 import multiprocessing as mp
 import os.path as osp
 import time
-# from waiting import wait, TimeoutExpired
+from waiting import wait, TimeoutExpired
 from copy import deepcopy
 
 import numpy as np
@@ -69,6 +69,7 @@ elif grasps_fn == "latest":
 
 
 # Define shelf cubbyhole configuration
+inch_to_m = 0.0254
 if NEW_SHELF:
     SHELF_Y = [11*.0254, 0, -11*.0254]
     SHELF_Z = [37*0.0254, 28*0.0254, ] 
@@ -89,6 +90,17 @@ if NEW_SHELF:
             for y in SHELF_Y:  
                 bin_pose[BINS[i]] = np.array([1, 0, 0, 0, x, y, z])
                 i += 1
+
+    _bin_dims_in_inches = {
+        "bin_G": [-19, -1, 6, 17, 37, 47],
+        "bin_H": [-19, -1, -6, 6, 37, 47],
+        "bin_I": [-19, -1, -17, -6, 37, 47],
+        "bin_J": [-19, -1, 6, 17, 28, 34.5],
+        "bin_K": [-19, -1, -6, 6, 28, 34.5],
+        "bin_L": [-19, -1, -17, -6, 28, 34.5],
+    }
+    bin_dims = [x * inch_to_m for x in _bin_dims_in_inches]
+
 else:
     BINS = [
         "bin_A",
@@ -163,16 +175,16 @@ _trajopt_request_template = {
                 "dist_pen": [0.02]
             }
         }],
-        "constraints": [
-            { "type": "joint",
-              "params": { "vals": None }
-            }
-        ],
-        "init_info": {
-            "type": "straight_line",
-            "endpoint": None
+    "constraints": [
+        { "type": "joint",
+          "params": { "vals": None }
         }
+    ],
+    "init_info": {
+        "type": "straight_line",
+        "endpoint": None
     }
+}
   
 def trajopt_request_template():
     return deepcopy(_trajopt_request_template)
@@ -218,7 +230,10 @@ def getch():
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
     
-    
+
+def datetime_now_string():
+    import datetime
+    return datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
     
 
 class LoopingThread(threading.Thread):

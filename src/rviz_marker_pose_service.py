@@ -47,7 +47,7 @@ class RvizMarkerPoseService(ROSNode):
 
 
 class APCObjectPoseService(ROSNode, PatternMatchingEventHandler):
-    patterns = ['json']
+    patterns = ['*.json']
 
     def __init__(self):
         super(APCObjectPoseService, self).__init__('apc_object_pose_service',
