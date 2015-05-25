@@ -144,7 +144,7 @@ class APCController(ROSNode):
         
         timestamp = utils.datetime_now_string()
         
-        perception_file = '{}.json'.format(timestamp)
+        perception_file = osp.join(self.perception_request_dir, '{}.json'.format(timestamp))
 
         with open(perception_file, 'w') as f:
             json.dump(perception_request, f)

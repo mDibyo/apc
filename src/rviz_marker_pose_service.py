@@ -80,8 +80,8 @@ class APCObjectPoseService(PatternMatchingEventHandler):
         if not event.is_directory:
             with open(event.src_path, 'r') as f:
                 bin = json.load(f)
-                bin_name = osp.splitext(osp.basename(event.src_path))[0]
-                self.bins[bin_name] = bin
+            bin_name = bin['bin_name']
+            self.bins[bin_name] = bin['object_poses']
 
     def handle_get_object_pose(self, req):
         bin_name = req.bin_name

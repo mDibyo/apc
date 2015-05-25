@@ -12,9 +12,9 @@ import numpy as np
 import utils
 from time import sleep
 import json
-from subprocess import check_call
+from subprocess import check_call, CalledProcessError
 import os
-from argparse import ArgumentParser
+from threading import Thread
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
@@ -153,17 +153,27 @@ class APCDetector(object):
             for pcd in pcds:
                 print 'processing segment %d of %d' % (pcd_ind + 1, len(pcds))
                 if pcd.endswith('all.pcd'):
-                    continue
-                img = pcd.replace('.pcd', '.jpg')
-                mask = img.replace('.jpg', '_mask.jpg')
-                full_pcd = cloud_path
-                feat = feature_path
-                caminfo = calib_path
-                js = self.detector.process(img, mask, pcd, full_pcd, feat, caminfo, '', '',
-                                           str(','.join(hypothesis_names)))
+                    check_call(['rm', pcd])
+                    check_call(['rm', pcd.replace('.pcd',  '.jpg')])
+                    check_call(['rm', pcd.replace('_all.pcd',  '_mask.jpg')])
+                else:
+                    img = pcd.replace('.pcd', '.jpg')
+                    mask = img.replace('.jpg', '_mask.jpg')
+                    full_pcd = cloud_path
+                    feat = feature_path
+                    caminfo = calib_path
+                    js = self.detector.process_apc(img, mask, pcd, full_pcd, feat, caminfo, '', '',
+                                                   str(','.join(hypothesis_names)))
 
-                djs.append(json.loads(js))
-                pcd_ind += 1
+                    # check_call(['rm', pcd])
+                    # check_call(['rm', pcd.replace('.pcd',  '.jpg')])
+                    # check_call(['rm', pcd.replace('.pcd',  '_mask.jpg')])
+
+                    djs.append(json.loads(js))
+                    pcd_ind += 1
+
+            check_call(['rm', 'segments_plane.json'])
+
             json.dump(djs, open('detection_out.json', 'w'))
         else:
             djs = json.load(open('detection_out.json', 'r'))
@@ -224,8 +234,8 @@ class APCDetector(object):
             obj_ids.append(obj_id)
             poses.append(d['zz_pose_map'][obj_id])
 
-        viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
-        imsave('detections.png', viz_img)
+        # viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
+        # imsave('detections.png', viz_img)
 
         return obj_ids, poses
 
@@ -275,6 +285,13 @@ class APCDetector(object):
                                            hypothesis_names)
 
         poses = [self.get_pose_matrix(pose) for pose in poses]
+
+        # Remove data
+        check_call(['rm',
+                    # 'cloud.pcd',
+                    'features.h5',
+                    'detection_out.json'])
+
         return obj_ids, poses
 
 
@@ -297,11 +314,14 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
                                                              self.object_poses_directory)
 
         self.apc_detector = APCDetector(*args, **kwargs)
+        self.thread = None
 
     def __enter__(self, *args, **kwargs):
         self.observer = Observer()
         self.observer.schedule(self, path=utils.PERCEPTION_REQUEST_DIR)
         self.observer.start()
+
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.observer.stop()
@@ -323,25 +343,45 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
         try:
             hypothesis_names = cubbyhole['objects']
             cubbyhole_name = cubbyhole['bin_name']
-        except KeyError:
+        except KeyError as e:
             print "Request does not contain the required information"
+            print e
             return
 
-        cubbyhole_dims = utils.bin_dims[cubbyhole_name]
+        try:
+            cubbyhole_dims = utils.bin_dims[cubbyhole_name]
+        except KeyError as e:
+            print "Request contains the wrong bin"
+            return
 
-        obj_ids, poses = self.apc_detector.run_pipeline(image_file, depth_file, transform_file, cubbyhole_dims,
-                                                        hypothesis_names)
+        try:
+            obj_ids, poses = self.apc_detector.run_pipeline(image_file, depth_file, transform_file, cubbyhole_dims,
+                                                            hypothesis_names)
+        except CalledProcessError as e:
+            print "Error in C++ code"
+            print e
+            return
 
-        object_poses_json = {obj_id: pose for obj_id, pose in zip(obj_ids, poses)}
-        object_poses_file = os.path.join(self.object_poses_directory, '{}.json'.format(cubbyhole_name))
+        object_poses_json = {obj_id: np.array(pose).tolist() for obj_id, pose in zip(obj_ids, poses)}
+        object_poses_file = os.path.join(self.object_poses_directory,
+                                         os.path.basename(event.src_path))
         with open(object_poses_file, 'w') as f:
-            json.dump(object_poses_json, f)
+            json.dump({
+                'bin_name': cubbyhole_name,
+                'object_poses': object_poses_json
+            }, f)
         if self.ssh_object_poses_directory is not None:
             check_call(['scp', object_poses_file, self.ssh_object_poses_directory])
 
 
     def on_modified(self, event):
-        self.process_cubbyhole(event)
+        while self.thread is not None:
+            sleep(1)
+
+        self.thread = Thread(target=self.process_cubbyhole, args=(event,))
+        self.thread.start()
+        self.thread.join()
+        self.thread = None
 
 
 if __name__ == '__main__':
