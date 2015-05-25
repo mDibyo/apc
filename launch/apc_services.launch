@@ -21,6 +21,8 @@
             <arg name="shelf_pose_file" value="$(arg shelf_pose_file)" />
         </include>
         
+        <include file="$(find apc)/launch/object_pose_service.launch" />
+        
     </group>
     
 

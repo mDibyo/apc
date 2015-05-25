@@ -34,9 +34,10 @@ class APCController(ROSNode):
 
         self._robot_exec_status = None
 
-        self.get_motion_plan_client = rospy.ServiceProxy('get_motion_plan', GetMotionPlan)
-        self.get_robot_state_client = rospy.ServiceProxy("get_latest_robot_state", GetLatestRobotState)
-        self.look_at_bins_client = rospy.ServiceProxy("look_at_bins", LookAtBins)
+
+        self.get_robot_state_client = rospy.ServiceProxy("/apc/get_latest_robot_state", GetLatestRobotState)
+        self.look_at_bins_client = rospy.ServiceProxy("/apc/look_at_bins", LookAtBins)
+        
         self.get_grasp_plan_client = rospy.ServiceProxy('get_motion_plan_grasp', GetMotionPlan)
         self.get_hook_plan_client = rospy.ServiceProxy('get_motion_plan_hook', GetMotionPlan)
         
@@ -76,11 +77,12 @@ class APCController(ROSNode):
     def execute_motion_plan(self, motion_plan):
         if motion_plan.strategy != "failed":
             # Move base
-            print "start base"
-            self.base_movement_publisher.publish(motion_plan.base_target)    
-            rospy.sleep(1.0)
-            self.wait_for_idle_exec_status()
-            print "end base"
+            if utils.MOVE_BASE:
+                print "start base"
+                self.base_movement_publisher.publish(motion_plan.base_target)    
+                rospy.sleep(1.0)
+                self.wait_for_idle_exec_status()
+                print "end base"
             
             # Move Torso
             print "start torso"
@@ -132,11 +134,11 @@ class APCController(ROSNode):
 
     def execute_perception(self, bin_name):
         perception_request = {
-            "objects": self.work_order_sequence[bin_name]["bin_contents"]
+            "objects": self.bin_contents[bin_name]
         }
-        perception_file = '{}.json'.format(bin_name)
+        perception_file = osp.join(self.perception_request_dir, '{}.json'.format(bin_name))
 
-        with open(osp.join(self.perception_request_dir, perception_file), 'w') as f:
+        with open(perception_file, 'w') as f:
             json.dump(perception_request, f)
         if self.ssh_perception_request_dir is not None:
             subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
@@ -153,6 +155,23 @@ class APCController(ROSNode):
 
 if __name__ == '__main__':
     controller = APCController('joint_trajectories', 'exec_status')
+    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
+    
+    controller.execute_perception("bin_G")
+    
+    rightjoints = controller.get_robot_state("rightarm_torso")
+    leftjoints = controller.get_robot_state("leftarm_torso")
+    work_order = BinWorkOrder('bin_H',
+                              'all_combined',
+                               ["expo_dry_erase_board_eraser"],
+                               "expo_dry_erase_board_eraser",
+                               rightjoints.joint_values,
+                                leftjoints.joint_values,
+                                rightjoints.base_pose,
+                                "grasp")
+    controller.execute_work_order(work_order)
+    
+    """
     startup = controller.get_startup_sequence()
     for mp in startup.motion_plan_list:
         print mp
@@ -160,7 +179,6 @@ if __name__ == '__main__':
      
     strategy = 'hook'
         
-    controller.work_order_sequence = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
     for order in controller.work_order_sequence:
         controller.execute_perception(order["bin_name"])
         
@@ -176,5 +194,5 @@ if __name__ == '__main__':
                                   rightjoints.base_pose,
                                   strategy)
         controller.execute_work_order(work_order)
-
+    """
     

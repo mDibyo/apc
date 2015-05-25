@@ -314,16 +314,13 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-n', '--camera-name')
     parser.add_argument('-c', '--calib-file')
-    parser.add_argument('--cubbyhole', type=json.loads)
     parser.add_argument('--perception-request-dir', )
     args = parser.parse_known_args()[0]
-
-    cubbyhole = args.cubbyhole
-    # cubbyhole = [-18, 0, -6, 6, 37, 47] # [front, back, left, right, bottom, top]
-    cubbyhole = [x * inch_to_m for x in cubbyhole]
 
     with NewCubbyholeRequestHandler(camera_name=args.camera_name,
                                     calib_file=args.calib_file) as handler:
         while True:
             print 'ready to execute perception'
             sleep(0)
+            
+            

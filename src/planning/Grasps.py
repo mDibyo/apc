@@ -5,7 +5,7 @@ import json
 import openravepy as rave
 import numpy as np
 
-from utils import GRASP_DIR, GRASP_TAG, NEW_WRISTS
+from utils import GRASP_DIR, GRASP_TAG, NEW_WRISTS, bin_pose
 
 class Grasp():
 
@@ -18,7 +18,6 @@ class Grasp():
     T_fix_inv = np.linalg.inv(T_fix)
     
     new_wrist_fix = rave.matrixFromAxisAngle(np.array([1,0,0]) * np.pi/2)
-
 
     def __init__(self, quat, pos, width, parent):
         self.pose = np.hstack([quat, pos])
