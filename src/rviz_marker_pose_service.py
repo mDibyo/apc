@@ -53,7 +53,11 @@ class RvizMarkerPoseService(ROSNode):
 class APCObjectPoseService(PatternMatchingEventHandler):
 
     patterns = ['*.json']
-
+    class Bin(object):
+        def __init__(self, object_poses, timestamp):
+            self.object_poses = object_poses
+            self.timestamp = timestamp
+            
     def __init__(self):
         super(APCObjectPoseService, self).__init__()
         rospy.init_node('apc_object_pose_service')
@@ -81,24 +85,30 @@ class APCObjectPoseService(PatternMatchingEventHandler):
             with open(event.src_path, 'r') as f:
                 bin = json.load(f)
             bin_name = bin['bin_name']
-            self.bins[bin_name] = bin['object_poses']
+            timestamp = osp.splitext(osp.basename(event.src_path))[0]
+            rospy.logwarn(timestamp)
+            self.bins[bin_name] = self.Bin(bin['object_poses'], timestamp)
 
     def handle_get_object_pose(self, req):
         bin_name = req.bin_name
         
         if bin_name in self.bins:
-            mat = self.bins[bin_name].get(req.object, None)
-
-            rospy.logwarn(mat)
-
-            pose = rave.poseFromMatrix(mat)
-            obj_pose = Pose()
+            # mat = self.bins[bin_name].get(req.object, None)
+            bin = self.bins[bin_name]
+            mat = bin.object_poses.get(req.object, None)
             
-            obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
-            obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
-            
-            return GetObjectPoseResponse(obj_pose)
-        return GetObjectPoseResponse(None)
+            if mat is not None:
+                rospy.logwarn(mat)
+
+                pose = rave.poseFromMatrix(mat)
+                obj_pose = Pose()
+                
+                obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
+                obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
+                
+                return GetObjectPoseResponse(obj_pose, bin.timestamp)
+                
+        return GetObjectPoseResponse(None, None)
 
 
 # if __name__ == '__main__':

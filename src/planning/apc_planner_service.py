@@ -316,7 +316,7 @@ class APCPlannerService(ROSNode):
         if self.work_order:
             try:
                 for object_name in self.work_order.bin_contents:
-                    res = self.get_marker_pose_client(self.work_order.bin_name, object_name)  ### TODO: this part should come from perception ###
+                    res = self.get_marker_pose_client(self.work_order.bin_name, object_name)
                     self.object_poses[object_name] = res.obj_pose
             except rospy.ServiceException as e:
                 rospy.logerr("Service call failed: {}".format(e))

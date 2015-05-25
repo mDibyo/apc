@@ -151,6 +151,7 @@ class APCController(ROSNode):
         if self.ssh_perception_request_dir is not None:
             subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
             
+        """
         returned = False
         i = 0; fname = osp.join(utils.OBJECT_POSES_DIR, bin_name + ".json")
         while not returned:
@@ -159,7 +160,24 @@ class APCController(ROSNode):
                 rospy.logwarn("waiting for perception")
             rospy.sleep(1.0)
             i += 1
+        """
+        updated, err = False, False
+        i = 0
+        while not updated and not err:
+            response = self.get_obj_pose_client(bin_name, target_object)
+            if response.timestamp == timestamp:
+                updated = True    
+                
+            if not i % 10:
+                rospy.logwarn("waiting for perception: " + response.timestamp)
+            rospy.sleep(1.0)
+            i += 1
             
+            if i >= 30:
+                rospy.logwarn("took too long")
+                err = True
+        return err
+        
     def get_robot_state(self, manip):
         try:
             res = self.get_robot_state_client(manip)
@@ -199,18 +217,24 @@ if __name__ == '__main__':
     strategy = 'grasp'
         
     for order in controller.work_order_sequence:
-        controller.execute_perception(order["bin_name"], order['target_object'])
-        
-        rightjoints = controller.get_robot_state("rightarm_torso")
-        leftjoints = controller.get_robot_state("leftarm_torso")
-        
-        work_order = BinWorkOrder(order['bin_name'],
-                                  'all_combined',
-                                  order['bin_contents'],
-                                  order['target_object'],
-                                  rightjoints.joint_values,
-                                  leftjoints.joint_values,
-                                  rightjoints.base_pose,
-                                  strategy)
-        controller.execute_work_order(work_order)
+        err = controller.execute_perception(order["bin_name"], order['target_object'])
+        if not err:
+            rightjoints = controller.get_robot_state("rightarm_torso")
+            leftjoints = controller.get_robot_state("leftarm_torso")
+            
+            work_order = BinWorkOrder(order['bin_name'],
+                                      'all_combined',
+                                      order['bin_contents'],
+                                      order['target_object'],
+                                      rightjoints.joint_values,
+                                      leftjoints.joint_values,
+                                      rightjoints.base_pose,
+                                      strategy)
+            controller.execute_work_order(work_order)
+        else:
+            rospy.logwarn("perception failed on " + order["bin_name"])
+            
+            
+            
+            
 
