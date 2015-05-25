@@ -151,11 +151,14 @@ class APCController(ROSNode):
         if self.ssh_perception_request_dir is not None:
             subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
             
-        pose = None
-        while pose is None:
-            pose = fromPoseMsg(self.get_obj_pose_client(bin_name, target_object).obj_pose)
-            rospy.logwarn("waiting for perception")
+        returned = False
+        i = 0; fname = osp.join(utils.OBJECT_POSES_DIR, bin_name + ".json")
+        while not returned:
+            returned = osp.isfile(fname)
+            if not i % 10:
+                rospy.logwarn("waiting for perception")
             rospy.sleep(1.0)
+            i += 1
             
     def get_robot_state(self, manip):
         try:
@@ -169,7 +172,7 @@ class APCController(ROSNode):
 
 if __name__ == '__main__':
     controller = APCController('joint_trajectories', 'exec_status')
-    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "test2.json"))
+    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "test3.json"))
     
     rospy.loginfo(controller.work_order_sequence)
     

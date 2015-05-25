@@ -62,7 +62,7 @@ class APCObjectPoseService(PatternMatchingEventHandler):
         self.get_object_pose_service = rospy.Service('get_object_pose', GetObjectPose,
                                                      self.handle_get_object_pose)
                                                     
-        rospy.loginfo(utils.OBJECT_POSES_DIR)
+        rospy.logwarn(utils.OBJECT_POSES_DIR)
         
     def __enter__(self):
         self.observer = Observer()
@@ -88,14 +88,16 @@ class APCObjectPoseService(PatternMatchingEventHandler):
         
         if bin_name in self.bins:
             mat = self.bins[bin_name].get(req.object, None)
-            if mat is not None:
-                pose = rave.poseFromMatrix(mat)
-                obj_pose = Pose()
-                
-                obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
-                obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
-                
-                return GetObjectPoseResponse(obj_pose)
+
+            rospy.logwarn(mat)
+
+            pose = rave.poseFromMatrix(mat)
+            obj_pose = Pose()
+            
+            obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
+            obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
+            
+            return GetObjectPoseResponse(obj_pose)
         return GetObjectPoseResponse(None)
 
 

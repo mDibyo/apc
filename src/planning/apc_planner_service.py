@@ -316,7 +316,7 @@ class APCPlannerService(ROSNode):
         if self.work_order:
             try:
                 for object_name in self.work_order.bin_contents:
-                    res = self.get_marker_pose_client("object_{}".format(object_name))  ### TODO: this part should come from perception ###
+                    res = self.get_marker_pose_client(self.work_order.bin_name, object_name)  ### TODO: this part should come from perception ###
                     self.object_poses[object_name] = res.obj_pose
             except rospy.ServiceException as e:
                 rospy.logerr("Service call failed: {}".format(e))
@@ -335,6 +335,8 @@ class APCPlannerService(ROSNode):
         for object_name in self.work_order.bin_contents:
             self.env.Load(osp.join(OBJ_MESH_DIR, object_name + ".stl"))
             
+            obj_mat = None
+            
             if FAKE:
                 rospy.logwarn("using fake data")
                 obj_mat = rave.matrixFromPose(np.loadtxt("obj.txt")[0])
@@ -343,14 +345,14 @@ class APCPlannerService(ROSNode):
                 if pose is not None:
                     robot_to_object = rave.matrixFromPose(pose)
                     obj_mat = world_to_robot.dot(robot_to_object)
-                else:
+                elif object_name == self.work_order.target_object:
                     self.no_perception = True
                     rospy.logwarn("no perception for object " + object_name)
-            else:
+            elif object_name == self.work_order.target_object:
                 self.no_perception = True
                 rospy.logwarn("no perception for object " + object_name)
                 
-            if not self.no_perception:
+            if obj_mat is not None:
                 rospy.logwarn(object_name + ": " + rave.poseFromMatrix(obj_mat).tolist().__str__())
                 self.env.GetKinBody(object_name).SetTransform(obj_mat)
                 
@@ -359,7 +361,6 @@ class APCPlannerService(ROSNode):
         self.robot.SetDOFValues([-1.57,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ], self.robot.GetManipulator("rightarm").GetArmIndices())
         self.robot.SetDOFValues([ 1.57,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ], self.robot.GetManipulator("leftarm").GetArmIndices())
         self.robot.SetTransform(world_to_robot)
-        raw_input("start planning?")
         
 if __name__ == '__main__':
     with APCPlannerService(10, "work_orders", "grasp", "cubbyhole_all_combined") as self:
