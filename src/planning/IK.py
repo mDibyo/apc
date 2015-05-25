@@ -256,8 +256,10 @@ class IkSolver(object):
         while rsol is None and not IkSolver.env.CheckCollision(IkSolver.robot.GetLink("base_link"), shelf):
             IkSolver.resetArms()
             if i == 0:  
+                pass
+            elif i == 1 and MOVE_BASE:
                 pos[:2,3] = [-1.2,-0.2]
-            elif i == 2:# and MOVE_BASE:
+            elif i == 2 and MOVE_BASE:
                 pos[:2,3] = np.array([-1,1]) * IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2] # flip for left hand
             
             """

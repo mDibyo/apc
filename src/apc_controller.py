@@ -9,7 +9,7 @@ import roslib
 roslib.load_manifest('apc')
 
 import rospy
-from ros_utils import ROSNode
+from ros_utils import ROSNode, fromPoseMsg
 from trajectory_msgs.msg import JointTrajectory
 from std_msgs.msg import Float32, String
 from geometry_msgs.msg import Point
@@ -39,6 +39,8 @@ class APCController(ROSNode):
 
         self.get_robot_state_client = rospy.ServiceProxy("/apc/get_latest_robot_state", GetLatestRobotState)
         self.look_at_bins_client = rospy.ServiceProxy("/apc/look_at_bins", LookAtBins)
+        self.get_obj_pose_client = rospy.ServiceProxy("/apc/get_object_pose", GetObjectPose)
+        
         
         self.get_grasp_plan_client = rospy.ServiceProxy('get_motion_plan_grasp', GetMotionPlan)
         self.get_hook_plan_client = rospy.ServiceProxy('get_motion_plan_hook', GetMotionPlan)
@@ -134,19 +136,26 @@ class APCController(ROSNode):
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
 
-    def execute_perception(self, bin_name):
-    
+    def execute_perception(self, bin_name, target_object): 
         perception_request = {
             "bin_name": bin_name,
-            "objects": self.bin_contents[bin_name]["bin_contents"]
+            "objects": self.bin_contents[bin_name]
         }
         
-        perception_file = '{}.json'.format(utils.datetime_now_string())
+        timestamp = utils.datetime_now_string()
+        
+        perception_file = '{}.json'.format(timestamp)
 
         with open(perception_file, 'w') as f:
             json.dump(perception_request, f)
         if self.ssh_perception_request_dir is not None:
             subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
+            
+        pose = None
+        while pose is None:
+            pose = fromPoseMsg(self.get_obj_pose_client(bin_name, target_object).obj_pose)
+            rospy.logwarn("waiting for perception")
+            rospy.sleep(1.0)
             
     def get_robot_state(self, manip):
         try:
@@ -156,14 +165,16 @@ class APCController(ROSNode):
             rospy.logerr("Service call failed: {}".format(e))
             
     def get_startup_sequence(self):
-        return self.look_at_bins_client(['bin_G', 'bin_H', 'bin_I'])
+        return self.look_at_bins_client(['bin_H'])
 
 if __name__ == '__main__':
     controller = APCController('joint_trajectories', 'exec_status')
-    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
+    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "test2.json"))
     
+    rospy.loginfo(controller.work_order_sequence)
+    
+    """
     controller.execute_perception("bin_G")
-    
     rightjoints = controller.get_robot_state("rightarm_torso")
     leftjoints = controller.get_robot_state("leftarm_torso")
     work_order = BinWorkOrder('bin_H',
@@ -175,17 +186,17 @@ if __name__ == '__main__':
                                 rightjoints.base_pose,
                                 "grasp")
     controller.execute_work_order(work_order)
-    
     """
+    
     startup = controller.get_startup_sequence()
     for mp in startup.motion_plan_list:
         print mp
         controller.execute_motion_plan(mp)
      
-    strategy = 'hook'
+    strategy = 'grasp'
         
     for order in controller.work_order_sequence:
-        controller.execute_perception(order["bin_name"])
+        controller.execute_perception(order["bin_name"], order['target_object'])
         
         rightjoints = controller.get_robot_state("rightarm_torso")
         leftjoints = controller.get_robot_state("leftarm_torso")
@@ -199,8 +210,4 @@ if __name__ == '__main__':
                                   rightjoints.base_pose,
                                   strategy)
         controller.execute_work_order(work_order)
-<<<<<<< HEAD
-    """
-    
-=======
->>>>>>> 50a220e69b8c0ab92dee278dc023b28836e5f973
+

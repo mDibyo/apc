@@ -19,7 +19,7 @@ from std_msgs.msg import Header
 
 from planning import IkSolver
 from apc.msg import MotionPlan
-from apc.srv import GetMarkerPose, GetMotionPlan, GetMotionPlanResponse
+from apc.srv import GetObjectPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode, fromPoseMsg
 from utils import FAKE, MODEL_DIR, OBJ_MESH_DIR, trajopt_request_template, timed, order_bin_pose
 from test_utils import *
@@ -53,8 +53,7 @@ class APCPlannerService(ROSNode):
 
         self.tf_listener = tf.TransformListener()
 
-        rospy.wait_for_service('get_marker_pose')
-        self.get_marker_pose_client = rospy.ServiceProxy('/apc/get_object_pose', GetMarkerPose)
+        self.get_marker_pose_client = rospy.ServiceProxy('/apc/get_object_pose', GetObjectPose)
                                                          
         self.get_motion_plan_service = rospy.Service('get_motion_plan_' + self.plan_type,
                                                      GetMotionPlan,
@@ -317,9 +316,8 @@ class APCPlannerService(ROSNode):
         if self.work_order:
             try:
                 for object_name in self.work_order.bin_contents:
-                    pass
-                    #res = self.get_marker_pose_client("object_{}".format(object_name))  ### TODO: this part should come from perception ###
-                    #self.object_poses[object_name] = res.marker_pose
+                    res = self.get_marker_pose_client("object_{}".format(object_name))  ### TODO: this part should come from perception ###
+                    self.object_poses[object_name] = res.obj_pose
             except rospy.ServiceException as e:
                 rospy.logerr("Service call failed: {}".format(e))
 
@@ -340,9 +338,14 @@ class APCPlannerService(ROSNode):
             if FAKE:
                 rospy.logwarn("using fake data")
                 obj_mat = rave.matrixFromPose(np.loadtxt("obj.txt")[0])
-            elif object_name in self.object_poses:         
-                robot_to_object = rave.matrixFromPose(fromPoseMsg(self.object_poses[object_name]))
-                obj_mat = world_to_robot.dot(robot_to_object)
+            elif object_name in self.object_poses:        
+                pose = fromPoseMsg(self.object_poses[object_name])
+                if pose is not None:
+                    robot_to_object = rave.matrixFromPose(pose)
+                    obj_mat = world_to_robot.dot(robot_to_object)
+                else:
+                    self.no_perception = True
+                    rospy.logwarn("no perception for object " + object_name)
             else:
                 self.no_perception = True
                 rospy.logwarn("no perception for object " + object_name)

@@ -105,10 +105,12 @@ class APCRobotStateService(ROSNode):
         """ save T_camera_to_robot """
         joints = self.head_joints
         latest = self.joints[-1]        
-        joint_angles = []      
+        joint_angles = [latest[self.torso_joint]]
         for j in joints:
             joint_angles.append(latest[j])
-        self.robot.SetDOFValues(joint_angles, [13,14])
+        self.robot.SetDOFValues(joint_angles, [12,13,14])
+        
+        
         
         T = self.robot.GetLink("sensor_mount_link").GetTransform()
         mat = T.dot(self.T_tr.dot(self._T_rot))

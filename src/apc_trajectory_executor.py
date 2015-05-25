@@ -3,7 +3,6 @@
 from __future__ import division
 
 import numpy as np
-
 import roslib
 roslib.load_manifest('apc')
 import rospy
@@ -18,7 +17,7 @@ import openravepy as rave
 
 from apc.msg import ExecStatus, RobotStateBase
 from ros_utils import ROSNode
-from utils import LoopingThread 
+from utils import LoopingThread, FIX_YAW
 from apc.srv import *
 
 class APCTrajectoryExecutor(ROSNode):
@@ -184,18 +183,19 @@ class APCTrajectoryExecutor(ROSNode):
         tf_listener.waitForTransform("/base_footprint", "/odom_combined",
                                          rospy.Time(0), rospy.Duration(1))
            
-        start_quat = self.get_robot_state("base").base_pose[:4]
-        
-        angle = start_quat[-1]
-        
-        while abs(angle) > 0.0005:
-            angle = self.get_robot_state("base").base_pose[3]
-            rospy.loginfo("yaw: " + str(angle))
-            vel = Twist()
-            vel.angular.z = -0.025*np.sign(angle)
-            self.cmd_vel_publisher.publish(vel)
-            rate.sleep()
-        
+        if FIX_YAW:   
+           
+            start_quat = self.get_robot_state("base").base_pose[:4]
+            angle = start_quat[-1]
+            
+            while abs(angle) > 0.0005:
+                angle = self.get_robot_state("base").base_pose[3]
+                rospy.loginfo("yaw: " + str(angle))
+                vel = Twist()
+                vel.angular.z = -0.025*np.sign(angle)
+                self.cmd_vel_publisher.publish(vel)
+                rate.sleep()
+            
         start = self.get_robot_state("base").base_pose[-3:]
         end = np.array([base_target.x, base_target.y, 0])
         
@@ -206,7 +206,7 @@ class APCTrajectoryExecutor(ROSNode):
         
         if dist_to_move > 0.001:
         
-            v /= 40*np.linalg.norm(v)   
+            v /= 20*np.linalg.norm(v)   
             print v
                        
             while dist_moved < dist_to_move:

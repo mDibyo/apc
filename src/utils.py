@@ -10,8 +10,12 @@ from copy import deepcopy
 
 import numpy as np
 
-FAKE = True
-
+# Define robot configuration
+NEW_WRISTS = True
+NEW_SHELF = True
+MOVE_BASE = False
+FAKE = False
+FIX_YAW = False
 
 # Define computer configuration
 APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
@@ -45,10 +49,7 @@ CAMERA_NAME = 'PR2'
 # Define files
 SHELF_POSE_FILE = '/home/nmishra/workspace/apc/src/perception/shelf_finder/shelf_pose.txt'
 
-# Define robot configuration
-NEW_WRISTS = True
-NEW_SHELF = True
-MOVE_BASE = False
+
 
 
 # Define grasp configuration
