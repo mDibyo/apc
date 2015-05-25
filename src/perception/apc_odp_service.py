@@ -162,8 +162,8 @@ class APCDetector(object):
                     full_pcd = cloud_path
                     feat = feature_path
                     caminfo = calib_path
-                    js = self.detector.process(img, mask, pcd, full_pcd, feat, caminfo, '', '',
-                                               str(','.join(hypothesis_names)))
+                    js = self.detector.process_apc(img, mask, pcd, full_pcd, feat, caminfo, '', '',
+                                                   str(','.join(hypothesis_names)))
 
                     # check_call(['rm', pcd])
                     # check_call(['rm', pcd.replace('.pcd',  '.jpg')])
@@ -234,8 +234,8 @@ class APCDetector(object):
             obj_ids.append(obj_id)
             poses.append(d['zz_pose_map'][obj_id])
 
-        viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
-        imsave('detections.png', viz_img)
+        # viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
+        # imsave('detections.png', viz_img)
 
         return obj_ids, poses
 
@@ -287,7 +287,10 @@ class APCDetector(object):
         poses = [self.get_pose_matrix(pose) for pose in poses]
 
         # Remove data
-        check_call(['rm', 'cloud.pcd', 'features.h5', 'detection_out.json', 'detections.png'])
+        check_call(['rm',
+                    # 'cloud.pcd',
+                    'features.h5',
+                    'detection_out.json'])
 
         return obj_ids, poses
 
@@ -359,10 +362,14 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
             print e
             return
 
-        object_poses_json = {obj_id: pose for obj_id, pose in zip(obj_ids, poses)}
-        object_poses_file = os.path.join(self.object_poses_directory, '{}.json'.format(cubbyhole_name))
+        object_poses_json = {obj_id: np.array(pose).tolist() for obj_id, pose in zip(obj_ids, poses)}
+        object_poses_file = os.path.join(self.object_poses_directory,
+                                         os.path.basename(event.src_path))
         with open(object_poses_file, 'w') as f:
-            json.dump(object_poses_json, f)
+            json.dump({
+                'bin_name': cubbyhole_name,
+                'object_poses': object_poses_json
+            }, f)
         if self.ssh_object_poses_directory is not None:
             check_call(['scp', object_poses_file, self.ssh_object_poses_directory])
 
