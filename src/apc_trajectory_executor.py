@@ -178,9 +178,9 @@ class APCTrajectoryExecutor(ROSNode):
            
            
         start = np.array(self.get_robot_state("base").base_pose[-3:])
-        v, dist_moved = np.array([base_target.x, base_target.y, 0]), 0                       
+        end = np.array([base_target.x, base_target.y, 0])
         
-        
+        v, dist_moved = end - start, 0                    
         dist_to_move = np.linalg.norm(v)
         v /= 20*np.linalg.norm(v)   
         print v

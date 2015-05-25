@@ -21,15 +21,23 @@ class BinLooker(ROSNode):
                                                   
         self.robot_state_client = rospy.ServiceProxy('get_latest_robot_state',
                                                      GetLatestRobotState)
-
+        rospy.logwarn("ready for bin looking")
+        
     def handle_look_at_bins(self, req):
         bin_list = req.bin_list
         if not bin_list:
             bin_list = utils.BINS
 
-        current_pos = np.array(self.robot_state_client('base').state_with_base.base_pose[-3:])
-
         motion_plan_list = []
+        start = MotionPlan()
+        start.strategy = "start"
+        start.trajectories = []
+        start.head_direction = Point(0,0,0)
+        start.base_target = Point(-1.3,0,0)
+        start.torso_height = Float32(0)
+        start.capture_scene=''
+        motion_plan_list.append(start)
+        
         for bin_N in bin_list:
             motion_plan = MotionPlan()
             motion_plan.strategy = "look"
@@ -46,10 +54,8 @@ class BinLooker(ROSNode):
             motion_plan.head_direction = Point(head_point[0], head_point[1], head_point[2])
             
             target_pos = np.array([x, utils.bin_pose[bin_N][-2], 0])
-            dist_to_move = target_pos - current_pos
-            current_pos = target_pos
             
-            motion_plan.base_target = Point(dist_to_move[0], dist_to_move[1], 0)
+            motion_plan.base_target = Point(target_pos[0], target_pos[1], 0)
 
             # Move torso
             motion_plan.torso_height = Float32(0)

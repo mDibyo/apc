@@ -41,7 +41,7 @@ class APCCaptureSceneService(ROSNode):
         self.robot_state_client = rospy.ServiceProxy(self.robot_state_service_name,
                                                      GetLatestRobotState)
                                                                                                  
-        self.perception_dir = utils.PERCEPTION_DIR if output_directory is None else self.perception_dir
+        self.perception_dir = utils.PERCEPTION_DIR if output_directory is None else output_directory
         self.ssh_perception_dir = None
         if utils.COMPUTER != utils.PERCEPTION_COMPUTER:
             self.ssh_perception_dir = '{}:{}'.format(utils.PERCEPTION_COMPUTER, self.perception_dir)
@@ -52,7 +52,7 @@ class APCCaptureSceneService(ROSNode):
             
         self.initialize_cameras()
         self.scene_count = 0
-        print "ready to capture images"
+        rospy.logwarn("ready to capture images")
                                                   
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.carmine.close()
@@ -63,17 +63,20 @@ class APCCaptureSceneService(ROSNode):
     def initialize_cameras(self):
         settings = {"exposure": CARMINE_EXPOSURE,
                     "gain": 100}
-        cyni.initialize()
-        device = cyni.getAnyDevice()
-        if device is None:
-            rospy.logfatal("No carmine found. ")
-            rospy.logfatal("Please restart the program with the Carmine plugged in. ")
-        else:
-            self.carmine = Carmine(device, settings)
-            self.carmine.initialize()
-            self.carmine.start_color_stream()
-            self.carmine.start_depth_stream()
-
+        try:
+            cyni.initialize()
+            device = cyni.getAnyDevice()
+            if device is None:
+                rospy.logfatal("No carmine found. ")
+                rospy.logfatal("Please restart the program with the Carmine plugged in. ")
+            else:
+                self.carmine = Carmine(device, settings)
+                self.carmine.initialize()
+                self.carmine.start_color_stream()
+                self.carmine.start_depth_stream()
+        except Exception:
+            rospy.logfatal("couldn't find camera")
+            
     def shutter(self, color_filename, depth_filename, cloud_filename):
         self.carmine.capture_depth(depth_filename)
         self.carmine.stop_depth_stream()
@@ -110,12 +113,18 @@ class APCCaptureSceneService(ROSNode):
         
         camera_to_robot = np.loadtxt(response.transform_mat_path)
         robot_to_world = rave.matrixFromPose(state.state_with_base.base_pose)
-        camera_to_world = camera_to_robot.dot(robot_to_world)
+        camera_to_world = robot_to_world.dot(camera_to_robot)
+        
+        np.savetxt(os.path.join(path_base, "ctr.txt"), camera_to_robot)
+        np.savetxt(os.path.join(path_base, "rtw.txt"), robot_to_world)
         
         np.savetxt(os.path.join(path_base, "transform.txt"), camera_to_world)
 
         if self.ssh_perception_dir is not None:
-            subprocess.check_call(['scp', '-r', path_base, self.ssh_perception_dir])
+            cmd = ['scp', '-r', path_base, self.ssh_perception_dir]
+            print cmd
+            print ' '.join(cmd)
+            subprocess.check_call(cmd)
 
         return path_base
         

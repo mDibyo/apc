@@ -1,0 +1,27 @@
+<!-- launch background services -->
+<launch>
+
+    <arg name="camera_pose_service_name" value="get_camera_pose" />
+    <arg name="output_directory" value="$(find apc)/data/perception" />
+    <arg name="robot_state_service_name" value="get_latest_robot_state" />
+    <arg name="shelf_pose_file" value="$(find apc)/data/perception/shelf_finder/shelf_pose.txt" />
+    
+    <group ns="apc">
+
+        <include file="$(find apc)/launch/bin_looker_service_node.launch" />
+        
+        <include file="$(find apc)/launch/capture_image_service_node.launch">
+            <arg name="camera_pose_service" value="$(arg camera_pose_service_name)" />
+            <arg name="output_directory" value="$(arg output_directory)" />
+        </include>
+        
+        <include file="$(find apc)/launch/head_pointer_service.launch" />
+        
+        <include file="$(find apc)/launch/robot_state_service.launch">
+            <arg name="shelf_pose_file" value="$(arg shelf_pose_file)" />
+        </include>
+        
+    </group>
+    
+
+</launch>

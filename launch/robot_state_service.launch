@@ -1,0 +1,10 @@
+<!-- get state of robot -->
+<launch>
+
+    <arg name="shelf_pose_file" default="$(find apc)/src/perception/shelf_finder/shelf_pose.txt" />
+
+    <node name="robot_state"
+          pkg="apc"
+          type="apc_robot_state_service.py"
+          args="$(arg shelf_pose_file)" />
+</launch>

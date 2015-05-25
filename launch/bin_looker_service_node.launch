@@ -1,0 +1,6 @@
+<!-- launch bin looker plan service -->
+<launch>
+    <node name="bin_looker_plan_service"
+          pkg="apc"
+          type="bins_looker_service.py" />
+</launch>

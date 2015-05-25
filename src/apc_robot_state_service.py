@@ -46,7 +46,7 @@ class APCRobotStateService(ROSNode):
                      [ 0.  ,  0.  ,  0.  ,  1.  ]])
 
 
-    def __init__(self, update_rate, shelf_pose_file):
+    def __init__(self, shelf_pose_file):
         super(APCRobotStateService, self).__init__('robot_state')
         
         try:
@@ -67,13 +67,16 @@ class APCRobotStateService(ROSNode):
         self.base = deque(maxlen=10)
         self.tf_all = []
         
-        self.joints_subscriber = rospy.Subscriber("joint_states",
+        self.joints_subscriber = rospy.Subscriber("/joint_states",
                                                   JointState,
                                                   self.log_angles)
                                                   
-        self.tf_subscriber = rospy.Subscriber("tf",
+        self.tf_subscriber = rospy.Subscriber("/tf",
                                               tf.msg.tfMessage,
-                                              self.log_base)        
+                                              self.log_base)   
+                                              
+        rospy.logwarn("robot state info ready")
+     
                                                                     
     def __enter__(self):
         self.env = rave.Environment()
@@ -84,9 +87,6 @@ class APCRobotStateService(ROSNode):
                                                   
     def __exit__(self, exc_type, exc_val, exc_tb):
         rave.RaveDestroy
-        
-    def log_cloud(self, cloud_msg):
-        self.cloud = cloud_msg
    
     def log_base(self, tf_msg):
         """ Log transform from /odom_combined to /base_footprint """
@@ -115,7 +115,7 @@ class APCRobotStateService(ROSNode):
         
         T = self.robot.GetLink("sensor_mount_link").GetTransform()
         mat = T.dot(self.T_tr.dot(self._T_rot))
-        fname = "perception/shelf_finder/transform.txt"
+        fname = "/home/nmishra/workspace/apc/src/perception/shelf_finder/transform.txt"
         np.savetxt(fname, mat)
         return os.path.abspath(fname)
                     
@@ -147,15 +147,17 @@ class APCRobotStateService(ROSNode):
                 
         if self.robot_start_mat is None:
             start_mat = np.eye(4)
+            print "using default start mat"
         else:
             start_mat = self.robot_start_mat
             
+        print "odometry at",self.base[-1][-3:]
         base_mat = rave.matrixFromPose(self.base[-1])
         base_pose = rave.poseFromMatrix(base_mat.dot(start_mat))
         msg = RobotStateBase(joint_angles, base_pose.tolist())
         return GetLatestRobotStateResponse(msg)
         
 if __name__ == '__main__':
-    with APCRobotStateService(10, SHELF_POSE_FILE) as self:
+    with APCRobotStateService(SHELF_POSE_FILE) as self:
         self.spin()
         
