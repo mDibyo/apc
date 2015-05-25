@@ -343,8 +343,9 @@ class APCPlannerService(ROSNode):
             elif object_name in self.object_poses:        
                 pose = fromPoseMsg(self.object_poses[object_name])
                 if pose is not None:
-                    robot_to_object = rave.matrixFromPose(pose)
-                    obj_mat = world_to_robot.dot(robot_to_object)
+                    #robot_to_object = rave.matrixFromPose(pose)
+                    #obj_mat = world_to_robot.dot(robot_to_object)
+                    obj_mat = rave.matrixFromPose(pose)
                 elif object_name == self.work_order.target_object:
                     self.no_perception = True
                     rospy.logwarn("no perception for object " + object_name)
