@@ -165,9 +165,9 @@ class APCDetector(object):
                     js = self.detector.process_apc(img, mask, pcd, full_pcd, feat, caminfo, '', '',
                                                    str(','.join(hypothesis_names)))
 
-                    # check_call(['rm', pcd])
-                    # check_call(['rm', pcd.replace('.pcd',  '.jpg')])
-                    # check_call(['rm', pcd.replace('.pcd',  '_mask.jpg')])
+                    check_call(['rm', pcd])
+                    check_call(['rm', pcd.replace('.pcd',  '.jpg')])
+                    check_call(['rm', pcd.replace('.pcd',  '_mask.jpg')])
 
                     djs.append(json.loads(js))
                     pcd_ind += 1
@@ -234,8 +234,8 @@ class APCDetector(object):
             obj_ids.append(obj_id)
             poses.append(d['zz_pose_map'][obj_id])
 
-        # viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
-        # imsave('detections.png', viz_img)
+        viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
+        imsave('detections.png', viz_img)
 
         return obj_ids, poses
 
@@ -362,7 +362,12 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
             print e
             return
 
-        object_poses_json = {obj_id: np.array(pose).tolist() for obj_id, pose in zip(obj_ids, poses)}
+        transform = np.loadtxt(transform_file)
+        print 'transform', transform
+        object_poses_json = {}
+        for obj_id, pose in zip(obj_ids, poses):
+            transformed_pose = transform.dot(np.array(pose))
+            object_poses_json[obj_id] = transformed_pose.tolist()
         object_poses_file = os.path.join(self.object_poses_directory,
                                          os.path.basename(event.src_path))
         with open(object_poses_file, 'w') as f:
@@ -372,7 +377,6 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
             }, f)
         if self.ssh_object_poses_directory is not None:
             check_call(['scp', object_poses_file, self.ssh_object_poses_directory])
-
 
     def on_modified(self, event):
         while self.thread is not None:
