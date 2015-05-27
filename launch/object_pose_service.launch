@@ -1,0 +1,6 @@
+<!-- get object poses-->
+<launch>
+    <node name="object_pose_service"
+          pkg="apc"
+          type="rviz_marker_pose_service.py" />
+</launch>

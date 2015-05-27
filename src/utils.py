@@ -119,14 +119,14 @@ else:
         "bin_L"
     ]
     
-    _shelf_dims_x = [ [-0.42, 0]]
-    _shelf_dims_y = [ [0.42, 0.15], [0.15, -0.15], [-0.15, -0.42] ]
-    _shelf_dims_z = [ [1.791, 1.552], [1.524, 1.314], [1.284, 1.092], [1.067, 0.825] ]
+    _shelf_dims_x = [ [-0.42, -0.02] ]
+    _shelf_dims_y = [ [0.15, 0.404], [-0.15, 0.15], [-0.404, -0.15] ]
+    _shelf_dims_z = [ [1.552, 1.791], [1.314, 1.524], [1.092, 1.284], [0.825, 1.067] ]
     
     bin_dims, j = {}, 0   
-    for xb in _shelf_dims_x:
-        for yb in _shelf_dims_y:
-            for zb in _shelf_dims_z:
+    for xb in _shelf_dims_x:    
+        for zb in _shelf_dims_z:
+            for yb in _shelf_dims_y:
                 bin_dims[BINS[j]] = xb + yb + zb
                 j += 1
 
@@ -180,7 +180,12 @@ order_bin_pose = np.array([[ 1, 0, 0, -0.70],
                            [ 0, 1, 0,  0.60],
                            [ 0, 0, 1,  0.10],
                            [ 0, 0, 0,     1]])
-
+                           
+drop_bin_pose =  np.array([[ 1, 0, 0, -1.2],
+                           [ 0, 1, 0,  0.0],
+                           [ 0, 0, 1,  0.0],
+                           [ 0, 0, 0,   1]])
+                           
 
 # Trajopt request
 _trajopt_request_template = {
