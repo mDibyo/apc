@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 
 from detectorpy import Detector
 from pipeline_config import TOD_DATA_SUBDIRS, TOP_LEVEL_PATH
@@ -30,7 +31,7 @@ depth_map_units_scale_factor = .0001 # 100um to meters
 
 binpath = '%s/code/bin' % TOP_LEVEL_PATH
 
-run_detector = True
+run_detector = False
 run_features = True
 run_segment = True
 
@@ -39,6 +40,8 @@ class APCDetector(object):
     def __init__(self):
         self.camera_name = utils.CAMERA_NAME
         self.calib_file = utils.CAMERA_CALIBRATION_FILE
+        self.scoring_categories = ["scores_color_match", "scores_desc_match", "scores_nn_pose"]
+
         self.calib_extracted = 'calib_extracted'
         self.extract_calibration('{}.json'.format(self.calib_extracted))
 
@@ -89,6 +92,7 @@ class APCDetector(object):
     @staticmethod
     def get_obj_cloud(obj_id):
         cloud_path = '/mnt/teebee/amazon_picking_challenge/{0}/textured_meshes/optimized_poisson_textured_mesh.ply'.format(obj_id)
+        cloud_path = '/home/nmishra/apc_models/{0}/textured_meshes/optimized_poisson_textured_mesh.ply'.format(obj_id)
         return cycloud.readPLY(cloud_path).cloud
 
     @staticmethod
@@ -146,7 +150,7 @@ class APCDetector(object):
         check_call(cmd, shell=True)
 
     def process_detections(self, cloud_path, feature_path, calib_path, hypothesis_names):
-        djs = list()
+        detections_list = list()
         pcds = glob.glob('segments_*.pcd')
         pcd_ind = 0
         if run_detector:
@@ -162,22 +166,31 @@ class APCDetector(object):
                     full_pcd = cloud_path
                     feat = feature_path
                     caminfo = calib_path
-                    js = self.detector.process_apc(img, mask, pcd, full_pcd, feat, caminfo, '', '',
+                    detection_json = self.detector.process_apc(img, mask, pcd, full_pcd, feat, caminfo, '', '',
                                                    str(','.join(hypothesis_names)))
 
                     check_call(['rm', pcd])
                     check_call(['rm', pcd.replace('.pcd',  '.jpg')])
                     check_call(['rm', pcd.replace('.pcd',  '_mask.jpg')])
 
-                    djs.append(json.loads(js))
+                    detections = json.loads(detection_json)
+                    print 'detections', detections
+                    if detections['detections'] is not None:
+                        for detection in detections['detections']:
+                            for score_category in self.scoring_categories:
+                                detection[score_category] = \
+                                    {obj_id: score for obj_id, score in detection[score_category]}
+                            detection['segment'] = pcd
+
+                    detections_list.append(detections)
                     pcd_ind += 1
 
             check_call(['rm', 'segments_plane.json'])
 
-            json.dump(djs, open('detection_out.json', 'w'))
+            json.dump(detections_list, open('detection_out.json', 'w'))
         else:
-            djs = json.load(open('detection_out.json', 'r'))
-        return djs
+            detections_list = json.load(open('detection_out.json', 'r'))
+        return detections_list
 
     @staticmethod
     def viz_detections(img_path, obj_ids, poses, K):
@@ -214,30 +227,75 @@ class APCDetector(object):
         data = self.process_detections(cloud_path, "features.h5", calibration_path.replace("h5", "json"),
                                        hypothesis_names)
 
-        detections = []
+        def calculate_score(segment, object_id, all_object_ids):
+            total_score = 0
 
-        for dl in data:
-            if not dl['detections']:
-                continue
-            for d in dl['detections']:
-                detections.append(d)
+            for scoring_category in self.scoring_categories:
+                score_sum = 0
+                object_score = 0
+                for id_ in all_object_ids:
+                    # print 'score', segment[scoring_category][id_]
+                    score_sum += segment[scoring_category][id_]
+                    if id_ == object_id:
+                        object_score = segment[scoring_category][id_]
 
-        obj_ids = list()
-        poses = list()
-        for d in detections:
-            obj_id = d['object_id']
+                # print 'totals', object_score, score_sum
+                if score_sum:
+                    total_score += object_score / score_sum
 
-            if obj_id == '':
-                continue
-            print d
-            print 'Detected %s' % obj_id
-            obj_ids.append(obj_id)
-            poses.append(d['zz_pose_map'][obj_id])
+            return total_score / segment["cluster_size"]
 
-        viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
-        imsave('detections.png', viz_img)
+        def assign_object_ids(segments, hypothesis_names):
+            detections = []
 
-        return obj_ids, poses
+            for segment in segments:
+                if segment['detections']:
+                    for d in segment['detections']:
+                        detections.append(d)
+
+            undetected_objects = set(hypothesis_names)
+            # detected_objects = []
+            object_poses = {}
+            undetected_segments = list()
+
+            for d in detections:
+                obj_id = d['object_id']
+                if not obj_id:
+                    undetected_segments.append(d)
+                else:
+                    print 'Detected {}'.format(obj_id)
+                    object_poses[obj_id] = d['zz_pose_map'][obj_id]
+                    undetected_objects.remove(obj_id)
+
+            for hypothesis in hypothesis_names:
+                if hypothesis not in object_poses:
+                    if undetected_segments:
+                        # Choose from remaining segments
+                        undetected_segment_scores = []
+
+                        for segment in undetected_segments:
+                            score = calculate_score(segment, hypothesis, hypothesis_names)
+                            undetected_segment_scores.append(score)
+                        detected_segment_index = np.argmax(undetected_segment_scores)
+
+                        print 'Detected {}'.format(hypothesis)
+                        object_poses[hypothesis] = \
+                            undetected_segments[detected_segment_index]["zz_pose_map"][hypothesis]
+                        # undetected_segments.remove(detected_segment)
+                        undetected_objects.remove(hypothesis)
+
+            # obj_ids, poses = zip(object_poses.items())
+            # obj_ids = []
+            # poses = []
+            # for obj_id, pose in object_poses.iteritems():
+            #     obj_ids.append(obj_id)
+            #     poses.append(pose)
+            # viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
+            # imsave('detections.png', viz_img)
+
+            return object_poses
+
+        return assign_object_ids(data, hypothesis_names)
 
     def extract_calibration(self, output_path):
         print self.calib_file
@@ -280,11 +338,12 @@ class APCDetector(object):
             json.dump(info, outfile)
 
     def run_pipeline(self, image_file, depth_file, transform_file, cubbyhole, hypothesis_names):
-        obj_ids, poses = self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments', 'detections',
+        object_poses = self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments', 'detections',
                                            '{}.h5'.format(self.calib_extracted), transform_file, cubbyhole,
                                            hypothesis_names)
 
-        poses = [self.get_pose_matrix(pose) for pose in poses]
+        object_poses = {object_id: self.get_pose_matrix(pose)
+                        for object_id, pose in object_poses.iteritems()}
 
         # Remove data
         check_call(['rm',
@@ -292,7 +351,7 @@ class APCDetector(object):
                     'features.h5',
                     'detection_out.json'])
 
-        return obj_ids, poses
+        return object_poses
 
 
 class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
@@ -339,6 +398,7 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
         image_file = os.path.join(scene_directory, 'rgbd.jpg')
         depth_file = os.path.join(scene_directory, 'rgbd.h5')
         transform_file = os.path.join(scene_directory, 'transform.txt')
+        pose_fix_directory = os.path.join(utils.POSE_FIX_DIR)
 
         try:
             hypothesis_names = cubbyhole['objects']
@@ -355,8 +415,8 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
             return
 
         try:
-            obj_ids, poses = self.apc_detector.run_pipeline(image_file, depth_file, transform_file, cubbyhole_dims,
-                                                            hypothesis_names)
+            object_poses = self.apc_detector.run_pipeline(image_file, depth_file, transform_file,
+                                                          cubbyhole_dims, hypothesis_names)
         except CalledProcessError as e:
             print "Error in C++ code"
             print e
@@ -365,8 +425,11 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
         transform = np.loadtxt(transform_file)
         print 'transform', transform
         object_poses_json = {}
-        for obj_id, pose in zip(obj_ids, poses):
-            transformed_pose = transform.dot(np.array(pose))
+        for obj_id, pose in object_poses.iteritems():
+            pose_fix_transform = np.loadtxt(os.path.join(pose_fix_directory, '{}_pose.csv'.format(obj_id)),
+                                            delimiter=',')
+            pose_fixed = np.linalg.inv(np.array(pose)) .dot(np.linalg.inv(pose_fix_transform))
+            transformed_pose = transform.dot(pose_fixed)
             object_poses_json[obj_id] = transformed_pose.tolist()
         object_poses_file = os.path.join(self.object_poses_directory,
                                          os.path.basename(event.src_path))

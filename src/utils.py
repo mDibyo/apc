@@ -41,6 +41,7 @@ JSON_DIR = osp.join(APC_DIRECTORY, "json")
 # Perception
 PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 OBJECT_POSES_DIR = osp.join(DATA_DIRECTORY, "object_poses")
+POSE_FIX_DIR = osp.join(DATA_DIRECTORY, 'meshes', 'pose_fix')
 PERCEPTION_REQUEST_DIR = '/home/{}/perception_request_dir'.format(USER)
 CAMERA_CALIBRATION_FILE = osp.join(DATA_DIRECTORY, 'perception', 'calibration.h5')
 CAMERA_NAME = 'PR2'
