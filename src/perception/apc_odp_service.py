@@ -279,8 +279,9 @@ class APCDetector(object):
                         detected_segment_index = np.argmax(undetected_segment_scores)
 
                         print 'Detected {}'.format(hypothesis)
-                        object_poses[hypothesis] = \
-                            undetected_segments[detected_segment_index]["zz_pose_map"][hypothesis]
+                        pose = undetected_segments[detected_segment_index]["zz_pose_map"][hypothesis]
+                        pose[3][0] = 1
+                        object_poses[hypothesis] = pose
                         # undetected_segments.remove(detected_segment)
                         undetected_objects.remove(hypothesis)
 

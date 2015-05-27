@@ -99,13 +99,15 @@ class APCObjectPoseService(PatternMatchingEventHandler):
             
             if mat is not None:
                 rospy.logwarn(mat)
-
-                pose = rave.poseFromMatrix(mat)
                 obj_pose = Pose()
-                
-                obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
-                obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
-                
+                if mat[3][0] == 0:
+                    pose = rave.poseFromMatrix(mat)
+
+                    obj_pose.orientation = Quaternion(pose[0], pose[1], pose[2], pose[3])
+                    obj_pose.position = Point(pose[-3], pose[-2], pose[-1])
+                else:
+                    obj_pose.orientation = Quaternion()
+                    obj_pose.position = Point(mat[0][0], mat[1][0], mat[2][0])
                 return GetObjectPoseResponse(obj_pose, bin.timestamp)
                 
         return GetObjectPoseResponse(None, None)
