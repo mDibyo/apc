@@ -31,7 +31,7 @@ depth_map_units_scale_factor = .0001 # 100um to meters
 
 binpath = '%s/code/bin' % TOP_LEVEL_PATH
 
-run_detector = False
+run_detector = True
 run_features = True
 run_segment = True
 
@@ -48,6 +48,9 @@ class APCDetector(object):
         self.detector = None
         if run_detector:
             self.detector = Detector(sift_path, color_path, "")
+
+        # DEBUG FLAG!!!
+        self.debug = True
 
     @staticmethod
     def get_pose_matrix(pose):
@@ -157,9 +160,10 @@ class APCDetector(object):
             for pcd in pcds:
                 print 'processing segment %d of %d' % (pcd_ind + 1, len(pcds))
                 if pcd.endswith('all.pcd'):
-                    check_call(['rm', pcd])
-                    check_call(['rm', pcd.replace('.pcd',  '.jpg')])
-                    check_call(['rm', pcd.replace('_all.pcd',  '_mask.jpg')])
+                    if not self.debug:
+                        check_call(['rm', pcd])
+                        check_call(['rm', pcd.replace('.pcd',  '.jpg')])
+                        check_call(['rm', pcd.replace('_all.pcd',  '_mask.jpg')])
                 else:
                     img = pcd.replace('.pcd', '.jpg')
                     mask = img.replace('.jpg', '_mask.jpg')
@@ -169,9 +173,10 @@ class APCDetector(object):
                     detection_json = self.detector.process_apc(img, mask, pcd, full_pcd, feat, caminfo, '', '',
                                                    str(','.join(hypothesis_names)))
 
-                    check_call(['rm', pcd])
-                    check_call(['rm', pcd.replace('.pcd',  '.jpg')])
-                    check_call(['rm', pcd.replace('.pcd',  '_mask.jpg')])
+                    if not self.debug:
+                        check_call(['rm', pcd])
+                        check_call(['rm', pcd.replace('.pcd',  '.jpg')])
+                        check_call(['rm', pcd.replace('.pcd',  '_mask.jpg')])
 
                     detections = json.loads(detection_json)
                     print 'detections', detections
@@ -285,14 +290,14 @@ class APCDetector(object):
                         # undetected_segments.remove(detected_segment)
                         undetected_objects.remove(hypothesis)
 
-            # obj_ids, poses = zip(object_poses.items())
-            # obj_ids = []
-            # poses = []
-            # for obj_id, pose in object_poses.iteritems():
-            #     obj_ids.append(obj_id)
-            #     poses.append(pose)
-            # viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
-            # imsave('detections.png', viz_img)
+            if self.debug:
+                obj_ids = []
+                poses = []
+                for obj_id, pose in object_poses.iteritems():
+                    obj_ids.append(obj_id)
+                    poses.append(pose)
+                viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
+                imsave('detections.png', viz_img)
 
             return object_poses
 
