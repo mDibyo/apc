@@ -40,19 +40,79 @@ class IkSolver(object):
             
             
     @staticmethod
-    def get_grasp(bin_N, objName):
+    def GetDefaultGrasp(bin_N, objName, q=None):
+        
+        
         obj = IkSolver.env.GetKinBody(objName)
-        O = bin_pose[bin_N][-3:]; O[-1] += 0.1
-        grasp_dir = obj.GetTransform()[:3,3] - O
-        grasp_dir /= np.linalg.norm(grasp_dir)
+        O = bin_pose[bin_N][-3:].copy(); O[-1] += 0.1
+        grasp_dir = obj.GetTransform()[:3,3] - O; grasp_dir /= np.linalg.norm(grasp_dir)
         
         axis = np.cross(grasp_dir, [1,0,0]); axis /= np.linalg.norm(axis)
         angle = np.arccos(grasp_dir.dot([1,0,0]))
-        T = rave.matrixFromAxisAngle(axis * -angle).dot(rave.matrixFromQuat([0.7071,0,0,0.7071]))
+        rot = rave.matrixFromAxisAngle(np.pi/2 * np.array([0,1,0]) )
+        T = rave.matrixFromAxisAngle(axis * -angle).dot(rot)
         T[:3,3] = obj.GetTransform()[:3,3]
-        return T
-
+        T[0,3] += min(0, obj.ComputeAABB().extents()[0] + 0.05)
+        
+        base_pose = np.array([1.,0.,0.,0.,-1.,0.,0.])
+        
+        if bin_N[-1] in ['A', 'D', 'G', 'J']:
+            base_pose[-2] = -0.2
+        elif bin_N[-1] in ['B', 'E', 'H', 'K']:
+            base_pose[-2] = -0.4
+        elif bin_N[-1] in ['C', 'F', 'I', 'L']:
+            base_pose[-2] = -0.6
+        print "trying default",bin_N,base_pose
             
+        base_pose = rave.matrixFromPose(base_pose)
+        IkSolver.robot.SetTransform(base_pose)
+        print IkSolver.robot.GetTransform()
+        
+        objs = [IkSolver.env.GetKinBody(ob.GetName()) for ob in IkSolver.env.GetBodies() 
+                if ob.GetName() not in ['pr2', 'pod_lowres', 'order_bin'] ]
+        objposes = [ob.GetTransform() for ob in objs]     
+        [IkSolver.env.Remove(ob) for ob in objs]
+        
+        m = "leftarm_torso"
+        pose = rave.poseFromMatrix(T)
+        ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
+        opt = rave.IkFilterOptions.CheckEnvCollisions
+        iksol = IkSolver.robot.GetManipulator(m).FindIKSolution(ikparam, opt)
+        
+        for i,ob in enumerate(objs):
+            IkSolver.env.AddKinBody(ob)
+            ob.SetTransform(objposes[i])
+            
+        sol =     {"joints" : iksol,
+                   "manip"  : m,
+                   "target" : pose,
+                   "base"   : IkSolver.robot.GetTransform(),
+                   "width"  : 0}
+        
+        if q is not None:
+            q.put(sol)
+        return sol
+        
+    @staticmethod
+    def GetHookBaseTorso(bin_N):
+        base_pose = np.array([1.,0.,0.,0.,-1.1,0.,0.])
+        if bin_N[-1] in ['A', 'D', 'G', 'J']:
+            base_pose[-2] = 0.6
+        elif bin_N[-1] in ['B', 'E', 'H', 'K']:
+            base_pose[-2] = 0.4
+        elif bin_N[-1] in ['C', 'F', 'I', 'L']:
+            base_pose[-2] = 0.2
+
+        if bin_N[-1] in ['A', 'B', 'C', 'D', 'E', 'F']:
+            torso_height = 0.3
+        elif bin_N[-1] in ['G', 'H', 'I']:
+            torso_height = 0.15
+        else:
+            torso_height = 0
+            
+        base_pose = rave.matrixFromPose(base_pose)
+        return base_pose, torso_height
+               
     @staticmethod
     def GetHookJoints(bin_N, objName, which):
         obj = IkSolver.env.GetKinBody(objName)
@@ -60,12 +120,14 @@ class IkSolver(object):
         bin_mat = rave.matrixFromPose(bin_pose[bin_N])
         dist = (obj_mat - bin_mat)[:3,3]
         thresh = 0.02
+        thresh_y = -0.03
+        
         if which == 'prehook':
-            m = "rightarm_torso_hook"
+            m = "rightarm_hook"
             if dist[2] > thresh:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0])) 
-                dx, dy, dz = -0.10, -0.08, 0.05
-                if dist[1] < 0:
+                dx, dy, dz = -0.10, -0.08, 0.1
+                if dist[1] < thresh_y:
                     dy = -dy  
             else:
                 rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0])) 
@@ -78,25 +140,26 @@ class IkSolver(object):
             m = "rightarm_hook"
             if dist[2] > thresh:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0]))  
-                dx, dy, dz = 0.05, -0.1, 0.02
-                if dist[1] < 0:
+                dx, dy, dz = 0.05, -0.1, 0.06
+                if dist[1] < thresh_y:
                     dy = -dy         
             else:
                 rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0]))
                 dx, dy, dz = 0.05, 0.04, 0.15
             trans = [obj_mat[0,3] + obj_size[0] + dx,
                      obj_mat[1,3] + dy,
-                     bin_mat[2,3] + dz]
+                     bin_mat[2,3] + max(dz, 0.05)]
+                     
         elif which == 'twist':
             m = "rightarm_hook"
             if dist[2] > thresh:
-                if dist[1] > 0:
+                if dist[1] > thresh_y:
                     rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0]))  
                 else:
                     rot = rave.quatFromAxisAngle(-np.pi/2 * np.array([1,0,0])) 
                     
-                dx, dy, dz = 0.05, 0.01, 0
-                if dist[1] < 0:
+                dx, dy, dz = 0.05, -obj_size[1] + 0.02, 0
+                if dist[1] < thresh_y:
                     dy = -dy            
             else:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0]))  
@@ -104,19 +167,23 @@ class IkSolver(object):
             trans = [obj_mat[0,3] + obj_size[0] + dx,
                      obj_mat[1,3] + dy,
                      obj_mat[2,3] + dz]
+                     
         elif which == 'out':
             m = "rightarm_hook"
             if dist[2] > thresh:
-                dx, dy, dz = -0.10, 0, 0.02
-                if dist[1] > 0:
-                    rot = rave.quatFromAxisAngle(np.pi/2 * np.array([1,0,0]))
+                dx, dy, dz = -0.05, -0.02, 0.02
+                if dist[1] > thresh_y:
+                    rot = rave.matrixFromAxisAngle(np.pi/2 * np.array([1,0,0]))
+                    rot = rot.dot(rave.matrixFromAxisAngle(0.3 * np.array([0,1,0])))
                 else:
-                    rot = rave.quatFromAxisAngle(-np.pi/2 * np.array([1,0,0]))
+                    rot = rave.matrixFromAxisAngle(-np.pi/2 * np.array([1,0,0]))
+                    rot = rot.dot(rave.matrixFromAxisAngle(-0.3 * np.array([0,1,0])))
                     dy = -dy
-                
+
+                rot = rave.quatFromRotationMatrix(rot)
             else:
                 rot = rave.quatFromAxisAngle(0 * np.array([1,0,0]))  
-                dx, dy, dz = -0.05, 0, 0.02
+                dx, dy, dz = -0.07, 0, 0.02
             trans = [bin_mat[0,3] + dx,
                      obj_mat[1,3] + dy,
                      obj_mat[2,3] + dz]
@@ -130,15 +197,16 @@ class IkSolver(object):
                     "target": pose,
                     "manip" : m}
         else:
-            plotPose(IkSolver.env, pose)
+            print which,pose.tolist()
             
     @staticmethod
     def GetBinholderJoints(bin_N):
         bin_mat = rave.matrixFromPose(bin_pose[bin_N])  
-        z, iksol = bin_mat[2,3]-0.3, None
+        z, iksol = bin_mat[2,3]-0.4, None
         while z < bin_mat[2,3] and iksol is None:
             pose = rave.poseFromMatrix(bin_mat)
             pose[-3] -= 0.25
+            pose[-2] += 0.15
             pose[-1] = z
             ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
             opt = rave.IkFilterOptions.CheckEnvCollisions
@@ -163,7 +231,7 @@ class IkSolver(object):
     @staticmethod
     def GetPostgraspJoints(m, graspPose):
         """ IK for postgrap: avoid lip"""
-        pose = graspPose; pose[-1] += 0.01
+        pose = graspPose; pose[-1] += 0.02
         ikparam = rave.IkParameterization(pose, IkSolver.ikmodel.iktype)
         opt = rave.IkFilterOptions.CheckEnvCollisions
         iksol = IkSolver.robot.GetManipulator(m).FindIKSolution(ikparam, opt)
@@ -238,8 +306,6 @@ class IkSolver(object):
         IkSolver.grasps = GraspSet(objName, IkSolver.env.CloneSelf(rave.CloningOptions.Bodies))
 
         targets = IkSolver.grasps.GetTargets(obj)
-        
-        targets = [IkSolver.get_grasp('bin_H', objName)] 
 
         if len(targets) == 0:
             if q is not None:
@@ -258,24 +324,20 @@ class IkSolver(object):
             if i == 0:  
                 pass
             elif i == 1 and MOVE_BASE:
-                pos[:2,3] = [-1.2,-0.2]
+                pos[:2,3] = [-1.1,-0.2]
             elif i == 2 and MOVE_BASE:
-                pos[:2,3] = np.array([-1,1]) * IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2] # flip for left hand
-            
-            """
-            elif i == 2:
-                IkSolver.positions = IkSolver.naiveMoves()
-                pos[:2,3] = IkSolver.positions.pop()
-            else:
-                if len(IkSolver.positions) == 0:
-                    return None
-                pos[:2,3] = IkSolver.positions.pop()   
-            """
-                               
+                pos[:2,3] = np.array([-1,1]) * IkSolver.nn(rave.poseFromMatrix(obj.GetTransform())[np.newaxis])[:,:2] # flip for left hand        
+            #elif i == 3:
+            #    IkSolver.positions = IkSolver.naiveMoves()
+            #    pos[:2,3] = IkSolver.positions.pop()
+            #else:
+            #    print i
+            #    if len(IkSolver.positions) == 0:
+            #        return None
+            #    pos[:2,3] = IkSolver.positions.pop()               
             IkSolver.robot.SetTransform(pos)
             i += 1
             rsol = IkSolver.GetIkSol(obj, targets, parallel)
-        
            
         if q is not None:
             q.put(rsol)
@@ -285,7 +347,7 @@ class IkSolver(object):
     def naiveMoves():
         positions = []
         for x in np.linspace(-1.2, 0.7, 30):
-            for y in np.linspace(-0.2, 0.9, 30):
+            for y in np.linspace(-0.9, 0.2, 30):
                 positions.append([x,y])
         return positions
         

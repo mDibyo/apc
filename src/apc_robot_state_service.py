@@ -14,7 +14,7 @@ import openravepy as rave
 from sensor_msgs.msg import JointState, PointCloud2
 from apc.msg import RobotStateBase
 from apc.srv import *
-from utils import MODEL_DIR, SHELF_POSE_FILE
+from utils import APC_DIRECTORY, MODEL_DIR, SHELF_POSE_FILE
 
 class APCRobotStateService(ROSNode):
     """ Subscribes to tf and joint_states and keep log of recent robot state.
@@ -29,13 +29,8 @@ class APCRobotStateService(ROSNode):
                  'wrist_flex_joint',
                  'wrist_roll_joint']
     head_joints = ['head_pan_joint', 'head_tilt_joint']
-    
-    T_rot = np.array([[ 0.,  0.,  1.,  0.],
-                      [ 1.,  0.,  0.,  0.],
-                      [ 0.,  1.,  0.,  0.],
-                      [ 0.,  0.,  0.,  1.]])
                       
-    _T_rot = np.array([[ 0.,  0.,  1.,  0.],
+    T_rot = np.array([[ 0.,  0.,  1.,  0.],
                        [-1.,  0.,  0.,  0.],
                        [ 0., -1.,  0.,  0.],
                        [ 0.,  0.,  0.,  1.]])
@@ -113,8 +108,8 @@ class APCRobotStateService(ROSNode):
         
         
         T = self.robot.GetLink("sensor_mount_link").GetTransform()
-        mat = T.dot(self.T_tr.dot(self._T_rot))
-        fname = "/home/nmishra/workspace/apc/src/perception/shelf_finder/transform.txt"
+        mat = T.dot(self.T_tr.dot(self.T_rot))
+        fname = osp.join(APC_DIRECTORY, 'src', 'perception', 'shelf_finder', 'transform.txt')
         np.savetxt(fname, mat)
         return os.path.abspath(fname)
                     

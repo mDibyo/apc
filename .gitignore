@@ -71,3 +71,6 @@ src/apc/
 
 # Config files
 config.json
+
+# Cmake files
+src/perception/segShelf/CMakeFiles

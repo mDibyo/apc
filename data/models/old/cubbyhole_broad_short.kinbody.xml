@@ -1,0 +1,41 @@
+<kinBody name="cubbyhole_broad_short">
+    <body name="cubbyhole_broad_short" type="dynamic">
+        <geom name="left_wall" type="box" modifiable="false">
+            <translation>0 -0.1492 0</translation>
+            <extents>0.2159 0.001 0.1143</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="right_wall" type="box" modifiable="false">
+        <translation>0 0.1492 0</translation>
+            <extents>0.2159 0.001 0.1143</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="back_wall" type="box" modifiable="false">
+            <translation>0.2159 0 0</translation>
+            <extents>0.001 0.1492 0.1143</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="floor" type="box" modifiable="false">
+            <translation>0 0 -0.1143</translation>
+            <extents>0.2159 0.1492 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="ceiling" type="box" modifiable="false">
+            <translation>0 0 0.1143</translation>
+            <extents>0.2159 0.1492 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="reference_dot" type="cylinder" modifiable="false">
+            <translation>0 0 -0.1153</translation>
+            <rotationaxis>1 0 0 90</rotationaxis>
+            <radius>0.01</radius>
+            <height>0.002</height>
+            <diffuseColor>0 0 1</diffuseColor>
+        </geom>
+    </body>
+</kinBody>

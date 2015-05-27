@@ -12,8 +12,6 @@ from trajoptpy.check_traj import traj_is_safe
 import roslib
 roslib.load_manifest('apc')
 import rospy
-import tf
-import tf.transformations
 from geometry_msgs.msg import Point, Pose, Quaternion, PoseStamped
 from std_msgs.msg import Header
 
@@ -21,7 +19,8 @@ from planning import IkSolver
 from apc.msg import MotionPlan
 from apc.srv import GetObjectPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode, fromPoseMsg
-from utils import FAKE, MODEL_DIR, OBJ_MESH_DIR, trajopt_request_template, timed, order_bin_pose
+from utils import FAKE, NEW_SHELF, MODEL_DIR, OBJ_MESH_DIR, MESH_DIRECTORY, \
+                  trajopt_request_template, timed, order_bin_pose
 from test_utils import *
 from message_wrappers import MotionPlanWrapper, JointTrajectoryWrapper
 
@@ -36,9 +35,9 @@ class APCPlannerService(ROSNode):
                            "_wrist_roll_joint"]
                            
     gripper_joint_name = "_gripper_l_finger_joint"        
-    waypoint = np.array([1.57,0.2,1.57,-.8,2,-1.57,-1.57])
+    waypoint_L = np.array([1.57,0.2,1.57,-.8,2,-1.57,-1.57])
 
-    waypoint_R = np.array([-1.6839978439623269, -0.3506176705901336, -0.008834850621833645, -1.53, -1.57, -2.023647262846895, 1.8131143429376613])
+    waypoint_R = np.array([-1.68, -0.35, -0.008, -1.53, -1.57, -2.02, 3.1])
 
     def __init__(self, update_rate, work_orders_topic, plan_type, shelf_name):
         super(APCPlannerService, self).__init__('plan_' + plan_type)
@@ -51,8 +50,6 @@ class APCPlannerService(ROSNode):
         self.shelf_name = shelf_name
         self.work_order = None
 
-        self.tf_listener = tf.TransformListener()
-
         self.get_marker_pose_client = rospy.ServiceProxy('/apc/get_object_pose', GetObjectPose)
                                                          
         self.get_motion_plan_service = rospy.Service('get_motion_plan_' + self.plan_type,
@@ -62,20 +59,23 @@ class APCPlannerService(ROSNode):
     def __enter__(self):
         self.env = rave.Environment()
         
-        self.env.Load(osp.join(MODEL_DIR, self.shelf_name + ".kinbody.xml"))
+        if NEW_SHELF:
+            self.env.Load(osp.join(MODEL_DIR, self.shelf_name + ".kinbody.xml"))
+        else:
+            self.env.Load(osp.join(MESH_DIRECTORY, 'cubbyholes', self.shelf_name + ".stl"))
         self.shelf = self.env.GetKinBody(self.shelf_name)
         
         if self.plan_type == "hook":
-            self.env.Load(osp.join(MODEL_DIR, "pr2-box-hook.xml"))
+            self.env.Load(osp.join(MODEL_DIR, "pr2-ow-box-hook.xml"))
             all_manips = ["rightarm", "rightarm_torso", "leftarm", "leftarm_torso", "leftarm_box", "rightarm_hook", "rightarm_torso_hook"]
         elif self.plan_type == "grasp":
-            self.env.Load(osp.join(MODEL_DIR, "pr2-new-wrists.dae"))
+            self.env.Load(osp.join(MODEL_DIR, "pr2-beta-static.zae"))
             all_manips = ["rightarm", "rightarm_torso", "leftarm", "leftarm_torso"]
             self.env.Load(osp.join(MODEL_DIR, "order_bin.kinbody.xml"))
             self.order_bin = self.env.GetKinBody("order_bin")
             self.order_bin.SetTransform(order_bin_pose)
             
-        #"pr2-beta-static.zae")) #'pr2-with-box.xml')) #
+        #'pr2-with-box.xml')) #"pr2-beta-static.zae"))
  
         self.robot = self.env.GetRobot('pr2')
         self.robot.SetDOFValues([0.548,-1.57, 1.57, 0.548],[22,27,15,34])
@@ -151,14 +151,21 @@ class APCPlannerService(ROSNode):
         """ Compute IK for pregrasp, grasp, drop, then find trajectories for each. Supports base movement. """
     
         self.plan = {}
-        self.plan["grasp"]  = timed(self.ik.GetRaveIkSol, [self.work_order.target_object, False])
+        
+        if self.try_default:
+            self.plan["grasp"] = self.ik.GetDefaultGrasp(self.work_order.bin_name, self.work_order.target_object)
+        else:
+            self.plan["grasp"]  = timed(self.ik.GetRaveIkSol, [self.work_order.target_object, False])
         
         manip = "leftarm"
         
         print self.plan["grasp"]
-        if self.plan["grasp"] is None:
-            rospy.logwarn("no iksol found")
-            return None
+        if self.plan["grasp"] is None or self.plan["grasp"]["joints"] is None:
+            rospy.logwarn("trying default grasp")
+            self.plan["grasp"] = self.ik.GetDefaultGrasp(self.work_order.bin_name, self.work_order.target_object)
+            if self.plan["grasp"] is None or self.plan["grasp"]["joints"] is None:
+                rospy.logwarn("no iksol found")
+                return None
             
         self.robot.SetTransform(self.plan["grasp"]["base"])
         self.robot.SetDOFValues(self.plan["grasp"]["joints"], self.robot.GetManipulator(self.plan["grasp"]["manip"]).GetArmIndices())
@@ -206,29 +213,31 @@ class APCPlannerService(ROSNode):
            
     def find_motion_plan_hook(self):
         self.plan = {}
-        self.plan["prehook"] = self.ik.GetHookJoints(self.work_order.bin_name, self.work_order.target_object, 'prehook')
         
-        if self.plan["prehook"] is None:
-            rospy.logwarn("no pose found for prehook")
-            return None
-        
-        torso_height = self.plan["prehook"]["joints"][0]        
-        self.robot.SetDOFValues([torso_height], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
-        
+        base, torso = self.ik.GetHookBaseTorso(self.work_order.bin_name)     
+        self.robot.SetDOFValues([torso], [self.robot.GetJoint("torso_lift_joint").GetDOFIndex()])
+        self.robot.SetTransform(base)
+    
         self.plan["binholder"] = self.ik.GetBinholderJoints(self.work_order.bin_name)      
         if self.plan["binholder"] is None:
-            rospy.logwarn("no pose found for binholder")
-            return None              
-        self.robot.SetDOFValues(self.plan["binholder"]["joints"], self.robot.GetManipulator("leftarm_box").GetArmIndices())
-        
+            print "no pose found for binholder"
+            return self.plan
+                        
+        self.plan["binholder"] = self.ik.GetBinholderJoints(self.work_order.bin_name)      
+        if self.plan["binholder"] is None:
+            print "no pose found for binholder"
+            return self.plan
+                        
+        self.robot.SetDOFValues(plan["binholder"]["joints"], self.robot.GetManipulator("leftarm_box").GetArmIndices())
+
         for which in ['prehook', 'insert', 'twist', 'out']:
-            self.plan[which] = self.ik.GetHookJoints(self.work_order.bin_name, self.work_order.target_object, which)
-        
+            self.plan[which] = ik.GetHookJoints(self.work_order.bin_name, self.work_order.target_object, which)
+
         for k,v in self.plan.items():
             if v is None:
-                rospy.logwarn("no pose found for " + k)
-                return None
-        
+                print "no pose found for", k
+                return plan
+                
         objs = [self.env.GetKinBody(ob) for ob in self.work_order.bin_contents]
         objposes = [ob.GetTransform() for ob in objs]     
         [self.env.Remove(ob) for ob in objs]
@@ -242,9 +251,8 @@ class APCPlannerService(ROSNode):
         trajectories.append(self.find_trajectory("rightarm_hook", self.waypoint_R, self.plan["prehook"]["joints"][1:]))  
         trajectories.append(self.find_trajectory("rightarm_hook", self.plan["prehook"]["joints"][1:], self.plan["insert"]["joints"])) 
         trajectories.append(self.find_trajectory("rightarm_hook", self.plan["insert"]["joints"], self.plan["twist"]["joints"], False)) 
-        trajectories.append(self.find_trajectory("rightarm_hook", self.plan["twist"]["joints"], 
-                                                 np.hstack([self.plan["out"]["joints"][:-1], [self.plan["twist"]["joints"][-1]]]), False, 0.1, 10)) 
-        trajectories.append(self.find_trajectory("rightarm_hook", np.hstack([self.plan["out"]["joints"][:-1], [self.plan["twist"]["joints"][-1]]]),self.waypoint_R)) 
+        trajectories.append(self.find_trajectory("rightarm_hook", self.plan["twist"]["joints"], self.plan["out"]["joints"], False, 0.1, 10)) 
+        trajectories.append(self.find_trajectory("rightarm_hook", self.plan["out"]["joints"],self.waypoint_R)) 
         
         self.trajs = trajectories
         
@@ -255,7 +263,7 @@ class APCPlannerService(ROSNode):
         traj_wrap = self.replay(trajectories,1)
         if traj_wrap is None:
             return None
-        self.motion_plan = MotionPlanWrapper(self.work_order.strategy, traj_wrap, [0,0,0], torso_height)   
+        self.motion_plan = MotionPlanWrapper(self.work_order.strategy, traj_wrap, base[:3,3], torso)   
         return self.motion_plan.to_msg()
         
     def replay(self, trajectories, numL=0):
@@ -343,9 +351,13 @@ class APCPlannerService(ROSNode):
             elif object_name in self.object_poses:        
                 pose = fromPoseMsg(self.object_poses[object_name])
                 if pose is not None:
+                    if len(pose) == 7:
                     #robot_to_object = rave.matrixFromPose(pose)
                     #obj_mat = world_to_robot.dot(robot_to_object)
-                    obj_mat = rave.matrixFromPose(pose)
+                        obj_mat = rave.matrixFromPose(pose)
+                        self.try_default = False
+                    else:
+                        self.try_default = True
                 elif object_name == self.work_order.target_object:
                     self.no_perception = True
                     rospy.logwarn("no perception for object " + object_name)
@@ -364,5 +376,5 @@ class APCPlannerService(ROSNode):
         self.robot.SetTransform(world_to_robot)
         
 if __name__ == '__main__':
-    with APCPlannerService(10, "work_orders", "grasp", "cubbyhole_all_combined") as self:
+    with APCPlannerService(10, "work_orders", "hook", "pod_lowres") as self:
         self.spin()

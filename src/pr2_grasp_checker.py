@@ -206,7 +206,7 @@ if __name__ == "__main__":
     root_dir = OBJECT_MESH_DIR
     for root, dirs, files in os.walk(root_dir):
         for f in files:
-            if root.find('clean') == -1 and f.find('old') == -1 and f.find('centered') == -1:
+            if root.find('clean') == -1 and f.find('old') == -1 and f.find('centered') == -1 and f.find('highland') != -1:
                 
                 object_name, object_ext = os.path.splitext(f)
                 # object_name = 'mommys_helper_outlet_plugs'

@@ -1,0 +1,58 @@
+<kinBody name="cubbyhole_all_combined">
+    <body name="cubbyhole_all_combined" type="dynamic">
+        <translation>-0.216 0 0.70</translation>
+        <geom name="vertical_ll_wall" type="box" modifiable="false">
+            <translation>0 -0.39685 0</translation>
+            <extents>0.2159 0.001 0.4953</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+        <geom name="vertical_cl_wall" type="box" modifiable="false">
+            <translation>0 -0.1492 0</translation>
+            <extents>0.2159 0.001 0.4953</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+        <geom name="vertical_cr_wall" type="box" modifiable="false">
+            <translation>0 0.1492 0</translation>
+            <extents>0.2159 0.001 0.4953</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+        <geom name="vertical_rr_wall" type="box" modifiable="false">
+            <translation>0 0.39685 0</translation>
+            <extents>0.2159 0.001 0.4953</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="horizontal_cc_wall" type="box" modifiable="false">
+            <translation>0 0 0</translation>
+            <extents>0.2159 0.39685 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="horizontal_uu_wall" type="box" modifiable="false">
+            <translation>0 0 0.4953</translation>
+            <extents>0.2159 0.39685 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+        <geom name="horizontal_cu_wall" type="box" modifiable="false">
+            <translation>0 0 0.2286</translation>
+            <extents>0.2159 0.39685 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+        <geom name="horizontal_cl_wall" type="box" modifiable="false">
+            <translation>0 0 -0.2286</translation>
+            <extents>0.2159 0.39685 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+        <geom name="horizontal_ll_wall" type="box" modifiable="false">
+            <translation>0 0 -0.4953</translation>
+            <extents>0.2159 0.39685 0.001</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+
+        <geom name="back_wall" type="box" modifiable="false">
+            <translation>0.2159 0 0</translation>
+            <extents>0.001 0.39685 0.4953</extents>
+            <diffuseColor>1 0 0</diffuseColor>
+        </geom>
+    </body>
+</kinBody>

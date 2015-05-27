@@ -25,9 +25,12 @@ class BinLooker(ROSNode):
         
     def handle_look_at_bins(self, req):
         bin_list = req.bin_list
-        if not bin_list:
+        if len(bin_list) == 0:
             bin_list = utils.BINS
 
+    
+        rospy.logwarn(bin_list)
+        
         motion_plan_list = []
         start = MotionPlan()
         start.strategy = "start"
@@ -41,14 +44,37 @@ class BinLooker(ROSNode):
         for bin_N in bin_list:
             motion_plan = MotionPlan()
             motion_plan.strategy = "look"
-            motion_plan.trajectories = []
             
+            if bin_N[-1] in ["A","B","C"]:
+                x = -1.3
+                head_point = [1, 0, 1.55]
+                torso_height = 0.3
+                
+            elif bin_N[-1] in ["D","E","F"]: 
+                x = -1.3
+                head_point = [1, 0, 1.3]
+                torso_height = 0.20
+                
+            elif bin_N[-1] in ["G","H","I"]:
+                x = -1.3
+                head_point = [1, 0, 1.05]
+                torso_height = 0
+                
+            elif bin_N[-1] in ["J", "K", "L"]:
+                x = -1.8
+                head_point = [1, 0, 1.1]
+                torso_height = 0
+            else:
+                rospy.logwarn(bin_N)  
+                
+            """
             if bin_N[-1] in ["G","H","I"]:
                 x = -1.33
                 head_point = [1,-0.1,1]
             elif bin_N[-1] in ["J", "K", "L"]:
                 x = -2
                 head_point = [1,-0.1,1.1]
+            """
             
             # point head
             motion_plan.head_direction = Point(head_point[0], head_point[1], head_point[2])
@@ -58,7 +84,7 @@ class BinLooker(ROSNode):
             motion_plan.base_target = Point(target_pos[0], target_pos[1], 0)
 
             # Move torso
-            motion_plan.torso_height = Float32(0)
+            motion_plan.torso_height = Float32(torso_height)
 
             # Capture image
             motion_plan.capture_scene = bin_N

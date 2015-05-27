@@ -12,8 +12,10 @@ def fromPoseMsg(pose_msg):
     pose = [o.w, o.x, o.y, o.z, p.x, p.y, p.z]
     if sum(pose) == 0:
         return None
+    elif o.w == 0 and o.x == 0 and o.y == 0 and o.z == 0:
+        return np.array([p.x, p.y, p.z])
     else:
-        return pose
+        return np.array(pose)
 
 class ROSNode(object):
     def __init__(self, name, **kwargs):

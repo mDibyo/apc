@@ -41,7 +41,7 @@ class Grasp():
         
         lipX = (shelf.ComputeAABB().pos() - shelf.ComputeAABB().extents())[0]
         dx = abs(lipX - obj.GetTransform()[0,3])
-        validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.07/dx))
+        validDir = self.point(pose).dot([-1,0,0]) > np.cos(np.arctan(0.13/dx))
         if not validDir:
             return False
         

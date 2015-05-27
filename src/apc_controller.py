@@ -122,7 +122,10 @@ class APCController(ROSNode):
                 
             rospy.sleep(1.0)    
             rospy.logwarn("completed executing motion plan")
-        
+        else:
+            rospy.logwarn("adding target back to queue")
+            self.work_order_sequence.append(self.current_order)
+            
     def execute_work_order(self, work_order):
         try:
             rospy.logwarn("Here")
@@ -186,11 +189,11 @@ class APCController(ROSNode):
             rospy.logerr("Service call failed: {}".format(e))
             
     def get_startup_sequence(self):
-        return self.look_at_bins_client(['bin_H'])
+        return self.look_at_bins_client([])
 
 if __name__ == '__main__':
     controller = APCController('joint_trajectories', 'exec_status')
-    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "test3.json"))
+    controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
     
     rospy.loginfo(controller.work_order_sequence)
     
@@ -216,24 +219,30 @@ if __name__ == '__main__':
      
     strategy = 'grasp'
         
-    for order in controller.work_order_sequence:
-        err = controller.execute_perception(order["bin_name"], order['target_object'])
-        if not err:
-            rightjoints = controller.get_robot_state("rightarm_torso")
-            leftjoints = controller.get_robot_state("leftarm_torso")
-            
-            work_order = BinWorkOrder(order['bin_name'],
-                                      'all_combined',
-                                      order['bin_contents'],
-                                      order['target_object'],
-                                      rightjoints.joint_values,
-                                      leftjoints.joint_values,
-                                      rightjoints.base_pose,
-                                      strategy)
-            controller.execute_work_order(work_order)
+    while len(controller.work_order_sequence) > 0:
+        for order in controller.work_order_sequence:
+            controller.current_order = order
+            err = controller.execute_perception(order["bin_name"], order['target_object'])
+            if not err:
+                rightjoints = controller.get_robot_state("rightarm_torso")
+                leftjoints = controller.get_robot_state("leftarm_torso")
+                
+                work_order = BinWorkOrder(order['bin_name'],
+                                          'all_combined',
+                                          order['bin_contents'],
+                                          order['target_object'],
+                                          rightjoints.joint_values,
+                                          leftjoints.joint_values,
+                                          rightjoints.base_pose,
+                                          strategy)
+                controller.execute_work_order(work_order)
+            else:
+                rospy.logwarn("perception failed on " + order["bin_name"])
+                
+        if strategy == 'grasp':
+            strategy == 'hook':
         else:
-            rospy.logwarn("perception failed on " + order["bin_name"])
-            
+            strategy == 'grasp'    
             
             
             

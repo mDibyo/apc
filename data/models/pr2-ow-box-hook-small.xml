@@ -1,9 +1,8 @@
 <robot name="pr2" file="pr2-beta-static.dae">
     <KinBody>
         <Body name="bin">
-            <Geom type="trimesh">
-                <Render>../meshes/cubbyholes/order_bin.stl</Render>
-                <collision>../meshes/cubbyholes/order_bin_coll.stl</collision>
+            <Geom type="box">
+                <Extents>0.19 0.30 0.10</Extents>
                 <Translation>0.976 -0.13 0.79</Translation>
                 <RotationAxis>0 1 0 -90</RotationAxis>
             </Geom>

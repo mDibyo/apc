@@ -48,17 +48,19 @@ if __name__ == "__main__":
     print "press 'ENTER' to start, 'q' to quit"
     while "q" not in str(raw_input("continue?" )):
         resetRobot(r)
-        e.Remove(obj)
-        e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
-        obj = e.GetBodies()[-1]; objName = obj.GetName()
-        objPose = randomObjPose(obj)
+        #e.Remove(obj)
+        #e.Load(osp.join(OBJ_MESH_DIR, OBJ_LIST[np.random.randint(len(OBJ_LIST))] + ".stl"))
+        #obj = e.GetBodies()[-1]; objName = obj.GetName()
+        bin_name, objPose = randomObjPose(obj)
         obj.SetTransform(rave.matrixFromPose(objPose))
         
         st = time.time()
         #sol = ik.GetRaveIkSol(obj.GetName(), parallel=False)
-        sol = timed(ik.GetRaveIkSol, [obj.GetName(), ], max_time=10)
+        sol = timed(ik.GetRaveIkSol, [obj.GetName(), False], max_time=10)
+        if sol is None:
+            sol = timed(ik.GetDefaultGrasp, [bin_name, obj.GetName()], max_time=10)
         
-        if sol is not None:
+        if sol is not None and sol['joints'] is not None:
             print "found sol in " + str(time.time()-st) + "s",
             m = r.SetActiveManipulator(sol["manip"])
             r.SetDOFValues(sol["joints"], m.GetArmIndices())

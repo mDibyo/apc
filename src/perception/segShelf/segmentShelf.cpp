@@ -4,9 +4,9 @@
 
 
 float in_to_mm = 0.0254;
-float SHELF_YSTEPS[] = {in_to_mm*9, in_to_mm*19, in_to_mm*28, in_to_mm*37, in_to_mm*47}; // actual values: {780, 1070, 1300, 1520}
-float SHELF_WIDTH = 0.9; // meters
-float SHELF_DEPTH = 17 * in_to_mm; // meters
+float SHELF_YSTEPS[] = {1.5239, 1.295, 1.067, 0.8}; // for lab shelf {in_to_mm*9, in_to_mm*19, in_to_mm*28, in_to_mm*37, in_to_mm*47};
+float SHELF_WIDTH = 0.85; // for lab shelf 0.9 meters
+float SHELF_DEPTH = 0.43; // for lab shelf 17 in
 float SHELF_HEIGHT = SHELF_YSTEPS[4];
 
 void printPlaneInfo(std::vector<pcl::ModelCoefficients> coeffs) {
@@ -135,7 +135,7 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
     for (int i = 0; i < sizeof(SHELF_YSTEPS)/4; i++) {
         for (int j = 0; j < up.size(); j++) {
             float dist = coeffs[up[j]].values[3] - SHELF_YSTEPS[i];
-            if (fabs(dist) < 0.02) {
+            if (fabs(dist) < 0.05) {
                 std::cout << "height match:\t" << up[j] << "," << i << ":\t"
                           << coeffs[up[j]].values[3] << "," << SHELF_YSTEPS[i] << std::endl;
                 shelfTrans[2] += dist;
@@ -190,7 +190,7 @@ Eigen::Matrix4f findAndSegmentShelf(PointCloud::Ptr cloud, utils::SEG_OPT opt,
     }
     
     // view planes found
-    if (display) {
+    if (display > 0) {
         Viewer viewer(new PCLVisualizer ("viewer"));
         utils::displayPlanarRegions(regions, viewer);
         viewer->addPointCloud(cloud);
@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
     PointCloud::Ptr cloud = utils::trimCloud(raw, pcl::PointXYZ(0,0,0), pcl::PointXYZ(2,0,0), false);
     pcl::io::savePCDFile("transformed.pcd", *cloud);
 
-    bool display = argv[3];
+    int display = atoi(argv[3]);
     utils::SEG_OPT options;
     if (argc > 5) {
         options.minInliers = atoi(argv[4]);

@@ -11,14 +11,14 @@ from copy import deepcopy
 import numpy as np
 
 # Define robot configuration
-NEW_WRISTS = True
-NEW_SHELF = True
-MOVE_BASE = False
+NEW_WRISTS = False
+NEW_SHELF = False
+MOVE_BASE = True
 FAKE = False
 FIX_YAW = False
 
 # Define computer configuration
-APC_DIRECTORY = osp.abspath(osp.join(__file__, "../.."))
+APC_DIRECTORY = '/home/nmishra/groovy_ws/apc'
 config = json.load(open(osp.join(APC_DIRECTORY, 'config.json')))
 
 COMPUTER = config['computer']
@@ -37,7 +37,6 @@ SHELF_MESH_DIR = osp.join(MESH_DIRECTORY, "cubbyholes")
 MODEL_DIR = osp.join(DATA_DIRECTORY, "models")
 JSON_DIR = osp.join(APC_DIRECTORY, "json")
 
-
 # Perception
 PERCEPTION_DIR = osp.join(DATA_DIRECTORY, "perception")
 OBJECT_POSES_DIR = osp.join(DATA_DIRECTORY, "object_poses")
@@ -48,7 +47,7 @@ CAMERA_NAME = 'PR2'
 
 
 # Define files
-SHELF_POSE_FILE = '/home/nmishra/workspace/apc/src/perception/shelf_finder/shelf_pose.txt'
+SHELF_POSE_FILE = osp.join(APC_DIRECTORY, 'src', 'perception', 'shelf_finder', 'shelf_pose.txt')
 
 
 
@@ -79,7 +78,6 @@ if NEW_SHELF:
     SHELF_Y = [11*.0254, 0, -11*.0254]
     SHELF_Z = [37*0.0254, 28*0.0254, ]
     SHELF_X = [-17*0.0254]
-    bin_pose = {}
     BINS = [
         "bin_G",
         "bin_H",
@@ -88,18 +86,11 @@ if NEW_SHELF:
         "bin_K",
         "bin_L"
     ]
-    i = 0
-
-    for x in SHELF_X:
-        for z in SHELF_Z:
-            for y in SHELF_Y:
-                bin_pose[BINS[i]] = np.array([1, 0, 0, 0, x, y, z])
-                i += 1
-
+    
     _bin_dims_in_inches = {
         "bin_G": [-19, -1, 6, 17, 37.5, 47],
         "bin_H": [-19, -1, -6, 6, 37.5, 47],
-        "bin_I": [-19, -1, -17, -3, 37.5, 47],
+        "bin_I": [-19, -1, -17, -6, 37.5, 47],
         "bin_J": [-19, -1, 6, 17, 28, 34.5],
         "bin_K": [-19, -1, -6, 6, 28, 34.5],
         "bin_L": [-19, -1, -17, -6, 28, 34.5],
@@ -110,13 +101,16 @@ if NEW_SHELF:
         bin_dims[bin_name] = [x*inch_to_m for x in dims]
 
 else:
+    SHELF_X = [-0.43]
+    SHELF_Y = [0.28, 0, -0.28]
+    SHELF_Z = [1.524, 1.295, 1.074, 0.8]
     BINS = [
         "bin_A",
         "bin_B",
         "bin_C",
         "bin_D",
         "bin_E",
-        "bin_F"
+        "bin_F",
         "bin_G",
         "bin_H",
         "bin_I",
@@ -124,6 +118,27 @@ else:
         "bin_K",
         "bin_L"
     ]
+    
+    _shelf_dims_x = [ [-0.42, 0]]
+    _shelf_dims_y = [ [0.42, 0.15], [0.15, -0.15], [-0.15, -0.42] ]
+    _shelf_dims_z = [ [1.791, 1.552], [1.524, 1.314], [1.284, 1.092], [1.067, 0.825] ]
+    
+    bin_dims, j = {}, 0   
+    for xb in _shelf_dims_x:
+        for yb in _shelf_dims_y:
+            for zb in _shelf_dims_z:
+                bin_dims[BINS[j]] = xb + yb + zb
+                j += 1
+
+bin_pose, i = {}, 0    
+for x in SHELF_X:
+    for z in SHELF_Z:
+        for y in SHELF_Y:
+            bin_pose[BINS[i]] = np.array([1, 0, 0, 0, x, y, z])
+            i += 1
+    
+    
+    
 
 
 # Define object ease
@@ -161,7 +176,7 @@ OBJ_LIST = obj_ease.keys()
 
 
 # Define order bin configuration
-order_bin_pose = np.array([[ 1, 0, 0, -0.75],
+order_bin_pose = np.array([[ 1, 0, 0, -0.70],
                            [ 0, 1, 0,  0.60],
                            [ 0, 0, 1,  0.10],
                            [ 0, 0, 0,     1]])

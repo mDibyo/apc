@@ -1,0 +1,41 @@
+<kinBody name="cubbyhole_all_combined_recursive">
+    <kinBody file="cubbyhole_narrow_tall.kinbody.xml" prefix="upper_left_" name="ulnt">
+        <translation>0 -0.27305 0.3619</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_broad_tall.kinbody.xml" prefix="upper_center" name="ucbt">
+        <translation>0 0 0.3619</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_narrow_tall.kinbody.xml" prefix="upper_right_" name="urnt">
+        <translation>0 0.27305 0.3619</translation>
+    </kinBody>
+
+    <kinBody file="cubbyhole_narrow_short.kinbody.xml" prefix="upper_left_" name="ulns">
+        <translation>0 -0.27305 0.1143</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_broad_short.kinbody.xml" prefix="upper_center" name="ucbs">
+        <translation>0 0 0.1143</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_narrow_short.kinbody.xml" prefix="upper_right_" name="urns">
+        <translation>0 0.27305 0.1143</translation>
+    </kinBody>
+
+    <kinBody file="cubbyhole_narrow_short.kinbody.xml" prefix="lower_left_" name="llns">
+        <translation>0 -0.27305 -0.1143</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_broad_short.kinbody.xml" prefix="lower_center" name="lcbs">
+        <translation>0 0 -0.1143</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_narrow_short.kinbody.xml" prefix="lower_right_" name="lrns">
+        <translation>0 0.27305 -0.1143</translation>
+    </kinBody>
+
+    <kinBody file="cubbyhole_narrow_tall.kinbody.xml" prefix="lower_left_" name="llnt">
+        <translation>0 -0.27305 -0.3619</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_broad_tall.kinbody.xml" prefix="lower_center" name="lcbt">
+        <translation>0 0 -0.3619</translation>
+    </kinBody>
+    <kinBody file="cubbyhole_narrow_tall.kinbody.xml" prefix="lower_right_" name="lrnt">
+        <translation>0 0.27305 -0.3619</translation>
+    </kinBody>
+</kinBody>

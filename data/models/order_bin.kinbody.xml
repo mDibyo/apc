@@ -2,6 +2,9 @@
     <body name="order_bin">
         <geom name="order_bin" type="trimesh">
             <data>../meshes/cubbyholes/order_bin.stl</data>
+            <RotationAxis>0 0 1 90</RotationAxis>
+            <Translation>-0.1 0 0</Translation>
         </geom>
-   </body>
+        
+    </body>
 </kinbody>
