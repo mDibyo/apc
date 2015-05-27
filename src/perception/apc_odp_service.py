@@ -260,7 +260,7 @@ class APCDetector(object):
 
             undetected_objects = set(hypothesis_names)
             # detected_objects = []
-            object_poses = {}
+            object_pose_methods = {}
             undetected_segments = list()
 
             for d in detections:
@@ -269,11 +269,11 @@ class APCDetector(object):
                     undetected_segments.append(d)
                 else:
                     print 'Detected {}'.format(obj_id)
-                    object_poses[obj_id] = d['zz_pose_map'][obj_id]
+                    object_pose_methods[obj_id] = (d['zz_pose_map'][obj_id], True)
                     undetected_objects.remove(obj_id)
 
             for hypothesis in hypothesis_names:
-                if hypothesis not in object_poses:
+                if hypothesis not in object_pose_methods:
                     if undetected_segments:
                         # Choose from remaining segments
                         undetected_segment_scores = []
@@ -285,21 +285,20 @@ class APCDetector(object):
 
                         print 'Detected {}'.format(hypothesis)
                         pose = undetected_segments[detected_segment_index]["zz_pose_map"][hypothesis]
-                        pose[3][0] = 1
-                        object_poses[hypothesis] = pose
+                        object_pose_methods[hypothesis] = (pose, False)
                         # undetected_segments.remove(detected_segment)
                         undetected_objects.remove(hypothesis)
 
             if self.debug:
                 obj_ids = []
                 poses = []
-                for obj_id, pose in object_poses.iteritems():
+                for obj_id, pose in object_pose_methods.iteritems():
                     obj_ids.append(obj_id)
                     poses.append(pose)
                 viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
                 imsave('detections.png', viz_img)
 
-            return object_poses
+            return object_pose_methods
 
         return assign_object_ids(data, hypothesis_names)
 
@@ -344,12 +343,12 @@ class APCDetector(object):
             json.dump(info, outfile)
 
     def run_pipeline(self, image_file, depth_file, transform_file, cubbyhole, hypothesis_names):
-        object_poses = self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments', 'detections',
-                                           '{}.h5'.format(self.calib_extracted), transform_file, cubbyhole,
-                                           hypothesis_names)
+        object_pose_methods = self.detect_scene(image_file, depth_file, 'cloud.pcd', 'segments',
+                                                'detections', '{}.h5'.format(self.calib_extracted),
+                                                transform_file, cubbyhole, hypothesis_names)
 
-        object_poses = {object_id: self.get_pose_matrix(pose)
-                        for object_id, pose in object_poses.iteritems()}
+        object_pose_methods = {object_id: (self.get_pose_matrix(pose_method[0]), pose_method[1])
+                               for object_id, pose_method in object_pose_methods.iteritems()}
 
         # Remove data
         check_call(['rm',
@@ -357,7 +356,7 @@ class APCDetector(object):
                     'features.h5',
                     'detection_out.json'])
 
-        return object_poses
+        return object_pose_methods
 
 
 class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
@@ -369,7 +368,7 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
     """
     patterns = ['*.json']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         super(NewCubbyholeRequestHandler, self).__init__()
 
         self.object_poses_directory = utils.OBJECT_POSES_DIR
@@ -378,7 +377,7 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
             self.ssh_object_poses_directory = '{}:{}'.format(utils.ROS_COMPUTER,
                                                              self.object_poses_directory)
 
-        self.apc_detector = APCDetector(*args, **kwargs)
+        self.apc_detector = APCDetector()
         self.thread = None
 
     def __enter__(self, *args, **kwargs):
@@ -421,7 +420,7 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
             return
 
         try:
-            object_poses = self.apc_detector.run_pipeline(image_file, depth_file, transform_file,
+            object_pose_methods = self.apc_detector.run_pipeline(image_file, depth_file, transform_file,
                                                           cubbyhole_dims, hypothesis_names)
         except CalledProcessError as e:
             print "Error in C++ code"
@@ -431,11 +430,13 @@ class NewCubbyholeRequestHandler(PatternMatchingEventHandler):
         transform = np.loadtxt(transform_file)
         print 'transform', transform
         object_poses_json = {}
-        for obj_id, pose in object_poses.iteritems():
+        for obj_id, pose_method in object_pose_methods.iteritems():
             pose_fix_transform = np.loadtxt(os.path.join(pose_fix_directory, '{}_pose.csv'.format(obj_id)),
                                             delimiter=',')
-            pose_fixed = np.linalg.inv(np.array(pose)) .dot(np.linalg.inv(pose_fix_transform))
+            pose_fixed = np.linalg.inv(np.array(pose_method[0])) .dot(np.linalg.inv(pose_fix_transform))
             transformed_pose = transform.dot(pose_fixed)
+            if not pose_method:
+                transformed_pose[:3, :3] = np.zeros((3, 3))
             object_poses_json[obj_id] = transformed_pose.tolist()
         object_poses_file = os.path.join(self.object_poses_directory,
                                          os.path.basename(event.src_path))
