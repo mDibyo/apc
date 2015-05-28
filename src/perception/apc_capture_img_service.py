@@ -80,10 +80,10 @@ class APCCaptureSceneService(ROSNode):
     def shutter(self, color_filename, depth_filename, cloud_filename):
         self.carmine.capture_depth(depth_filename)
         self.carmine.stop_depth_stream()
-        rospy.loginfo("Took depth")
+        rospy.logwarn("Took depth")
         self.carmine.capture_color(color_filename)
         self.carmine.start_depth_stream()
-        rospy.loginfo("Took carmine color")
+        rospy.logwarn("Took carmine color")
 
         self.carmine.save_cloud(cloud_filename)
         #
