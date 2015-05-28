@@ -17,25 +17,83 @@ from apc.msg import BinWorkOrder, ExecStatus
 from apc.srv import *
 import utils
 from strategy import parse_json
+from threading import Thread, Lock
 import time
 
 
+class PerceptionThread(Thread):
+    def __init__(self, bin_name, bin_contents):
+        super(PerceptionThread, self).__init__()
+
+        self.perception_request_dir = utils.PERCEPTION_REQUEST_DIR
+        self.ssh_perception_request_dir = None
+        if utils.COMPUTER != utils.PERCEPTION_COMPUTER:
+            self.ssh_perception_request_dir = \
+                '{}:{}'.format(utils.PERCEPTION_COMPUTER,
+                               self.perception_request_dir)
+
+        self.bin_name = bin_name
+        self.bin_contents = bin_contents
+        # self.target_object = target_object
+        self.timestamp = None
+
+    def run(self):
+        perception_request = {
+            "bin_name": self.bin_name,
+            "objects": self.bin_contents
+        }
+
+        APCController.PERCEPTION_LOCK.acquire()
+
+        self.timestamp = utils.datetime_now_string()
+        perception_file = osp.join(self.perception_request_dir,
+                                   '{}.json'.format(self.timestamp))
+
+        with open(perception_file, 'w') as f:
+            json.dump(perception_request, f)
+        if self.ssh_perception_request_dir is not None:
+            subprocess.check_call(['scp', perception_file,
+                                   self.ssh_perception_request_dir])
+
+        updated, error = False, False
+        i = 0
+        while not updated and not error:
+            response = self.get_obj_pose_client(self.bin_name, self.bin_contents[0])
+            if response.timestamp == self.timestamp:
+                updated = True
+
+            if not i % 10:
+                rospy.logwarn("waiting for perception: " + response.timestamp)
+            rospy.sleep(1.0)
+            i += 1
+
+            if i >= 30:
+                rospy.logwarn("took too long")
+                error = True
+
+        APCController.PERCEPTION_LOCK.release()
+        return error
+
+
 class APCController(ROSNode):
+    PERCEPTION_LOCK = Lock()
     def __init__(self, joint_trajectories_topic, exec_status_topic):
         super(APCController, self).__init__('apc_controller')
         self.work_order_sequence = None
+        self.bin_contents = None
 
+        # Perception
         self.perception_request_dir = utils.PERCEPTION_REQUEST_DIR
+        self.perception_request_threads = {}
         self.ssh_perception_request_dir = None
         if utils.COMPUTER != utils.PERCEPTION_COMPUTER:
             self.ssh_perception_request_dir = '{}:{}'.format(utils.PERCEPTION_COMPUTER,
                                                              self.perception_request_dir)
 
         self.joint_trajectories_topic = joint_trajectories_topic
+
         self.exec_status_topic = exec_status_topic
-
         self._robot_exec_status = None
-
 
         self.get_robot_state_client = rospy.ServiceProxy("/apc/get_latest_robot_state", GetLatestRobotState)
         self.look_at_bins_client = rospy.ServiceProxy("/apc/look_at_bins", LookAtBins)
@@ -139,47 +197,63 @@ class APCController(ROSNode):
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
 
-    def execute_perception(self, bin_name, target_object): 
-        perception_request = {
-            "bin_name": bin_name,
-            "objects": self.bin_contents[bin_name]
-        }
-        
-        timestamp = utils.datetime_now_string()
-        
-        perception_file = osp.join(self.perception_request_dir, '{}.json'.format(timestamp))
+    def execute_perception(self, bin_name):
+        if bin_name in self.perception_request_threads:
+            self.perception_request_threads[bin_name].join()
 
-        with open(perception_file, 'w') as f:
-            json.dump(perception_request, f)
-        if self.ssh_perception_request_dir is not None:
-            subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
-            
-        """
-        returned = False
-        i = 0; fname = osp.join(utils.OBJECT_POSES_DIR, bin_name + ".json")
-        while not returned:
-            returned = osp.isfile(fname)
-            if not i % 10:
-                rospy.logwarn("waiting for perception")
-            rospy.sleep(1.0)
-            i += 1
-        """
-        updated, err = False, False
-        i = 0
-        while not updated and not err:
-            response = self.get_obj_pose_client(bin_name, target_object)
-            if response.timestamp == timestamp:
-                updated = True    
-                
-            if not i % 10:
-                rospy.logwarn("waiting for perception: " + response.timestamp)
-            rospy.sleep(1.0)
-            i += 1
-            
-            if i >= 30:
-                rospy.logwarn("took too long")
-                err = True
-        return err
+        thread = PerceptionThread(bin_name,
+                                  self.bin_contents[bin_name])
+        thread.start()
+        self.perception_request_threads[bin_name] = thread
+
+    def ensure_perception(self, bin_name):
+        if bin_name not in self.perception_request_threads:
+            # We have never executed perception on this bin. Start now.
+            self.execute_perception(bin_name)
+
+        # Ensure perception has been completed
+        self.perception_request_threads[bin_name].join()
+
+        # perception_request = {
+        #     "bin_name": bin_name,
+        #     "objects": self.bin_contents[bin_name]
+        # }
+        #
+        # timestamp = utils.datetime_now_string()
+        #
+        # perception_file = osp.join(self.perception_request_dir, '{}.json'.format(timestamp))
+        #
+        # with open(perception_file, 'w') as f:
+        #     json.dump(perception_request, f)
+        # if self.ssh_perception_request_dir is not None:
+        #     subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
+        #
+        # """
+        # returned = False
+        # i = 0; fname = osp.join(utils.OBJECT_POSES_DIR, bin_name + ".json")
+        # while not returned:
+        #     returned = osp.isfile(fname)
+        #     if not i % 10:
+        #         rospy.logwarn("waiting for perception")
+        #     rospy.sleep(1.0)
+        #     i += 1
+        # """
+        # updated, err = False, False
+        # i = 0
+        # while not updated and not err:
+        #     response = self.get_obj_pose_client(bin_name, target_object)
+        #     if response.timestamp == timestamp:
+        #         updated = True
+        #
+        #     if not i % 10:
+        #         rospy.logwarn("waiting for perception: " + response.timestamp)
+        #     rospy.sleep(1.0)
+        #     i += 1
+        #
+        #     if i >= 30:
+        #         rospy.logwarn("took too long")
+        #         err = True
+        # return err
         
     def get_robot_state(self, manip):
         try:
@@ -222,7 +296,7 @@ if __name__ == '__main__':
     while len(controller.work_order_sequence) > 0:
         for order in controller.work_order_sequence:
             controller.current_order = order
-            err = controller.execute_perception(order["bin_name"], order['target_object'])
+            err = controller.execute_perception(order["bin_name"])
             if not err:
                 rightjoints = controller.get_robot_state("rightarm_torso")
                 leftjoints = controller.get_robot_state("leftarm_torso")
@@ -240,7 +314,7 @@ if __name__ == '__main__':
                 rospy.logwarn("perception failed on " + order["bin_name"])
                 
         if strategy == 'grasp':
-            strategy == 'hook':
+            strategy == 'hook'
         else:
             strategy == 'grasp'    
             

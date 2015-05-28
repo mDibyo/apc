@@ -22,7 +22,7 @@ from watchdog.events import PatternMatchingEventHandler
 
 
 #model_path = "/mnt/data_1/amazon_picking_challenge_models"
-model_path = "/mnt/data_1/test_models"
+# model_path = "/mnt/data_1/test_models"
 model_path = "/home/arjun/odp/code/detector/test_models"
 sift_path = os.path.join(model_path, "sift")
 color_path = os.path.join(model_path, "color")
@@ -292,9 +292,9 @@ class APCDetector(object):
             if self.debug:
                 obj_ids = []
                 poses = []
-                for obj_id, pose in object_pose_methods.iteritems():
+                for obj_id, pose_method in object_pose_methods.iteritems():
                     obj_ids.append(obj_id)
-                    poses.append(pose)
+                    poses.append(pose_method[0])
                 viz_img = APCDetector.viz_detections(image_path, obj_ids, poses, rgb_K)
                 imsave('detections.png', viz_img)
 
