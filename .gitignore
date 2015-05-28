@@ -72,5 +72,10 @@ src/apc/
 # Config files
 config.json
 
-# Cmake files
-src/perception/segShelf/CMakeFiles
+# segShelf handling
+src/perception/segShelf/
+!src/perception/segShelf/*.cpp
+!src/perception/segShelf/*.hpp
+!src/perception/segShelf/CmakeLists.txt
+
+

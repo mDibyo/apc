@@ -135,7 +135,9 @@ class APCController(ROSNode):
                 res = self.get_hook_plan_client(work_order)
             print res
             rospy.logwarn("Here too")
-            self.execute_motion_plan(res.motion_plan)
+            for mp in res.motion_plan:
+                self.execute_motion_plan(mp)
+                
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
 
@@ -153,17 +155,7 @@ class APCController(ROSNode):
             json.dump(perception_request, f)
         if self.ssh_perception_request_dir is not None:
             subprocess.check_call(['scp', perception_file, self.ssh_perception_request_dir])
-            
-        """
-        returned = False
-        i = 0; fname = osp.join(utils.OBJECT_POSES_DIR, bin_name + ".json")
-        while not returned:
-            returned = osp.isfile(fname)
-            if not i % 10:
-                rospy.logwarn("waiting for perception")
-            rospy.sleep(1.0)
-            i += 1
-        """
+          
         updated, err = False, False
         i = 0
         while not updated and not err:
@@ -190,7 +182,19 @@ class APCController(ROSNode):
             
     def get_startup_sequence(self):
         return self.look_at_bins_client([])
-
+        
+    def pickup_bin(self):
+        rightjoints = self.get_robot_state("rightarm_torso")
+        leftjoints = self.get_robot_state("leftarm_torso")
+        
+        work_order = BinWorkOrder('', 'pod_lowres', [], '',
+                                  leftjoints.joint_values,
+                                  rightjoints.base_pose, 'pick_up_bin')
+                                  
+        res = self.get_grasp_plan_client(work_order)
+        for mp in res.motion_plan:
+            self.execute_motion_plan(mp)
+        
 if __name__ == '__main__':
     controller = APCController('joint_trajectories', 'exec_status')
     controller.work_order_sequence, controller.bin_contents = parse_json(osp.join(utils.JSON_DIR, "apc.json"))
@@ -217,10 +221,12 @@ if __name__ == '__main__':
         print mp
         controller.execute_motion_plan(mp)
      
-    strategy = 'grasp'
-        
-    while len(controller.work_order_sequence) > 0:
+    for strategy in ['hook', 'grasp']:
         for order in controller.work_order_sequence:
+        
+            if strategy == 'hook':
+                controller.pickup_bin()
+        
             controller.current_order = order
             err = controller.execute_perception(order["bin_name"], order['target_object'])
             if not err:
@@ -228,7 +234,7 @@ if __name__ == '__main__':
                 leftjoints = controller.get_robot_state("leftarm_torso")
                 
                 work_order = BinWorkOrder(order['bin_name'],
-                                          'all_combined',
+                                          'pod_lowres',
                                           order['bin_contents'],
                                           order['target_object'],
                                           rightjoints.joint_values,
@@ -238,9 +244,11 @@ if __name__ == '__main__':
                 controller.execute_work_order(work_order)
             else:
                 rospy.logwarn("perception failed on " + order["bin_name"])
+                rospy.logwarn("adding target back to queue")
+                controller.work_order_sequence.append(controller.current_order)
                 
         if strategy == 'grasp':
-            strategy == 'hook':
+            strategy == 'hook'
         else:
             strategy == 'grasp'    
             

@@ -20,7 +20,7 @@ from apc.msg import MotionPlan
 from apc.srv import GetObjectPose, GetMotionPlan, GetMotionPlanResponse
 from ros_utils import ROSNode, fromPoseMsg
 from utils import FAKE, NEW_SHELF, MODEL_DIR, OBJ_MESH_DIR, MESH_DIRECTORY, \
-                  trajopt_request_template, timed, order_bin_pose
+                  trajopt_request_template, timed, order_bin_pose, drop_bin_pose
 from test_utils import *
 from message_wrappers import MotionPlanWrapper, JointTrajectoryWrapper
 
@@ -35,9 +35,13 @@ class APCPlannerService(ROSNode):
                            "_wrist_roll_joint"]
                            
     gripper_joint_name = "_gripper_l_finger_joint"        
+    
     waypoint_L = np.array([1.57,0.2,1.57,-.8,2,-1.57,-1.57])
 
     waypoint_R = np.array([-1.68, -0.35, -0.008, -1.53, -1.57, -2.02, 3.1])
+    
+    pickup_bin_start = np.array([ 1.87963349,  1.3823445 ,  1.0119    , -1.17227282,  2.97539337, -1.27516323,  2.49392547])
+    pickup_bin_end = np.array([ 1.32378987,  0.62894078,  1.3       , -1.46773524,  2.23295032, -1.72606248,  3.13967596])
 
     def __init__(self, update_rate, work_orders_topic, plan_type, shelf_name):
         super(APCPlannerService, self).__init__('plan_' + plan_type)
@@ -139,9 +143,9 @@ class APCPlannerService(ROSNode):
         """
         result = trajoptpy.OptimizeProblem(problem)
         traj = result.GetTraj()
-        if traj_is_safe(traj, self.robot):
-            return traj
-        return None
+        if fail_coll and not traj_is_safe(traj, self.robot):
+            return None
+        return traj
         
     def intr_trajectory(self, manip, start, end):
         return np.array([np.linspace(start[i], end[i], 10) for i in range(len(start))]).T
@@ -191,9 +195,6 @@ class APCPlannerService(ROSNode):
         trajectories.append([[0]])                 
                                                                                                                                                                                           
         trajectories.append(self.find_trajectory(manip, self.plan["grasp"]["joints"][1:], self.plan["postgrasp"]["joints"]))   
-        trajectories.append(self.find_trajectory(manip, self.plan["postgrasp"]["joints"], self.plan["drop"]["joints"]))  
-        trajectories.append([[0.54]])    
-           
            
         for i,ob in enumerate(objs):
             self.env.AddKinBody(ob)
@@ -207,9 +208,18 @@ class APCPlannerService(ROSNode):
         traj_wrap = self.replay(trajectories,8)
         if traj_wrap is None:
             return None  
-                                                                                                         
+                        
+        drop_traj = []
+        self.robot.SetTransform(drop_bin_pose)
+
+        drop_traj.append(self.find_trajectory(manip, self.plan["postgrasp"]["joints"], self.plan["drop"]["joints"]))  
+        trajectories.append([[0.54]]) 
+        drop_wrap = self.replay(drop_traj, 2)
+                                                                                                            
         self.motion_plan = MotionPlanWrapper(self.work_order.strategy, traj_wrap, self.plan["grasp"]["base"][:3,3], self.plan["grasp"]["joints"][0])   
-        return self.motion_plan.to_msg()
+        self.drop_plan = MotionPlanWrapper(self.work_order.strategy, drop_wrap, drop_bin_pose[:3,3], self.plan["grasp"]["joints"][0])   
+        
+        return [self.motion_plan.to_msg(), self.drop_plan.to_msg()]
            
     def find_motion_plan_hook(self):
         self.plan = {}
@@ -266,6 +276,51 @@ class APCPlannerService(ROSNode):
         self.motion_plan = MotionPlanWrapper(self.work_order.strategy, traj_wrap, base[:3,3], torso)   
         return self.motion_plan.to_msg()
         
+    
+    def find_pickup_bin_plan():
+        if self.plan_type == "grasp":     
+            """
+            
+            
+            pos, size = order_bin.ComputeAABB().pos(), order_bin.ComputeAABB().extents()
+
+            x = pos[0] - size[0]
+            y = pos[1]
+            z = pos[2] + size[2] - 0.05
+            
+            pose = np.array([0,0.7071,0.7071,0,x,y,z])
+
+            ikparam = rave.IkParameterization(pose, self.ik.ikmodel.iktype)
+            opt = rave.IkFilterOptions.CheckEnvCollisions
+            iksol = self.robot.GetManipulator('leftarm_torso').FindIKSolution(ikparam, opt)
+            """
+            T = drop_bin_pose.copy()
+            self.robot.SetTransform(T)
+            
+            trajectories = []
+            self.robot.SetDOFValues([0], [12])
+            trajectories.append([[0.54]])
+            trajectories.append(self.find_trajectory("leftarm", self.work_order.left_joints[1:], self.pickup_bin_start))
+            trajectories.append([[0]])
+            
+            motion_plans = []
+            
+            traj_wrap = self.replay(trajectories, 3)
+            if traj_wrap is None:
+                return None
+            motion_plans.append(MotionPlanWrapper(self.work_order.strategy, traj_wrap, T[:3,3], 0).to_msg())
+            
+            trajectories = []
+            T[0,3] = -1.5
+            self.robot.SetTransform(T)
+            self.robot.SetDOFValues([0.1], [12])
+            trajectories.append(self.intr_trajectories('leftarm', self.pickup_bin_start, self.pickup_bin_end))
+            
+            traj_wrap = self.replay_trajectories(trajectories, 2)
+            motion_plans.append(MotionPlanWrapper(self.work_order.strategy, traj_wrap, T[:3,3], 0.1).to_msg())
+            
+            return motion_plans
+            
     def replay(self, trajectories, numL=0):
         #raw_input("start replay?")
         traj_wrap = []
@@ -286,23 +341,36 @@ class APCPlannerService(ROSNode):
             traj_wrap.append(JointTrajectoryWrapper(joint_names, traj))    
         return traj_wrap
             
+                    
     def handle_get_motion_plan(self, req):
         """ Main method of service call. """
         self.work_order = req.work_order
-        self.update_state()
         
-        if self.no_perception:
-            rospy.logwarn("no perception")
-            msg = None  
-        elif self.plan_type == "grasp":
-            msg = self.find_motion_plan_grasp()
-        elif self.plan_type == "hook":
-            msg = self.find_motion_plan_hook()
-         
-        if msg is not None:
-            return GetMotionPlanResponse(msg)
+        msgs = []
+        
+        if self.work_order.strategy != 'pick_up_bin':
+            self.update_state()
+
+            if self.no_perception:
+                rospy.logwarn("no perception")
+                msg = None  
+                
+            elif self.plan_type == "grasp":
+                msg_lst = self.find_motion_plan_grasp()
+                if len(msg_lst) >= 2:
+                    msgs.extend(msg_lst)
+                    
+            elif self.plan_type == "hook":
+                msg = self.find_motion_plan_hook()
+                if msg is not None:
+                    msgs.append(msg)
         else:
-            return GetMotionPlanResponse(MotionPlanWrapper("failed", [], [], 0).to_msg())
+            msgs = self.find_pickup_bin_plan()
+                
+        if len(msgs) > 0:
+            return GetMotionPlanResponse(msgs)
+        else:
+            return GetMotionPlanResponse([MotionPlanWrapper("failed", [], [], 0).to_msg()])
  
  
  
@@ -376,5 +444,5 @@ class APCPlannerService(ROSNode):
         self.robot.SetTransform(world_to_robot)
         
 if __name__ == '__main__':
-    with APCPlannerService(10, "work_orders", "hook", "pod_lowres") as self:
-        self.spin()
+    with APCPlannerService(10, "work_orders", "hook", "pod_lowres") as hook:
+        hook.spin()
